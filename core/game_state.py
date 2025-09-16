@@ -25,13 +25,14 @@ class Game_State:
         pass
 
     def add_card_field(self, card):
-        self.held_card.pop(card)
-        self.field_card.append(card)
-        return f"the monster has {card} summon on the field"
+        if card in self.held_card:
+            self.held_card.remove(card)
+            self.field_card.append(card)
+            return f"the monster has {card} summon on the field"
 
     def add_grave_yard(self, card):
         if card in self.field_card:
-            self.field_card.pop(card)
+            self.field_card.remove(card)
             self.grave_yard.append(card)
             return f"monster in the grave yard: {card}"
     
