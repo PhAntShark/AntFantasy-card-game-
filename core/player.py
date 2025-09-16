@@ -1,13 +1,13 @@
-from card import Card
-
+import random
 
 class Player:
-    def __init__( self, held_cards, grave_yard, field_cards, player_index, life_points=5000, name = None, player_summon = False):  # argument MUST front of parameter
+    def __init__( self, deck, held_cards, grave_yard, field_cards, player_index, life_points=5000, name = None, player_summon = False):  # argument MUST front of parameter
         self.player_index = player_index
         self.life_points = life_points
         self.held_cards = []
         self.grave_yard = []
         self.field_cards = []
+        self.deck = []
         self.player_summon = player_summon
         self.name = name if name else f'Player {player_index}'
         
@@ -17,6 +17,20 @@ class Player:
             print('you draw the card')
         else:
             return "your card on hand is full"
+    
+    def draw_random_card(self):
+        if self.deck and len (self.held_cards) < 15:
+            card = random.choice(self.deck)
+            self.deck.remove(card)
+            self.held_cards.append(card)
+            print(f'{self.name} drew {card.name}')
+            
+    @staticmethod
+    def first_game_turn_draw(players):
+        for player in players:
+            for _ in range(5):
+                player.draw_random_card()
+            
 
     def player_card(self):
         return {
@@ -40,7 +54,7 @@ class Player:
             self.grave_yard.append(card)
 
     def change_mon_pos(self, card, attacker, defender, pos="attack"):
-        {"action": "attack", "attack": attacker, "defender": defender}
+        #{"action": "attack", "attack": attacker, "defender": defender}
         if card in self.field_cards:
             card.set_pos(pos)
             return {"action": "change_position", "card": card.name, "new_pos": pos}
