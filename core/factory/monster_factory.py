@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
-from cards.monsterCard import MonsterCard
-from player import Player
+from core.cards.monster_card import MonsterCard
+from core.player import Player
 
 
 class CardFactory:

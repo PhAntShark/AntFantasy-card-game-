@@ -1,7 +1,8 @@
-from card import Card
-from player import Player
+from core.cards.card import Card
+from core.player import Player
+from typing import Literal
 
-cardMode = "attack" | "defense"
+cardMode = Literal["attack", "defense"]
 
 
 class MonsterCard(Card):
@@ -15,24 +16,24 @@ class MonsterCard(Card):
                  level_star: int = 1,
                  mode: cardMode = 'attack'
                  ):
-        super().__init__(name, description, "monster", ability)
+        super().__init__(name, description, "monster", ability, owner)
         self.atk = attack_points
         self.defend = defense_points
         self.level_star = level_star
         self.mode = mode  # 'attack' or 'defense'
-        self.owner = owner  # Player object
         self.is_summoned = False
         self.is_alive = True
 
     def __str__(self):
         return f"Name: {self.name} \
+                Owner: {self.owner} \
                 ATK: {self.atk} \
                 DEF: {self.defend} \
-                Star: {self.level_star} \
+                Star: {self.level_star}\
                 Mode: {self.mode} \
-                Type: {self.card_type}"
+                Type: {self.type}"
 
     def switch_position(self):
         """Change the card mode to either attack or defense."""
         self.mode = 'defense' if self.mode == 'attack' else 'attack'
-        print(f"{self.name} switched to {self.pos} position.")
+        print(f"{self.name} switched to {self.mode} position.")

@@ -1,16 +1,18 @@
-from player import Player
+from typing import List
+
+from core.cards.card import Card
+from core.cards.monster_card import MonsterCard
+from core.player import Player
 from game_state import GameState
-from turn_manager import TurnManager
 from rule_engine import RuleEngine
-from cards.monster_card import MonsterCard
-from cards.card import Card
+from turn_manager import TurnManager
 
 
 class GameEngine:
     def __init__(self, players: list[Player]):
         self.game_state = GameState(players)
         self.turn_manager = TurnManager(players)
-        self.rule_engine = RuleEngine(self.game_state)
+        self.rule_engine = RuleEngine(self.game_state, self.turn_manager)
         self.players = players
 
     def draw_card(self, player: Player):
@@ -22,10 +24,11 @@ class GameEngine:
         print(f"{player.name} cannot draw a card now.")
         return False
 
-    def summon_card(self, player: Player, card: Card):
+    def summon_card(self, player: Player, card: Card, pos: List[int, int]):
         """Player summons a card from hand if allowed"""
-        if self.rule_engine.can_summon(player, card):
+        if self.rule_engine.can_summon(player, card, self.game_state.field_matrix, pos):
             player.summon(card)
+            self.game_state.modify_field("add", card, pos)
             print(f"{player.name} summoned {card.name}.")
             return True
         print(f"{player.name} cannot summon {card.name}.")
@@ -37,16 +40,17 @@ class GameEngine:
                card: MonsterCard,
                target: MonsterCard | Player):
         if self.rule_engine.can_attack(attacker, defender, card, target):
-            self.resolve_battle(attacker, defender, target, card)
+            self.resolve_battle(attacker, target, card)
             return True
         print(f"{card.name} cannot attack {
-              target.name if isinstance(target, Player) else target.name}.")
+        target.name if isinstance(target, Player) else target.name}.")
         return False
 
-    def resolve_battle(self,
-                       attacker: Player,
-                       card: MonsterCard,
-                       target: MonsterCard | Player):
+    @staticmethod
+    def resolve_battle(
+            attacker: Player,
+            card: MonsterCard,
+            target: MonsterCard | Player):
         """Resolve a battle between a card and a target (card or player)"""
         if isinstance(target, MonsterCard):
             defender = target.owner
@@ -56,13 +60,13 @@ class GameEngine:
                     defender.life_points -= damage
                     defender.add_grave_yard(target)
                     print(f"{target.name} destroyed! {
-                          defender.name} loses {damage} LP")
+                    defender.name} loses {damage} LP")
                 elif card.atk < target.atk:
                     damage = abs(target.atk - card.atk)
                     attacker.life_points -= damage
                     attacker.add_grave_yard(card)
                     print(f"{card.name} destroyed! {
-                          attacker.name} loses {damage} LP")
+                    attacker.name} loses {damage} LP")
                 else:
                     attacker.add_grave_yard(card)
                     defender.add_grave_yard(target)
@@ -84,16 +88,18 @@ class GameEngine:
 
     def end_turn(self):
         """End current player's turn"""
-        self.turn_manager.next_turn()
+        self.turn_manager.end_turn()
         # self.game_state.next_turn()
         print(f"Turn {self.turn_manager.turn_count} ended.")
 
-    def buff_effect(self, card: MonsterCard, buff_value: int):
+    @staticmethod
+    def buff_effect(card: MonsterCard, buff_value: int):
         """Apply a buff to a card"""
         card.atk += buff_value
         print(f"{card.name} gains {buff_value} ATK.")
 
-    def debuff_effect(self, card: MonsterCard, debuff_value: int):
+    @staticmethod
+    def debuff_effect(card: MonsterCard, debuff_value: int):
         """Apply a debuff to a card"""
         card.atk -= debuff_value
         print(f"{card.name} loses {debuff_value} ATK.")

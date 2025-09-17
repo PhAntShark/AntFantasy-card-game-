@@ -37,7 +37,8 @@ class DragArrow:
         # Draw arrowhead
         self.draw_arrowhead(surface, self.end_pos, self.start_pos, 15, 7, self.color)
 
-    def draw_stripe_line(self, surface, start, end, color, width):
+    @staticmethod
+    def draw_stripe_line(surface, start, end, color, width):
         # Draw a dashed line as stripes
         total_length = math.hypot(end[0]-start[0], end[1]-start[1])
         if total_length <= 0:
@@ -52,7 +53,8 @@ class DragArrow:
             y2 = start[1] + dy*(i+1)*dash_length
             pygame.draw.line(surface, color, (x1, y1), (x2, y2), width)
 
-    def draw_arrowhead(self, surface, tip, tail, length=15, width=7, color=(0, 255, 0)):
+    @staticmethod
+    def draw_arrowhead(surface, tip, tail, length=15, width=7, color=(0, 255, 0)):
         angle = math.atan2(tip[1]-tail[1], tip[0]-tail[0])
         left = (tip[0] - length*math.cos(angle) + width*math.sin(angle),
                 tip[1] - length*math.sin(angle) - width*math.cos(angle))

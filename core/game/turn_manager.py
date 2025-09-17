@@ -1,4 +1,4 @@
-from player import Player
+from core.player import Player
 
 
 class TurnManager:
@@ -18,7 +18,7 @@ class TurnManager:
               self.get_current_player().player_index}')
 
     def end_turn(self):
-        print(f" Player {self.current_player().player_index} Turn Ends ")
+        print(f" Player {self.get_current_player().player_index} Turn Ends ")
         self.current_player_index = self.get_next_player_index()
         self.turn_count += 1
 

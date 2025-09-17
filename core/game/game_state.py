@@ -1,7 +1,10 @@
 from typing import List, Dict
-from player import Player
+from core.player import Player
 from turn_manager import TurnManager
-# from cards.card import Card
+from core.cards.card import Card
+from typing import Literal
+
+modifyMode = Literal["add", "remove"]
 
 
 class GameState:
@@ -22,16 +25,13 @@ class GameState:
         # Game over state
         self.game_over = False
 
+        self.field_matrix = []
+        for _ in range(4):
+            self.field_matrix.append([None for _ in range(4)])
+
     def add_to_chain(self, effect: Dict):
         """Add an effect to the global chain"""
         self.chain.append(effect)
-
-    def resolve_chain(self):
-        """Resolve all effects in LIFO order"""
-        while self.chain:
-            effect = self.chain.pop()
-            # effect resolution logic goes here
-            self.log.append(f"Resolved effect: {effect}")
 
     def get_winner(self) -> Player | None:
         """Return the winning player if the game is over"""
@@ -46,3 +46,9 @@ class GameState:
             self.game_over = True
             print(f"Game over! {player.name} lost.")
         return self.game_over
+
+    def modify_field(self, mode: modifyMode, card: Card, pos: List[int, int]):
+        if mode == "add":
+            self.field_matrix[pos[1]][pos[0]] = card
+        else:
+            self.field_matrix[pos[1]][pos[0]] = None
