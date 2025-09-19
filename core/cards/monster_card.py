@@ -14,13 +14,16 @@ class MonsterCard(Card):
                  attack_points: int = 0,
                  defense_points: int = 0,
                  level_star: int = 1,
-                 mode: cardMode = 'attack'
+                 mode: cardMode = 'attack',
+                image_path: str | None = None,
+                **kwargs,
                  ):
-        super().__init__(name, description, "monster", ability, owner)
+        super().__init__(name, description, "monster", ability, owner, **kwargs)
         self.atk = attack_points
         self.defend = defense_points
         self.level_star = level_star
         self.mode = mode  # 'attack' or 'defense'
+        self.image_path = image_path
         self.is_summoned = False
         self.is_alive = True
 
