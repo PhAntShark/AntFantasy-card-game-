@@ -1,6 +1,6 @@
 import pygame
-from core.card import Card
-from pathlib import Path
+# from core.cards.card import Card
+# from pathlib import Path
 from core.arrow import DragArrow
 
 pygame.init()
@@ -9,15 +9,15 @@ clock = pygame.time.Clock()
 running = True
 dt = 0
 
-bd_path = Path("./assets/card1.jpg")
-blue_dragon = Card("dragon", 'dragon', 'fire ball', (100, 100), (0,0), bd_path)
-blue_dragon2 = Card("dragon", 'dragon', 'fire ball', (100, 100), (300,300), bd_path)
+# bd_path = Path("./assets/card1.jpg")
+# blue_dragon = Card("dragon", 'dragon', 'fire ball', (100, 100), (0,0), bd_path)
+# blue_dragon2 = Card("dragon", 'dragon', 'fire ball', (100, 100), (300,300), bd_path)
 
     
 
 all_sprites = pygame.sprite.Group() 
-all_sprites.add(blue_dragon)
-all_sprites.add(blue_dragon2)
+# all_sprites.add(blue_dragon)
+# all_sprites.add(blue_dragon2)
 
 
 
@@ -42,7 +42,7 @@ while running:
     pygame.display.flip()
 
     # limits FPS to 60
-    # dt is delta time in seconds since last frame, used for framerate-
+    # dt is delta time in seconds since last frame, used for frame rate
     # independent physics.
     dt = clock.tick(60) / 1000
 
