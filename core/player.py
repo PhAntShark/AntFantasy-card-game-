@@ -11,7 +11,8 @@ class Player:
                  held_cards: List[Card],
                  grave_yard_cards: List[Card],
                  life_points: int = 5000,
-                 has_summoned: bool = False
+                 has_summoned: bool = False,
+                 is_opponent: bool = False
                  ):
         self.player_index = player_index
         self.name = name
@@ -22,6 +23,7 @@ class Player:
         self.deck_cards = deck_cards
 
         self.has_summoned = has_summoned
+        self.is_opponent = is_opponent
 
     def __str__(self):
         return f"Name: {self.name} \

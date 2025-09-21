@@ -15,8 +15,8 @@ class MonsterCard(Card):
                  defense_points: int = 0,
                  level_star: int = 1,
                  mode: cardMode = 'attack',
-                image_path: str | None = None,
-                **kwargs,
+                 image_path: str | None = None,
+                 **kwargs,
                  ):
         super().__init__(name, description, "monster", ability, owner, **kwargs)
         self.atk = attack_points

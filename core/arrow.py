@@ -1,6 +1,7 @@
 import pygame
 import math
 
+
 class DragArrow:
     def __init__(self, color=(0, 255, 0), stripe_color=(0, 200, 0), stripe_width=5):
         self.start_pos = None
@@ -29,13 +30,16 @@ class DragArrow:
 
         if self.dragging:
             # Draw dashed / stripe line while dragging
-            self.draw_stripe_line(surface, self.start_pos, self.end_pos, self.stripe_color, self.stripe_width)
+            self.draw_stripe_line(
+                surface, self.start_pos, self.end_pos, self.stripe_color, self.stripe_width)
         else:
             # Draw normal solid line when released
-            pygame.draw.line(surface, self.color, self.start_pos, self.end_pos, 3)
+            pygame.draw.line(surface, self.color,
+                             self.start_pos, self.end_pos, 3)
 
         # Draw arrowhead
-        self.draw_arrowhead(surface, self.end_pos, self.start_pos, 15, 7, self.color)
+        self.draw_arrowhead(surface, self.end_pos,
+                            self.start_pos, 15, 7, self.color)
 
     @staticmethod
     def draw_stripe_line(surface, start, end, color, width):

@@ -13,12 +13,10 @@ dt = 0
 # blue_dragon = Card("dragon", 'dragon', 'fire ball', (100, 100), (0,0), bd_path)
 # blue_dragon2 = Card("dragon", 'dragon', 'fire ball', (100, 100), (300,300), bd_path)
 
-    
 
-all_sprites = pygame.sprite.Group() 
+all_sprites = pygame.sprite.Group()
 # all_sprites.add(blue_dragon)
 # all_sprites.add(blue_dragon2)
-
 
 
 drag_arrow = DragArrow()
@@ -32,10 +30,10 @@ while running:
         drag_arrow.handle_event(event)
 
     screen.fill((30, 30, 30))
-    
+
     all_sprites.update()
     all_sprites.draw(screen)
-    
+
     drag_arrow.draw(screen)
 
     # flip() the display to put your work on screen
@@ -47,6 +45,3 @@ while running:
     dt = clock.tick(60) / 1000
 
 pygame.quit()
-
-
-

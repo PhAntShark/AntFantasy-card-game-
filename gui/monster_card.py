@@ -1,12 +1,14 @@
 from core.cards.monster_card import MonsterCard as LogicMonsterCard
 from gui.sprite import Sprite
 from typing import Tuple
-from core.player import Player 
+from core.player import Player
 from core.cards.monster_card import cardMode
 from pathlib import Path
 from pygame.draw import rect
+from .draggable import Draggable
 
-class MonsterCard(LogicMonsterCard, Sprite):
+
+class MonsterCard(LogicMonsterCard, Sprite, Draggable):
     def __init__(
         self,
         name: str,
@@ -44,8 +46,10 @@ class MonsterCard(LogicMonsterCard, Sprite):
             image_path=image_path,
             **kwargs
         )
+
+        Draggable.__init__(self, self.rect)
         self.is_selected = False
-        
+
     def update(self):
         if self.is_selected:
             rect(self.image, (255, 255, 0), self.image.get_rect(), 3)
