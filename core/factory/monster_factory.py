@@ -1,34 +1,57 @@
+import random
 import json
 from pathlib import Path
-from core.cards.monster_card import MonsterCard
-from core.player import Player
+from gui.monster_card import MonsterCard
 
 
-class CardFactory:
-    DATA_FILE = Path("../../assets/data/monsterInfo.json")
+class MonsterFactory:
+    DATA_FILE = Path("./assets/data/monsterInfo.json")
+    _card_index = None
 
-    @staticmethod
-    def load(name: str, owner: Player):
-        """Load a single card by its unique name from the JSON file."""
-        if not CardFactory.DATA_FILE.exists():
-            raise FileNotFoundError(f"{CardFactory.DATA_FILE} not found")
+    def build(self):
+        """Load all cards into a lookup table."""
+        if not self.DATA_FILE.exists():
+            raise FileNotFoundError(f"{self.DATA_FILE} not found")
 
-        with open(CardFactory.DATA_FILE, "r", encoding="utf-8") as f:
+        with open(self.DATA_FILE, "r", encoding="utf-8") as f:
             data = json.load(f)
 
-        # Flatten all cards across all genres and subcategories
-        for category, cards in data.items():
-            for card in cards:
-                # TODO: turn this into a map later
-                if card.get("name") == name:
-                    return MonsterCard(
-                        name=card["name"],
-                        description=card.get("description", ""),
-                        owner=owner,
-                        attack_points=card.get("attack_points", 0),
-                        defense_points=card.get("defense_points", 0),
-                        level_star=card.get("level_star", 1)
-                    )
+        # Flatten and index by name
+        # TODO: utilize category attribute later on
+        self._card_index = {
+            card_info["name"]: card_info
+            for _, card_infos in data.items()
+            for card_info in card_infos
+            if card_info.get("texture") is not None
+        }
 
-        # If card not found
-        raise ValueError(f"Card '{name}' not found in {CardFactory.DATA_FILE}")
+    def load(self, player, size, name=None):
+        if self._card_index is None:
+            raise RuntimeError(
+                "MonsterFactory not initialized. Call build() first.")
+
+        if not name:
+            card_info = random.choice(list(self._card_index.values()))
+        else:
+            card_info = self._card_index.get(name)
+        if not card_info:
+            return None
+
+        path = Path("./assets" + card_info.get("texture", ""))
+        if not path.is_file():
+            # path = None  # Fallback, maybe use a placeholder
+            return
+
+        return MonsterCard(
+            name=card_info["name"],
+            description=card_info.get("description", ""),
+            owner=player,
+            image_path=path,
+            size=size,
+            attack_points=card_info.get("attack_points", 0),
+            defense_points=card_info.get("defense_points", 0),
+            level_star=card_info.get("level_star", 1)
+        )
+
+    def get_cards(self):
+        return self._card_index

@@ -1,4 +1,3 @@
-import pygame  # main pygame module
 from pygame.sprite import Sprite as PySprite  # if you want to use sprite groups
 from pygame.image import load    # to load images
 from pygame.transform import scale  # to resize images

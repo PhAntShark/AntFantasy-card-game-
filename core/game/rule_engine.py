@@ -1,9 +1,9 @@
 from core.game.turn_manager import TurnManager
-from game_state import GameState
+from .game_state import GameState
 from core.player import Player
 from core.cards.card import Card
 from core.cards.monster_card import MonsterCard
-from typing import List
+from typing import Tuple, List
 
 
 class RuleEngine:
@@ -21,7 +21,7 @@ class RuleEngine:
                    player: Player,
                    card: Card,
                    matrix: List[List[None | Card]],
-                   pos: List[int, int]):
+                   pos: Tuple[int, int]):
         current_player = self.game_state.turn_manager.get_current_player()
         return (
             current_player == player

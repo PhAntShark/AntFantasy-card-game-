@@ -1,12 +1,9 @@
 import pygame
-# from core.cards.card import Card
-# from pathlib import Path
-from core.arrow import DragArrow
-from gui.monster_card import MonsterCard
+# from core.arrow import DragArrow
 from core.player import Player
-from pathlib import Path
 from gui.matrix_field import Matrix
 from gui.game_control import GameControl
+from core.game.game_engine import GameEngine
 
 
 pygame.init()
@@ -17,50 +14,46 @@ dt = 0
 
 
 '''PLAYER FOR TESTING'''
-player = Player(0, 'Binh', [], [], [])
 
-all_sprites = pygame.sprite.Group()
+# Monster factory for generating new cards
 
-field = Matrix(screen)
-gc = GameControl(field)
+# Players creation
+player1 = Player(0, 'Binh', [], [], [])
+player2 = Player(1, 'An', [], [], [], is_opponent=True)
 
-bd_path = Path("./assets/card1.jpg")
-blue_dragon = MonsterCard('dragon', ' blue', player,
-                          (0, 0), (field.slot_width / 2, field.slot_height), bd_path, 'gay', 100, 150, 1)
+# Matrix field creation
+# TODO: fix this
+field_matrix = Matrix(screen, [player1, player2])
 
-all_sprites.add(blue_dragon)
+game_engine = GameEngine([player1, player2], field_matrix)
+for _ in range(5):
+    game_engine.draw_card(player1)
 
-
-drag_arrow = DragArrow()
+# Handle game control inputs
+game_control = GameControl(field_matrix)
 
 while running:
-    # poll for events
-    # pygame.QUIT event means the user clicked X to close your window
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-        # drag_arrow.handle_event(event)
-        for card in all_sprites.sprites():
+
+        # Handle card pick / drag / drop
+        for card in game_engine.sprite_group.sprites():
             card.handle_event(event)
 
     screen.fill((30, 30, 30))
 
-    field.draw()
+    for card in game_engine.sprite_group.sprites():
+        game_control.handle_drop(card)
 
-    all_sprites.update()
-    all_sprites.draw(screen)
+    field_matrix.draw()
 
-    drag_arrow.draw(screen)
+    game_engine.sprite_group.update()
+    game_engine.sprite_group.draw(screen)
 
-    for card in all_sprites.sprites():
-        gc.handle_drop(card)
-
-    # flip() the display to put your work on screen
     pygame.display.flip()
 
-    # limits FPS to 60
-    # dt is delta time in seconds since last frame, used for frame rate
-    # independent physics.
+    # Delta time for rate limit
     dt = clock.tick(60) / 1000
 
 pygame.quit()

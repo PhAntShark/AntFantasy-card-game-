@@ -31,19 +31,9 @@ class Player:
                  Hand: {self.held_cards} \
                  Graveyard: {self.grave_yard_cards}"
 
-    def draw_specific_card(self, card):
+    def draw_card(self, card):
+        # self.deck_cards.remove(card)
         self.held_cards.append(card)
-
-    def draw_random_card(self):
-        card = random.choice(self.deck_cards)
-        self.deck_cards.remove(card)
-        self.held_cards.append(card)
-
-    @staticmethod
-    def first_game_turn_draw(players):
-        for player in players:
-            for _ in range(5):
-                player.draw_random_card()
 
     def summon(self, card):
         self.held_cards.remove(card)

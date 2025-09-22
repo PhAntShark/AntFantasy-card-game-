@@ -1,30 +1,43 @@
-from typing import List
+from typing import Tuple
+from pygame.sprite import Group
 
 from core.cards.card import Card
 from core.cards.monster_card import MonsterCard
 from core.player import Player
-from game_state import GameState
-from rule_engine import RuleEngine
-from turn_manager import TurnManager
+from core.factory.monster_factory import MonsterFactory
+from .game_state import GameState
+from .rule_engine import RuleEngine
+from .turn_manager import TurnManager
 
 
 class GameEngine:
-    def __init__(self, players: list[Player]):
+    def __init__(self, players: list[Player], field_matrix):
         self.game_state = GameState(players)
         self.turn_manager = TurnManager(players)
         self.rule_engine = RuleEngine(self.game_state, self.turn_manager)
+
+        self.sprite_group = Group()
         self.players = players
+
+        self.monster_factory = MonsterFactory()
+        self.monster_factory.build()
+
+        self.field_matrix = field_matrix
 
     def draw_card(self, player: Player):
         """Player draws a card if allowed"""
         if self.rule_engine.can_draw(player):
-            player.draw_random_card()
-            print(f"{player.name} drew a card.")
+            card = self.monster_factory.load(
+                player, (self.field_matrix.grid["slot_width"] / 2,
+                         self.field_matrix.grid["slot_height"]))
+            player.draw_card(card)
+            self.field_matrix.hands["my_hand"].draw_cards()
+            self.sprite_group.add(card)
             return True
         print(f"{player.name} cannot draw a card now.")
         return False
 
-    def summon_card(self, player: Player, card: Card, pos: List[int, int]):
+    def summon_card(self, player: Player, card: Card, pos: Tuple[int, int]):
         """Player summons a card from hand if allowed"""
         if self.rule_engine.can_summon(player, card, self.game_state.field_matrix, pos):
             player.summon(card)
@@ -43,7 +56,7 @@ class GameEngine:
             self.resolve_battle(attacker, target, card)
             return True
         print(f"{card.name} cannot attack {
-        target.name if isinstance(target, Player) else target.name}.")
+            target.name if isinstance(target, Player) else target.name}.")
         return False
 
     @staticmethod
@@ -60,13 +73,13 @@ class GameEngine:
                     defender.life_points -= damage
                     defender.add_grave_yard(target)
                     print(f"{target.name} destroyed! {
-                    defender.name} loses {damage} LP")
+                        defender.name} loses {damage} LP")
                 elif card.atk < target.atk:
                     damage = abs(target.atk - card.atk)
                     attacker.life_points -= damage
                     attacker.add_grave_yard(card)
                     print(f"{card.name} destroyed! {
-                    attacker.name} loses {damage} LP")
+                        attacker.name} loses {damage} LP")
                 else:
                     attacker.add_grave_yard(card)
                     defender.add_grave_yard(target)

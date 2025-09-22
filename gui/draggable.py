@@ -2,7 +2,7 @@ import pygame
 
 
 class Draggable:
-    def __init__(self, dst: pygame.Rect, is_draggable:bool = True):
+    def __init__(self, dst: pygame.Rect, is_draggable: bool = True):
         self.dst = dst
         self.is_dragging = False
         self.is_dropped = False
@@ -25,7 +25,6 @@ class Draggable:
                     self.dst.y = event.pos[1] + self.dy
 
             elif event.type == pygame.MOUSEBUTTONUP:
-                if event.button == 1:
+                if event.button == 1 and self.is_dragging:
                     self.is_dragging = False
                     self.is_dropped = True
-                

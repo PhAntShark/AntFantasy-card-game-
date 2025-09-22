@@ -14,9 +14,9 @@ class MonsterCard(LogicMonsterCard, Sprite, Draggable):
         name: str,
         description: str,
         owner: Player,
-        pos: Tuple[float, float],
-        size: Tuple[float, float],
         image_path: str | Path,
+        pos: Tuple[float, float] = [0, 0],
+        size: Tuple[float, float] = [0, 0],
         ability: str | None = None,
         attack_points: int = 0,
         defense_points: int = 0,
@@ -52,7 +52,7 @@ class MonsterCard(LogicMonsterCard, Sprite, Draggable):
 
     def update(self):
         if self.is_selected:
-            rect(self.image, (255, 255, 0), self.image.get_rect(), 3)
+            rect(self.image, (255, 255, 0), self.rect, 3)
 
     def draw(self, surface):
         surface.blit(self.image, self.rect)

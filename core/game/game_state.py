@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import Tuple, Dict, List
 from core.player import Player
 from .turn_manager import TurnManager
 from core.cards.card import Card
@@ -47,7 +47,7 @@ class GameState:
             print(f"Game over! {player.name} lost.")
         return self.game_over
 
-    def modify_field(self, mode: modifyMode, card: Card, pos: List):
+    def modify_field(self, mode: modifyMode, card: Card, pos: Tuple[int, int]):
         if mode == "add":
             self.field_matrix[pos[1]][pos[0]] = card
         else:
