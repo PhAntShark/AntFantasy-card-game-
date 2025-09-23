@@ -14,7 +14,7 @@ class GameEngine:
     def __init__(self, players: list[Player], field_matrix):
         self.game_state = GameState(players)
         self.turn_manager = TurnManager(players)
-        self.rule_engine = RuleEngine(self.game_state, self.turn_manager)
+        self.rule_engine = RuleEngine(self.turn_manager)
 
         self.sprite_group = Group()
         self.players = players
@@ -23,6 +23,17 @@ class GameEngine:
         self.monster_factory.build()
 
         self.field_matrix = field_matrix
+
+    def give_init_cards(self, number: int):
+        for player in self.players:
+            for _ in range(number):
+                card = self.monster_factory.load(
+                    player, (self.field_matrix.grid["slot_width"] / 2,
+                             self.field_matrix.grid["slot_height"]))
+                player.draw_card(card)
+                self.field_matrix.hands["my_hand"].draw_cards()
+                self.field_matrix.hands["opponent_hand"].draw_cards()
+                self.sprite_group.add(card)
 
     def draw_card(self, player: Player):
         """Player draws a card if allowed"""
@@ -41,6 +52,7 @@ class GameEngine:
         """Player summons a card from hand if allowed"""
         if self.rule_engine.can_summon(player, card, self.game_state.field_matrix, pos):
             player.summon(card)
+            card.is_placed = True
             self.game_state.modify_field("add", card, pos)
             print(f"{player.name} summoned {card.name}.")
             return True

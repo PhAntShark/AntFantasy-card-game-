@@ -1,34 +1,36 @@
 from core.arrow import DragArrow
+import pygame
+
+
 class AttackControl:
-        def __init__(self, matrix, game_engine):
-                self.matrix = matrix
-                self.game_engine = game_engine
-                self.attacking_card = None
-                self.arrow = None
-                
-        def start_attack(self,card):
-                if card in self.matrix.get_slot_at_pos() and card.is_opponent == False and card in card.mode == 'attack':
-                        self.attacking_card = card
-                        self.arrow = DragArrow()
-                        self.arrow_start = card.rect.center
-                        self.arrow_end = card.rect.center
-        
+    def __init__(self, state, matrix):
+        self.state = state
+        self.matrix = matrix
+        self.arrow = DragArrow()
 
-        def update_attack(self, pos):
-                if self.arrow:
-                        self.arrow.end_pos = pos 
-        
-        # def release_attack(self,pos):
-        #         if self.arrow:
-        #                 if pos[0] in self.matrix.get_slot_at_pos[0,1]:
-        #                         .is_opponent == True
-                           
-                        
-                        
-        
-                        
+    def handle_attack(self, event):
+        # Problem: How to map GUI with game state matrix
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            pos = self.matrix.get_slot_at_pos(event.pos)  # row, col
+            if pos:
+                card = self.state.field_matrix[pos[0]][pos[1]]
+                if card and card.mode == "attack":
+                    self.arrow.dragging = True
+                    self.arrow.start_pos = card.rect.center
+                    self.arrow.end_pos = card.rect.center
 
-                
-        
-        
-                
+        elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
+            pos = self.matrix.get_slot_at_pos(event.pos)
+            if pos:
+                card = self.state.field_matrix[pos[0]][pos[1]]
+                if card and card.owner.is_opponent:
+                    self.arrow.dragging = False
+                    self.arrow.end_pos = card.rect.center
+                    return
+            self.arrow.dragging = False
+            self.arrow.end_pos = self.arrow.start_pos
+
+        self.arrow.handle_event(event)
+
+    def draw(self, surface):
+        self.arrow.draw(surface)

@@ -1,6 +1,5 @@
 from typing import Tuple, Dict, List
 from core.player import Player
-from .turn_manager import TurnManager
 from core.cards.card import Card
 from typing import Literal
 
@@ -10,7 +9,6 @@ modifyMode = Literal["add", "remove"]
 class GameState:
     def __init__(self, players: List[Player]):
         self.players: List[Player] = players
-        self.turn_manager: TurnManager = TurnManager(players)
 
         # Global effect stack (chain)
         # Each dict can store effect info, source card, targets, etc.
@@ -25,9 +23,10 @@ class GameState:
         # Game over state
         self.game_over = False
 
+        # TODO: make board size dynamic
         self.field_matrix = []
         for _ in range(4):
-            self.field_matrix.append([None for _ in range(4)])
+            self.field_matrix.append([None for _ in range(5)])
 
     def add_to_chain(self, effect: Dict):
         """Add an effect to the global chain"""
@@ -49,6 +48,6 @@ class GameState:
 
     def modify_field(self, mode: modifyMode, card: Card, pos: Tuple[int, int]):
         if mode == "add":
-            self.field_matrix[pos[1]][pos[0]] = card
+            self.field_matrix[pos[0]][pos[1]] = card
         else:
-            self.field_matrix[pos[1]][pos[0]] = None
+            self.field_matrix[pos[0]][pos[1]] = None

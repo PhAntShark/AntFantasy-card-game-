@@ -10,7 +10,7 @@ class Draggable:
         self.dx = 0
         self.dy = 0
 
-    def handle_event(self, event):
+    def handle_drag(self, event):
         if self.is_draggable == True:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1 and self.dst.collidepoint(event.pos):

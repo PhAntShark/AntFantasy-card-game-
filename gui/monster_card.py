@@ -6,6 +6,8 @@ from core.cards.monster_card import cardMode
 from pathlib import Path
 from pygame.draw import rect
 from .draggable import Draggable
+from pygame.transform import rotate
+import pygame
 
 
 class MonsterCard(LogicMonsterCard, Sprite, Draggable):
@@ -56,3 +58,19 @@ class MonsterCard(LogicMonsterCard, Sprite, Draggable):
 
     def draw(self, surface):
         surface.blit(self.image, self.rect)
+
+    def toggle_mode(self):
+        self.switch_position()
+        if self.mode == "defense":
+            self.image = rotate(self.image, 90)
+        else:
+            self.image = rotate(self.image, -90)
+
+    # TODO: only allow toggle to be used once per turn
+    # TODO: move handle toggle elsewhere
+    def handle_toggle(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 3:
+            print(self.is_placed)
+            if self.rect.collidepoint(event.pos) and self.is_placed:
+                # TODO: add player verification later
+                self.toggle_mode()

@@ -1,4 +1,3 @@
-import random
 from core.cards.card import Card
 from typing import List
 

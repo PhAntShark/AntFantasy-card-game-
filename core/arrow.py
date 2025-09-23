@@ -12,17 +12,12 @@ class DragArrow:
         self.stripe_width = stripe_width
 
     def handle_event(self, event):
-        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-            self.dragging = True
-            self.start_pos = event.pos
+        if event.type == pygame.MOUSEMOTION and self.dragging:
             self.end_pos = event.pos
 
-        elif event.type == pygame.MOUSEMOTION and self.dragging:
-            self.end_pos = event.pos
-
-        elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
-            self.dragging = False
-            self.end_pos = event.pos
+        # elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
+            # self.dragging = False
+            # self.end_pos = event.pos
 
     def draw(self, surface):
         if not self.start_pos or not self.end_pos:
