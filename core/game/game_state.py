@@ -23,7 +23,7 @@ class GameState:
         # Game over state
         self.game_over = False
 
-        # TODO: make board size dynamic
+        #TODO: make board size dynamic
         self.field_matrix = []
         for _ in range(4):
             self.field_matrix.append([None for _ in range(5)])
@@ -49,5 +49,9 @@ class GameState:
     def modify_field(self, mode: modifyMode, card: Card, pos: Tuple[int, int]):
         if mode == "add":
             self.field_matrix[pos[0]][pos[1]] = card
+            '''add set pos for card in matrix'''
+            card.pos_in_matrix = pos
         else:
+            '''clear pos when remove'''
             self.field_matrix[pos[0]][pos[1]] = None
+            card.pos_in_matrix = None

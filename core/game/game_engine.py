@@ -53,6 +53,7 @@ class GameEngine:
         if self.rule_engine.can_summon(player, card, self.game_state.field_matrix, pos):
             player.summon(card)
             card.is_placed = True
+            card.pos_in_matrix = pos
             self.game_state.modify_field("add", card, pos)
             print(f"{player.name} summoned {card.name}.")
             return True
@@ -65,17 +66,33 @@ class GameEngine:
                card: MonsterCard,
                target: MonsterCard | Player):
         if self.rule_engine.can_attack(attacker, defender, card, target):
-            self.resolve_battle(attacker, target, card)
+            self.resolve_battle(attacker, card, target )
             return True
         print(f"{card.name} cannot attack {
             target.name if isinstance(target, Player) else target.name}.")
         return False
 
-    @staticmethod
-    def resolve_battle(
+    
+    '''Move card to grave yard but visual and logic gg'''
+    def move_card_to_graveyard(self, card):
+        if card.pos_in_matrix:
+            self.game_state.modify_field("remove", card, card.pos_in_matrix)
+
+        # Move sprite visually
+        grave_rect = self.field_matrix.get_graveyard_rect(card.owner)
+        card.rect.center = grave_rect.center
+
+        # Add to logical graveyard
+        card.owner.add_grave_yard(card)
+        
+    def resolve_battle(self,
             attacker: Player,
             card: MonsterCard,
-            target: MonsterCard | Player):
+            target: MonsterCard | Player
+            ):
+        
+
+        
         """Resolve a battle between a card and a target (card or player)"""
         if isinstance(target, MonsterCard):
             defender = target.owner
@@ -83,22 +100,22 @@ class GameEngine:
                 if card.atk > target.atk:
                     damage = abs(card.atk - target.atk)
                     defender.life_points -= damage
-                    defender.add_grave_yard(target)
+                    self.move_card_to_graveyard(target)
                     print(f"{target.name} destroyed! {
                         defender.name} loses {damage} LP")
                 elif card.atk < target.atk:
                     damage = abs(target.atk - card.atk)
                     attacker.life_points -= damage
-                    attacker.add_grave_yard(card)
+                    self.move_card_to_graveyard(card)
                     print(f"{card.name} destroyed! {
                         attacker.name} loses {damage} LP")
                 else:
-                    attacker.add_grave_yard(card)
-                    defender.add_grave_yard(target)
+                    self.move_card_to_graveyard(card)
+                    self.move_card_to_graveyard(target)
                     print(f"Both {card.name} and {target.name} destroyed.")
             else:  # defense position
                 if card.atk > target.defend:
-                    defender.add_grave_yard(target)
+                    self.move_card_to_graveyard(target)
                     print(f"{target.name} destroyed in defense. No LP damage.")
                 elif card.atk < target.defend:
                     damage = abs(target.defend - card.atk)
@@ -116,6 +133,8 @@ class GameEngine:
         self.turn_manager.end_turn()
         # self.game_state.next_turn()
         print(f"Turn {self.turn_manager.turn_count} ended.")
+    
+
 
     @staticmethod
     def buff_effect(card: MonsterCard, buff_value: int):

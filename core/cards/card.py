@@ -1,4 +1,4 @@
-from typing import Literal
+from typing import Literal, Optional, Tuple
 
 cardType = Literal["monster", "spell", "trap"]
 
@@ -17,4 +17,5 @@ class Card:
         self.ability = ability
         self.type = ctype
         self.owner = owner
-        self.is_placed = False
+        self.is_placed = is_placed
+        self.pos_in_matrix: Optional[Tuple[int, int]] = None

@@ -72,5 +72,6 @@ class MonsterCard(LogicMonsterCard, Sprite, Draggable):
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 3:
             print(self.is_placed)
             if self.rect.collidepoint(event.pos) and self.is_placed:
+            #    if self.rule_engine.turn_manager.can_toggle():
                 # TODO: add player verification later
                 self.toggle_mode()

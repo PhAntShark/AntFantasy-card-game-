@@ -264,3 +264,10 @@ class Matrix:
                 return {"type": clean_name}
 
         return None
+    
+    def get_graveyard_rect(self, player):
+        """Return the pygame.Rect of the player's graveyard"""
+        if player.is_opponent:
+            return self.areas["opponent_graveyard"].rect
+        else:
+            return self.areas["my_graveyard"].rect

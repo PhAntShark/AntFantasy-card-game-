@@ -8,6 +8,7 @@ from typing import Tuple, List
 class RuleEngine:
     def __init__(self, turn_manager: TurnManager):
         self.turn_manager = turn_manager
+        self.is_toggle = False
 
     def can_draw(self, player):
         current_player = self.turn_manager.get_current_player()
@@ -58,3 +59,16 @@ class RuleEngine:
 
         # Checks if the target is the opponent (direct hit)
         return target == defender
+
+    def can_toggle(self):
+        return not self.is_toggle
+    
+    def used_toggle(self):
+        self.is_toggle == True
+    
+    def next_turn(self):
+        self.is_toggle == False             
+            
+            
+            
+

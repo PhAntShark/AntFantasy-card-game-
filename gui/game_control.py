@@ -7,7 +7,7 @@ class GameControl:
         if card.is_dropped:
             card.is_dropped = False
             pos = self.matrix.get_slot_at_pos(card.rect.center)
-
+                    
             if pos and card.owner:
                 # TODO: add handler for opponent also
                 if pos[0] in [2, 3] and card.owner.is_opponent == False:
