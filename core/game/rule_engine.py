@@ -8,7 +8,9 @@ from typing import Tuple, List
 class RuleEngine:
     def __init__(self, turn_manager: TurnManager):
         self.turn_manager = turn_manager
-        self.is_toggle = False
+        # self.toggle_counts = {player: 0 for player in turn_manager.players}
+        self.has_toggle = {player: False for player in turn_manager.players}
+        # self.max_toggle = 2
 
     def can_draw(self, player):
         current_player = self.turn_manager.get_current_player()
@@ -60,15 +62,31 @@ class RuleEngine:
         # Checks if the target is the opponent (direct hit)
         return target == defender
 
-    def can_toggle(self):
-        return not self.is_toggle
+    # def can_toggle(self, player):
+    #     current_player_toggle_count = self.toggle_counts.get(player, 0)
+    #     return current_player_toggle_count < 2
+
+    # def used_toggle(self, player):
+    #     self.toggle_counts[player] = self.toggle_counts.get(player, 0) 
+    #     if self.toggle_counts[player] < 2:
+    #         self.toggle_counts[player] +=1
+            
+
+    # def next_turn(self):
+    #     current_player = self.turn_manager.get_current_player
+    #     self.toggle_counts[current_player] = 0 
+    #     self.turn_manager.end_turn()
     
-    def used_toggle(self):
-        self.is_toggle == True
     
+    def can_toggle(self, player):
+        return not self.has_toggled.get(player, False)
+
+    def used_toggle(self, player):
+        self.has_toggled[player] = True
+
     def next_turn(self):
-        self.is_toggle == False             
-            
-            
+        # Reset toggles for all players at the start of a new turn
+        self.has_toggled = {player: False for player in self.turn_manager.players}
+        self.turn_manager.end_turn()
             
 
