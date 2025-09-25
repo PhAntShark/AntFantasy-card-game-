@@ -24,8 +24,11 @@ class MonsterCard(LogicMonsterCard, Sprite, Draggable):
         defense_points: int = 0,
         level_star: int = 1,
         mode: cardMode = 'attack',
+        rule_engine = None,
         **kwargs
     ):
+        
+        self.rule_engine = rule_engine
         # Initialize the logic part of the card
         LogicMonsterCard.__init__(
             self,
@@ -39,6 +42,7 @@ class MonsterCard(LogicMonsterCard, Sprite, Draggable):
             mode=mode,
             **kwargs
         )
+    
 
         # Initialize the visual part of the card
         Sprite.__init__(
@@ -51,6 +55,7 @@ class MonsterCard(LogicMonsterCard, Sprite, Draggable):
 
         Draggable.__init__(self, self.rect)
         self.is_selected = False
+        
 
     def update(self):
         if self.is_selected:
@@ -61,17 +66,31 @@ class MonsterCard(LogicMonsterCard, Sprite, Draggable):
 
     def toggle_mode(self):
         self.switch_position()
-        if self.mode == "defense":
-            self.image = rotate(self.image, 90)
+        if not self.rule_engine:
+            print('djt me cuoc doi')
+            return
+        if self.rule_engine.can_toggle(self.owner):
+            
+            if self.mode == "defense":
+                self.image = rotate(self.image, 90)
+            else:
+                self.image = rotate(self.image, -90)
+            
+            self.rule_engine.used_toggle(self.owner)
         else:
-            self.image = rotate(self.image, -90)
+            print('no more turn for you fucking nigaga')
+
 
     # TODO: only allow toggle to be used once per turn
     # TODO: move handle toggle elsewhere
     def handle_toggle(self, event):
+        if not self.rule_engine:
+            print("Error: RuleEngine is not assigned to this card!")
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 3:
             print(self.is_placed)
-            if self.rect.collidepoint(event.pos) and self.is_placed:
-            #    if self.rule_engine.turn_manager.can_toggle():
+            if self.rect.collidepoint(event.pos) and self.is_placed and self.rule_engine.can_toggle(self.owner):
+            #    if self.rule_engine.can_toggle(self.owner):
+                   self.toggle_mode()
+                   self.rule_engine.used_toggle(self.owner)
                 # TODO: add player verification later
-                self.toggle_mode()
+                
