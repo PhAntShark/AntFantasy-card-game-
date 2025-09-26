@@ -61,11 +61,12 @@ class RuleEngine:
         # Checks if the target is the opponent (direct hit)
         return target == defender
 
-    def can_toggle(self, player):
+    def can_toggle(self, player, card):
+        if self.turn_manager.get_current_player() != player:
+            return False
+        if card.owner != player:
+            return False
         return not self.game_state.player_info[player]["has_toggled"]
-
-    def used_toggle(self, player):
-        self.has_toggled[player] = True
 
     def next_turn(self):
         # Reset toggles for all players at the start of a new turn

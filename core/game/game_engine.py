@@ -35,9 +35,10 @@ class GameEngine:
         return False
 
     def toggle_card(self, card):
-        if self.rule_engine.can_toggle(card.owner):
+        if self.rule_engine.can_toggle(card.owner, card):
             card.switch_position()
             self.game_state.player_info[card.owner]["has_toggled"] = True
+            
 
     def summon_card(self, player: Player, card: Card, cell: Tuple[int, int]):
         """Player summons a card from hand if allowed"""
@@ -107,9 +108,10 @@ class GameEngine:
 
     def end_turn(self):
         """End current player's turn"""
-        self.turn_manager.end_turn()
+        if self.turn_manager.end_turn():
+            self.turn_manager.turn_count +=1
         # self.game_state.next_turn()
-        print(f"Turn {self.turn_manager.turn_count} ended.")
+            print(f"Turn {self.turn_manager.turn_count} ended.")
 
     @staticmethod
     def buff_effect(card: MonsterCard, buff_value: int):

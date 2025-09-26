@@ -48,11 +48,12 @@ while running:
         if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
             game_engine.turn_manager.end_turn()
 
-    screen.fill((30, 30, 30))
+    screen.fill((30, 30, 3e0))
 
     render_engine.update(game_engine.game_state, field_matrix)
     render_engine.draw()
-    field_matrix.draw()
+    input_manager.draw(screen)
+    field_matrix.draw() 
 
     pygame.display.flip()
 
