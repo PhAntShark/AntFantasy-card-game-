@@ -1,7 +1,7 @@
 import random
 import json
 from pathlib import Path
-from gui.monster_card import MonsterCard
+from core.cards.monster_card import MonsterCard
 
 
 class MonsterFactory:
@@ -25,7 +25,7 @@ class MonsterFactory:
             if card_info.get("texture") is not None
         }
 
-    def load(self, player, size, name=None):
+    def load(self, player, name=None):
         if self._card_index is None:
             raise RuntimeError(
                 "MonsterFactory not initialized. Call build() first.")
@@ -47,7 +47,6 @@ class MonsterFactory:
             description=card_info.get("description", ""),
             owner=player,
             image_path=path,
-            size=size,
             attack_points=card_info.get("attack_points", 0),
             defense_points=card_info.get("defense_points", 0),
             level_star=card_info.get("level_star", 1)

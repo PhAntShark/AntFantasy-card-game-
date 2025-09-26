@@ -1,5 +1,4 @@
 from typing import Tuple
-from pygame.sprite import Group
 
 from core.cards.card import Card
 from core.cards.monster_card import MonsterCard
@@ -11,50 +10,44 @@ from .turn_manager import TurnManager
 
 
 class GameEngine:
-    def __init__(self, players: list[Player], field_matrix):
+    def __init__(self, players: list[Player]):
         self.game_state = GameState(players)
-        self.turn_manager = TurnManager(players)
-        self.rule_engine = RuleEngine(self.turn_manager)
+        self.turn_manager = TurnManager(self.game_state)
+        self.rule_engine = RuleEngine(self.game_state, self.turn_manager)
 
-        self.sprite_group = Group()
         self.players = players
 
         self.monster_factory = MonsterFactory()
         self.monster_factory.build()
 
-        self.field_matrix = field_matrix
-
     def give_init_cards(self, number: int):
         for player in self.players:
             for _ in range(number):
-                card = self.monster_factory.load(
-                    player, (self.field_matrix.grid["slot_width"] / 2,
-                             self.field_matrix.grid["slot_height"]))
-                player.draw_card(card)
-                self.field_matrix.hands["my_hand"].draw_cards()
-                self.field_matrix.hands["opponent_hand"].draw_cards()
-                self.sprite_group.add(card)
+                self.draw_card(player, check=False)
 
-    def draw_card(self, player: Player):
+    def draw_card(self, player: Player, check=True):
         """Player draws a card if allowed"""
-        if self.rule_engine.can_draw(player):
-            card = self.monster_factory.load(
-                player, (self.field_matrix.grid["slot_width"] / 2,
-                         self.field_matrix.grid["slot_height"]))
-            player.draw_card(card)
-            self.field_matrix.hands["my_hand"].draw_cards()
-            self.sprite_group.add(card)
+        if not check or self.rule_engine.can_draw(player):
+            card = self.monster_factory.load(player)
+            self.game_state.player_info[player]["held_cards"].add(card)
             return True
         print(f"{player.name} cannot draw a card now.")
         return False
 
-    def summon_card(self, player: Player, card: Card, pos: Tuple[int, int]):
+    def toggle_card(self, card):
+        if self.rule_engine.can_toggle(card.owner):
+            card.switch_position()
+            self.game_state.player_info[card.owner]["has_toggled"] = True
+
+    def summon_card(self, player: Player, card: Card, cell: Tuple[int, int]):
         """Player summons a card from hand if allowed"""
-        if self.rule_engine.can_summon(player, card, self.game_state.field_matrix, pos):
-            player.summon(card)
+        if self.rule_engine.can_summon(player, card, self.game_state.field_matrix, cell):
+            self.game_state.player_info[player]["held_cards"].remove(card)
+            self.game_state.player_info[player]["has_summoned"] = True
+            self.game_state.modify_field("add", card, cell)
             card.is_placed = True
-            card.pos_in_matrix = pos
-            self.game_state.modify_field("add", card, pos)
+            # TODO: the fuck does this do
+            card.pos_in_matrix = cell
             print(f"{player.name} summoned {card.name}.")
             return True
         print(f"{player.name} cannot summon {card.name}.")
@@ -66,33 +59,17 @@ class GameEngine:
                card: MonsterCard,
                target: MonsterCard | Player):
         if self.rule_engine.can_attack(attacker, defender, card, target):
-            self.resolve_battle(attacker, card, target )
+            self.resolve_battle(attacker, card, target)
             return True
         print(f"{card.name} cannot attack {
             target.name if isinstance(target, Player) else target.name}.")
         return False
 
-    
-    '''Move card to grave yard but visual and logic gg'''
-    def move_card_to_graveyard(self, card):
-        if card.pos_in_matrix:
-            self.game_state.modify_field("remove", card, card.pos_in_matrix)
-
-        # Move sprite visually
-        grave_rect = self.field_matrix.get_graveyard_rect(card.owner)
-        card.rect.center = grave_rect.center
-
-        # Add to logical graveyard
-        card.owner.add_grave_yard(card)
-        
     def resolve_battle(self,
-            attacker: Player,
-            card: MonsterCard,
-            target: MonsterCard | Player
-            ):
-        
-
-        
+                       attacker: Player,
+                       card: MonsterCard,
+                       target: MonsterCard | Player
+                       ):
         """Resolve a battle between a card and a target (card or player)"""
         if isinstance(target, MonsterCard):
             defender = target.owner
@@ -133,8 +110,6 @@ class GameEngine:
         self.turn_manager.end_turn()
         # self.game_state.next_turn()
         print(f"Turn {self.turn_manager.turn_count} ended.")
-    
-
 
     @staticmethod
     def buff_effect(card: MonsterCard, buff_value: int):

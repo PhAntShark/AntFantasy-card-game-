@@ -44,7 +44,7 @@ class AttackControl:
 #         self.matrix = matrix
 #         self.arrow = DragArrow()
 #         self.attacking_card = None
-        
+
 
 #     def handle_attack(self, event):
 #         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:

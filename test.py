@@ -2,9 +2,10 @@ import pygame
 # from core.arrow import DragArrow
 from core.player import Player
 from gui.matrix_field import Matrix
-from gui.game_control import GameControl
 from core.game.game_engine import GameEngine
-from gui.attack_control import AttackControl
+# from gui.attack_control import AttackControl
+from core.game.render_engine import RenderEngine
+from core.game.input_manager import InputManager
 
 
 pygame.init()
@@ -19,55 +20,39 @@ dt = 0
 # Monster factory for generating new cards
 
 # Players creation
-player1 = Player(0, 'Binh', [], [], [])
-player2 = Player(1, 'An', [], [], [], is_opponent=True)
+player1 = Player(0, 'Binh')
+player2 = Player(1, 'An', is_opponent=True)
 
-# Matrix field creation
-# TODO: fix this
-field_matrix = Matrix(screen, [player1, player2])
 
-game_engine = GameEngine([player1, player2], field_matrix)
+game_engine = GameEngine([player1, player2])
 game_engine.give_init_cards(5)
 
-# Handle game control inputs
-game_control = GameControl(field_matrix, game_engine)
+render_engine = RenderEngine(screen)
+# Matrix field creation
+# TODO: fix this
+field_matrix = Matrix(screen, game_engine.game_state)
 
-attack_control = AttackControl(game_engine.game_state, field_matrix)
+# attack_control = AttackControl(game_engine.game_state, field_matrix)
 
-# TODO: remove placeholder later
-# game_engine.summon_card(player2, player2.held_cards[0], [0, 0])
+input_manager = InputManager(field_matrix, game_engine, render_engine)
 
-# print(game_engine.game_state.field_matrix)
-card = player2.held_cards[0]
-player2.summon(card)
-card.is_placed = True
-game_engine.game_state.modify_field("add", card, (0, 0))
-rect = field_matrix.get_slot_rect(0, 0)
-card.rect.center = rect.center
-field_matrix.hands["opponent_hand"].draw_cards()
 
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
 
-        # Handle card pick / drag / drop
-        for card in game_engine.sprite_group.sprites():
-            card.handle_drag(event)
-            card.handle_toggle(event)
+        input_manager.handle_event(event)
 
-        attack_control.handle_attack(event)
+        # TODO: change this with a real turn end button
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+            game_engine.turn_manager.end_turn()
 
     screen.fill((30, 30, 30))
 
-    for card in game_engine.sprite_group.sprites():
-        game_control.handle_drop(card)
-
+    render_engine.update(game_engine.game_state, field_matrix)
+    render_engine.draw()
     field_matrix.draw()
-    attack_control.draw(screen)
-
-    game_engine.sprite_group.update()
-    game_engine.sprite_group.draw(screen)
 
     pygame.display.flip()
 
@@ -75,3 +60,8 @@ while running:
     dt = clock.tick(60) / 1000
 
 pygame.quit()
+
+
+# TODO: allow only one monster card to be toggled per turn
+# TODO: handle resolve battle (cards disappear after fight)
+# TODO: complete turn phase flow (full)

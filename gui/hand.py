@@ -1,21 +1,26 @@
-from pygame import Rect
-from pygame import draw
+from gui.game_area import GameArea
 
 
-class Hand:
-    def __init__(self, x, y, w, h, color, lwidth, player):
-        self.rect = Rect(x, y, w, h)
-        self.color = color
-        self.lwidth = lwidth
+class CollectionInfo:
+    def __init__(self, cards, player):
+        self.cards = cards
         self.player = player
 
-    def draw(self, screen):
-        self.draw_outline(screen)
+    def add(self, card):
+        self.cards.append(card)
 
-    def draw_outline(self, screen):
-        draw.rect(screen, self.color, self.rect, self.lwidth)
+    def remove(self, card):
+        self.cards.remove(card)
 
-    def draw_cards(self):
-        for index, card in enumerate(self.player.held_cards):
-            card.rect.topleft = (self.rect.x + index *
-                                 card.rect.w, self.rect.y)
+
+class HandUI(GameArea):
+    def __init__(self, hand_info, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.hand_info = hand_info
+
+    def align(self, sprites):
+        for index, card_info in enumerate(self.hand_info.cards):
+            card = sprites.get(card_info, None)
+            if card:
+                card.rect.topleft = (self.rect.x + index *
+                                     card.rect.w, self.rect.y)

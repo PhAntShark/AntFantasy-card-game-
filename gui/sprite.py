@@ -9,6 +9,7 @@ class Sprite(PySprite):
         PySprite.__init__(self)
         self.image = load(image_path).convert_alpha()
         self.image = scale(self.image, size)
+        self.original_image = self.image
 
         self.rect = self.image.get_rect()
         self.rect.x = pos[0]

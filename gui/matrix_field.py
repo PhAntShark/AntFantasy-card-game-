@@ -1,56 +1,24 @@
 import pygame
-from gui.hand import Hand
-
-
-class GameAreaConfig:
-    """Configuration constants for the game layout"""
-    # Layout ratios
-    LEFT_RATIO = 0.06
-    RIGHT_RATIO = 0.06
-    BOTTOM_RATIO = 0.18
-    TOP_RATIO = 0.18
-
-    # Spacing constants
-    AREA_PADDING = 10
-    AREA_BORDER_WIDTH = 2
-    GRID_LINE_WIDTH = 2
-
-    # Colors
-    GRID_COLOR = (255, 255, 255)
-    PLAYER_COLOR = (100, 100, 255)
-    OPPONENT_COLOR = (255, 100, 100)
-
-
-class GameArea:
-    """Represents a rectangular game area with position and dimensions"""
-
-    def __init__(self, x, y, width, height, color=None, border_width=2):
-        self.rect = pygame.Rect(x, y, width, height)
-        self.color = color
-        self.border_width = border_width
-
-    def draw(self, screen):
-        if self.color:
-            pygame.draw.rect(screen, self.color, self.rect, self.border_width)
-
-    def contains_point(self, pos):
-        return self.rect.collidepoint(pos)
+from gui.game_area import GameArea, GameAreaConfig
+from gui.hand import HandUI
 
 
 class Matrix:
-    def __init__(self, screen, players, rows=4, cols=5):
+    def __init__(self, screen, game_state, rows=4, cols=5):
         self.screen = screen
         self.rows = rows
         self.cols = cols
-        self.players = players
+        self.game_state = game_state
         self.config = GameAreaConfig()
 
         # Initialize areas (will be updated in update_dimensions)
         self.areas = {}
-        self.hands = {}
 
         self.update_dimensions()
-        self._create_hands()
+
+        # TODO: refactor this area part
+        self.hands = [self.areas["my_hand_area"],
+                      self.areas["opponent_hand_area"]]
 
     def update_dimensions(self):
         """Calculate all dimensions and create game areas"""
@@ -134,10 +102,12 @@ class Matrix:
                 area_dims['grave_width'], area_dims['top_height'],
                 self.config.OPPONENT_COLOR, self.config.AREA_BORDER_WIDTH
             ),
-            'opponent_hand_area': GameArea(
+            'opponent_hand_area': HandUI(
+                self.game_state.player_info[self.game_state.players[1]
+                                            ]["held_cards"],
                 self.grid['origin_x'], padding,
                 self.grid['width'], margins['top'] - (2 * padding),
-                None, 0  # Hand will draw itself
+                self.config.OPPONENT_COLOR, self.config.AREA_BORDER_WIDTH
             ),
 
             # Player areas (bottom)
@@ -152,34 +122,15 @@ class Matrix:
                 area_dims['grave_width'], area_dims['bottom_height'],
                 self.config.PLAYER_COLOR, self.config.AREA_BORDER_WIDTH
             ),
-            'my_hand_area': GameArea(
+            'my_hand_area': HandUI(
+                self.game_state.player_info[self.game_state.players[0]
+                                            ]["held_cards"],
                 self.grid['origin_x'],
                 screen_height - margins['bottom'] + padding,
                 self.grid['width'], area_dims['bottom_height'],
-                None, 0  # Hand will draw itself
+                self.config.PLAYER_COLOR, self.config.AREA_BORDER_WIDTH
             )
         }
-
-    def _create_hands(self):
-        """Create hand objects for players"""
-        if len(self.players) >= 2:
-            # Player hand (bottom)
-            my_area = self.areas['my_hand_area']
-            self.hands['my_hand'] = Hand(
-                my_area.rect.x, my_area.rect.y,
-                my_area.rect.width, my_area.rect.height,
-                self.config.PLAYER_COLOR, self.config.AREA_BORDER_WIDTH,
-                self.players[0]
-            )
-
-            # Opponent hand (top)
-            opp_area = self.areas['opponent_hand_area']
-            self.hands['opponent_hand'] = Hand(
-                opp_area.rect.x, opp_area.rect.y,
-                opp_area.rect.width, opp_area.rect.height,
-                self.config.OPPONENT_COLOR, self.config.AREA_BORDER_WIDTH,
-                self.players[1]
-            )
 
     def draw(self):
         """Draw the entire game matrix"""
@@ -187,7 +138,7 @@ class Matrix:
 
         self._draw_grid()
         self._draw_areas()
-        self._draw_hands()
+        # self._draw_hands()
 
     def _draw_grid(self):
         """Draw the playing field grid"""
@@ -216,8 +167,7 @@ class Matrix:
     def _draw_areas(self):
         """Draw all game areas except hands"""
         for area_name, area in self.areas.items():
-            if not area_name.endswith('_hand_area'):  # Skip hand areas
-                area.draw(self.screen)
+            area.draw(self.screen)
 
     def _draw_hands(self):
         """Draw player hands"""
@@ -264,10 +214,3 @@ class Matrix:
                 return {"type": clean_name}
 
         return None
-    
-    def get_graveyard_rect(self, player):
-        """Return the pygame.Rect of the player's graveyard"""
-        if player.is_opponent:
-            return self.areas["opponent_graveyard"].rect
-        else:
-            return self.areas["my_graveyard"].rect

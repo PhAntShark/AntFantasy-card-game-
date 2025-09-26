@@ -2,6 +2,8 @@ from typing import Tuple, Dict, List
 from core.player import Player
 from core.cards.card import Card
 from typing import Literal
+from gui.hand import CollectionInfo
+
 
 modifyMode = Literal["add", "remove"]
 
@@ -9,6 +11,16 @@ modifyMode = Literal["add", "remove"]
 class GameState:
     def __init__(self, players: List[Player]):
         self.players: List[Player] = players
+
+        self.player_info = {player:
+                            {
+                                "has_summoned": False,
+                                "has_toggled": False,
+                                "held_cards": CollectionInfo([], player),
+                                "graveyard_cards": CollectionInfo([], player),
+                                "deck_cards": CollectionInfo([], player),
+                            }
+                            for player in players}
 
         # Global effect stack (chain)
         # Each dict can store effect info, source card, targets, etc.
@@ -23,10 +35,17 @@ class GameState:
         # Game over state
         self.game_over = False
 
-        #TODO: make board size dynamic
+        # TODO: make board size dynamic
         self.field_matrix = []
         for _ in range(4):
             self.field_matrix.append([None for _ in range(5)])
+
+        # TODO: refactor this later
+        self.field_matrix_ownership = []
+        for _ in range(2):
+            self.field_matrix_ownership.append([players[1] for _ in range(5)])
+        for _ in range(2):
+            self.field_matrix_ownership.append([players[0] for _ in range(5)])
 
     def add_to_chain(self, effect: Dict):
         """Add an effect to the global chain"""
