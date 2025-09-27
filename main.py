@@ -59,6 +59,10 @@ while running:
 
     # Delta time for rate limit
     dt = clock.tick(60) / 1000
+    
+    if game_engine.game_state.is_game_over():
+        pygame.time.wait(1000)  # pause to show message
+        running = False
 
 pygame.quit()
 
