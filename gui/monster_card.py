@@ -54,8 +54,6 @@ class MonsterCard(Sprite, Draggable):
         if cell and self.monster_info.owner:
             if game_engine.game_state.field_matrix_ownership[cell[0]][cell[1]] == self.monster_info.owner:
                 if game_engine.summon_card(self.monster_info.owner, self.monster_info, cell):
-                    slot_rect = matrix.get_slot_rect(*cell)
-                    self.rect.center = slot_rect.center
                     self.is_draggable = False
 
         self.is_selected = False

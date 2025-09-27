@@ -12,7 +12,7 @@ from .turn_manager import TurnManager
 class GameEngine:
     def __init__(self, players: list[Player]):
         self.game_state = GameState(players)
-        self.turn_manager = TurnManager(self.game_state)
+        self.turn_manager = TurnManager(self, self.game_state)
         self.rule_engine = RuleEngine(self.game_state, self.turn_manager)
 
         self.players = players
@@ -38,7 +38,6 @@ class GameEngine:
         if self.rule_engine.can_toggle(card.owner, card):
             card.switch_position()
             self.game_state.player_info[card.owner]["has_toggled"] = True
-            
 
     def summon_card(self, player: Player, card: Card, cell: Tuple[int, int]):
         """Player summons a card from hand if allowed"""
@@ -65,6 +64,12 @@ class GameEngine:
         print(f"{card.name} cannot attack {
             target.name if isinstance(target, Player) else target.name}.")
         return False
+
+    def move_card_to_graveyard(self, card):
+        self.game_state.modify_field("remove", card, card.pos_in_matrix)
+        self.game_state.player_info[card.owner]["graveyard_cards"].add(card)
+        print(self.game_state.field_matrix)
+        print(self.game_state.player_info[card.owner]["graveyard_cards"].cards)
 
     def resolve_battle(self,
                        attacker: Player,
@@ -109,7 +114,7 @@ class GameEngine:
     def end_turn(self):
         """End current player's turn"""
         if self.turn_manager.end_turn():
-            self.turn_manager.turn_count +=1
+            self.turn_manager.turn_count += 1
         # self.game_state.next_turn()
             print(f"Turn {self.turn_manager.turn_count} ended.")
 

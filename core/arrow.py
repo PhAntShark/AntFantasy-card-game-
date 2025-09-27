@@ -10,6 +10,7 @@ class DragArrow:
         self.color = color
         self.stripe_color = stripe_color
         self.stripe_width = stripe_width
+        self.targets = [None, None]
 
     def handle_event(self, event):
         if event.type == pygame.MOUSEMOTION and self.dragging:

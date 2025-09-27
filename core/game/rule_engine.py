@@ -15,7 +15,7 @@ class RuleEngine:
         current_player = self.turn_manager.get_current_player()
         return (
             current_player == player
-            and len(player.held_cards) < 15)
+            and len(self.game_state.player_info[player]["held_cards"].cards) < 15)
 
     def can_summon(self,
                    player: Player,
@@ -44,6 +44,9 @@ class RuleEngine:
                    card: MonsterCard,
                    target: MonsterCard | Player):
         current_player = self.turn_manager.get_current_player()
+        # if card.has_attacked:
+            # return False
+
         if current_player != attacker:
             return False
 
