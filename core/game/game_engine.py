@@ -57,7 +57,8 @@ class GameEngine:
                attacker: Player,
                defender: Player,
                card: MonsterCard,
-               target: MonsterCard | Player):
+               target: MonsterCard | Player
+               ):
         if self.rule_engine.can_attack(attacker, defender, card, target):
             self.resolve_battle(attacker, card, target)
             return True
@@ -74,8 +75,9 @@ class GameEngine:
     def resolve_battle(self,
                        attacker: Player,
                        card: MonsterCard,
-                       target: MonsterCard | Player
+                       target: MonsterCard | Player,
                        ):
+        print(f'this {card} has attack this turn')
         """Resolve a battle between a card and a target (card or player)"""
         if isinstance(target, MonsterCard):
             defender = target.owner
@@ -110,6 +112,10 @@ class GameEngine:
             damage = card.atk
             target.life_points -= damage
             print(f"Direct attack! {target.name} loses {damage} LP.")
+        card.has_attack  = True
+        
+        
+        
 
     def end_turn(self):
         """End current player's turn"""

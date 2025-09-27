@@ -16,6 +16,7 @@ class MonsterCard(Card):
                  level_star: int = 1,
                  mode: cardMode = 'attack',
                  image_path: str | None = None,
+                 has_attack = False,
                  **kwargs,
                  ):
         super().__init__(name, description, "monster", ability, owner, **kwargs)
@@ -26,6 +27,7 @@ class MonsterCard(Card):
         self.image_path = image_path
         self.is_summoned = False
         self.is_alive = True
+        self.has_attack = has_attack
 
     def __str__(self):
         return f"Name: {self.name} \
@@ -40,3 +42,4 @@ class MonsterCard(Card):
         """Change the card mode to either attack or defense."""
         self.mode = 'defense' if self.mode == 'attack' else 'attack'
         print(f"{self.name} switched to {self.mode} position.")
+

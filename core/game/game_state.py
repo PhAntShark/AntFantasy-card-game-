@@ -66,7 +66,7 @@ class GameState:
             if player.life_points <= 0:
                 self.game_over = True
                 print(f"Game over! {player.name} lost.")
-        return 
+        return self.game_over
 
     def modify_field(self, mode: modifyMode, card: Card, pos: Tuple[int, int]):
         if mode == "add":
