@@ -5,6 +5,7 @@ from typing import Literal
 from gui.hand import CollectionInfo
 
 
+
 modifyMode = Literal["add", "remove"]
 
 
@@ -58,12 +59,14 @@ class GameState:
             return alive_players[0]
         return None
 
-    def is_game_over(self, player: Player):
+    def is_game_over(self):
         """Check if a player's life points reached 0"""
-        if player.life_points <= 0:
-            self.game_over = True
-            print(f"Game over! {player.name} lost.")
-        return self.game_over
+        for player in self.players:
+            print(player.life_points)
+            if player.life_points <= 0:
+                self.game_over = True
+                print(f"Game over! {player.name} lost.")
+        return 
 
     def modify_field(self, mode: modifyMode, card: Card, pos: Tuple[int, int]):
         if mode == "add":
