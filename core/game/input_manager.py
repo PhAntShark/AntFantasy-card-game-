@@ -9,7 +9,7 @@ class InputManager:
         self.dragging_card = None
         self.drag_arrow = None
         self.render_engine = render_engine
-        self.hand = None
+        
 
     def handle_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
@@ -31,15 +31,13 @@ class InputManager:
                 self.dragging_card = None
                 self.render_engine.align_cards(self.matrix)
             self._handle_release_arrow(event.pos)
-            self._handle_left_click_player_hit_box(event.pos)
 
     def _handle_left_click(self, pos):
         # Check hands from top-most first
         for hand in reversed(self.matrix.hands):
             for card_info in hand.hand_info.cards:
                 card = self.render_engine.sprites["hand"][card_info]
-                if (card.rect.collidepoint(pos)
-                        and card.is_draggable):
+                if card.rect.collidepoint(pos) and card.is_draggable:
                     self.dragging_card = card
                     card.on_drag_start()
                     return  # stop after first draggable card is
@@ -47,21 +45,47 @@ class InputManager:
     def _handle_release_arrow(self, pos):
         if self.drag_arrow and self.drag_arrow.dragging:
             self.drag_arrow.dragging = False
+            # Checking for cards in field matrix
             for row in self.game_engine.game_state.field_matrix:
                 for card_info in row:
                     if not card_info:
                         continue
                     card = self.render_engine.sprites["matrix"][card_info]
-                    if (card.rect.collidepoint(pos)
-                            and card_info.owner != self.drag_arrow.targets[0].owner):
+                    if (
+                        card.rect.collidepoint(pos)
+                        and card_info.owner != self.drag_arrow.targets[0].owner
+                    ):
                         self.drag_arrow.end_pos = card.rect.center
-                        self.drag_arrow.targets[1] = card_info and self.game_engine.resolve_battle(
+                        self.drag_arrow.targets[1] = card_info
+                        self.game_engine.resolve_battle(
                             self.game_engine.turn_manager.get_current_player(),
                             self.drag_arrow.targets[0],
-                            self.drag_arrow.targets[1]
+                            self.drag_arrow.targets[1],
                         )
                         break
+            # Checking for player hitbox
+            self._handle_arrow_drop_player_hitbox(pos)
             self.drag_arrow = None
+
+    def _handle_arrow_drop_player_hitbox(self, pos):
+        current_player_index = self.game_engine.turn_manager.current_player_index
+        
+        if current_player_index == 0:
+            opponent_hand = self.matrix.areas["opponent_hand_area"]
+        else:
+            opponent_hand = self.matrix.areas["my_hand_area"]
+            
+        if (opponent_hand.rect.collidepoint(pos)):
+            self.drag_arrow.end_pos = opponent_hand.rect.center
+            self.drag_arrow.targets[1] = self.game_engine.turn_manager.get_next_player()
+            self.game_engine.resolve_battle(
+                self.game_engine.turn_manager.get_current_player(),
+                self.drag_arrow.targets[0],
+                self.drag_arrow.targets[1],
+            )
+            
+            
+            
 
     def _handle_left_click_arrow(self, pos):
         for row in self.game_engine.game_state.field_matrix:
@@ -70,11 +94,14 @@ class InputManager:
                     continue
                 card = self.render_engine.sprites["matrix"][card_info]
                 # TODO: invoke the rule engine can_attack here
-                if (card.rect.collidepoint(pos)
-                        and card_info.mode == "attack"
-                        and card_info.owner == self.game_engine.turn_manager.get_current_player()): 
+                if (
+                    card.rect.collidepoint(pos)
+                    and card_info.mode == "attack"
+                    and card_info.owner
+                    == self.game_engine.turn_manager.get_current_player()
+                ):
                     self.drag_arrow = DragArrow()
-                    self.drag_arrow.targets[0] = card_info 
+                    self.drag_arrow.targets[0] = card_info
                     self.drag_arrow.start_pos = card.rect.center
                     self.drag_arrow.end_pos = card.rect.center
                     self.drag_arrow.dragging = True
@@ -90,57 +117,7 @@ class InputManager:
                 if card.rect.collidepoint(pos):
                     card.on_toggle(self.game_engine)
                     return  # stop after first card is toggled
- 
- 
-    def _handle_left_click_player_hit_box(self, pos):
-        self.hand = self.matrix.areas['my_hand_area'].rect
-        for row in self.game_engine.game_state.field_matrix:
-            
-                for card_info in row:
-                    if not card_info:
-                        continue
-                    card = self.render_engine.sprites["matrix"][card_info]
-                    if (card.rect.collidepoint(pos)
-                            and card_info.mode == "attack"
-                            and card_info.owner == self.game_engine.turn_manager.get_current_player()): 
-                            self.drag_arrow = DragArrow()
-                    self.drag_arrow.targets[0] = card_info 
-                    self.drag_arrow.start_pos = card.rect.center
-                    self.drag_arrow.end_pos = self.hand.rect.center
-                    self.drag_arrow.dragging = True
-        
-        if self.drag_arrow and self.drag_arrow.dragging:
-            self.drag_arrow.dragging = False
-            
-            
-            
-            for row in self.game_engine.game_state.field_matrix:
-                for card_info in row:
-                    if not card_info:
-                        continue
-                    for current_player in self.game_engine.turn_manager.get_current_player():
-            
-                        card = self.render_engine.sprites["matrix"][card_info]
-                        if  card.owner != current_player and card in self.matrix:
-                            if (card.rect.collidepoint(pos)
-                                and card_info.owner != self.drag_arrow.targets[0].owner
-                                ):
-                                self.drag_arrow.end_pos = card.rect.center
-                                self.drag_arrow.end_pos != self.hand.rect.center
-                                self.drag_arrow.targets[1] = card_info and self.game_engine.resolve_battle(
-                                self.game_engine.turn_manager.get_current_player(),
-                                self.drag_arrow.targets[0],
-                                self.drag_arrow.targets[1]
-                        )
-                                break
-                self.drag_arrow = None
-                        
-                    
-                
-                        
-                
+
     def draw(self, screen):
         if self.drag_arrow:
             self.drag_arrow.draw(screen)
-
-
