@@ -6,7 +6,7 @@
         "attack_points": 1000,
         "defense_points": 500,
         "level_star": 1,
-        "texture": "/images/cards/blue_eye_white_dragon.jpg"
+        "texture": "/images/cards/card.png"
       },
       {
         "name": "Scholar Binh",
@@ -14,7 +14,7 @@
         "attack_points": 500,
         "defense_points": 1000,
         "level_star": 1,
-        "texture": "/images/cards/blue_eye_white_dragon.jpg"
+        "texture": "/images/cards/card.png"
       },
       {
         "name": "Mage",

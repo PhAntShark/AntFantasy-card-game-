@@ -9,7 +9,6 @@ class InputManager:
         self.dragging_card = None
         self.drag_arrow = None
         self.render_engine = render_engine
-        
 
     def handle_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
@@ -57,8 +56,9 @@ class InputManager:
                     ):
                         self.drag_arrow.end_pos = card.rect.center
                         self.drag_arrow.targets[1] = card_info
-                        self.game_engine.resolve_battle(
+                        self.game_engine.attack(
                             self.game_engine.turn_manager.get_current_player(),
+                            self.game_engine.turn_manager.get_next_player(),
                             self.drag_arrow.targets[0],
                             self.drag_arrow.targets[1],
                         )
@@ -69,23 +69,22 @@ class InputManager:
 
     def _handle_arrow_drop_player_hitbox(self, pos):
         current_player_index = self.game_engine.turn_manager.current_player_index
-        
+
         if current_player_index == 0:
             opponent_hand = self.matrix.areas["opponent_hand_area"]
         else:
             opponent_hand = self.matrix.areas["my_hand_area"]
-            
+
         if (opponent_hand.rect.collidepoint(pos)):
             self.drag_arrow.end_pos = opponent_hand.rect.center
-            self.drag_arrow.targets[1] = self.game_engine.turn_manager.get_next_player()
-            self.game_engine.resolve_battle(
+            self.drag_arrow.targets[1] = self.game_engine.turn_manager.get_next_player(
+            )
+            self.game_engine.attack(
                 self.game_engine.turn_manager.get_current_player(),
+                self.game_engine.turn_manager.get_next_player(),
                 self.drag_arrow.targets[0],
                 self.drag_arrow.targets[1],
             )
-            
-            
-            
 
     def _handle_left_click_arrow(self, pos):
         for row in self.game_engine.game_state.field_matrix:

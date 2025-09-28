@@ -46,20 +46,20 @@ while running:
 
         # TODO: change this with a real turn end button
         if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-            game_engine.turn_manager.end_turn()
+            game_engine.end_turn()
 
     screen.fill((30, 30, 30))
 
     render_engine.update(game_engine.game_state, field_matrix)
     render_engine.draw()
     input_manager.draw(screen)
-    field_matrix.draw() 
+    field_matrix.draw()
 
     pygame.display.flip()
 
     # Delta time for rate limit
     dt = clock.tick(60) / 1000
-    
+
     if game_engine.game_state.is_game_over():
         pygame.time.wait(1000)  # pause to show message
         running = False

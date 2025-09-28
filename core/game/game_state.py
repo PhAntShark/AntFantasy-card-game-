@@ -5,7 +5,6 @@ from typing import Literal
 from gui.hand import CollectionInfo
 
 
-
 modifyMode = Literal["add", "remove"]
 
 
@@ -48,6 +47,8 @@ class GameState:
         for _ in range(2):
             self.field_matrix_ownership.append([players[0] for _ in range(5)])
 
+        self._player_cards = {player: [] for player in players}
+
     def add_to_chain(self, effect: Dict):
         """Add an effect to the global chain"""
         self.chain.append(effect)
@@ -62,7 +63,6 @@ class GameState:
     def is_game_over(self):
         """Check if a player's life points reached 0"""
         for player in self.players:
-            print(player.life_points)
             if player.life_points <= 0:
                 self.game_over = True
                 print(f"Game over! {player.name} lost.")
@@ -70,10 +70,17 @@ class GameState:
 
     def modify_field(self, mode: modifyMode, card: Card, pos: Tuple[int, int]):
         if mode == "add":
-            self.field_matrix[pos[0]][pos[1]] = card
             '''add set pos for card in matrix'''
+            self.field_matrix[pos[0]][pos[1]] = card
+            self._player_cards[card.owner].append(card)
             card.pos_in_matrix = pos
         else:
             '''clear pos when remove'''
-            self.field_matrix[pos[0]][pos[1]] = None
+            card = self.field_matrix[pos[0]][pos[1]]
+            if card is not None:
+                self._player_cards[card.owner].remove(card)
             card.pos_in_matrix = None
+            self.field_matrix[pos[0]][pos[1]] = None
+
+    def get_player_cards(self, player):
+        return self._player_cards[player]

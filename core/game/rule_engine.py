@@ -13,6 +13,7 @@ class RuleEngine:
 
     def can_draw(self, player):
         current_player = self.turn_manager.get_current_player()
+        print(player, current_player)
         return (
             current_player == player
             and len(self.game_state.player_info[player]["held_cards"].cards) < 10)
@@ -45,7 +46,7 @@ class RuleEngine:
                    target: MonsterCard | Player,
                    ):
         current_player = self.turn_manager.get_current_player()
-            
+
         if current_player != attacker:
             return False
 
@@ -55,18 +56,16 @@ class RuleEngine:
 
         if card.mode != "attack":
             return False
-        
-        if card.has_attack == False:
-            print(f"dont be like that  YOU BLYATTTTTTTTTTTTTTTTTTTTT")
+
+        if card.has_attack:
             return False
-        
 
         # Checks if target is a monster card on opponent side
         if isinstance(target, MonsterCard):
             return target.owner == defender
 
-        # Checks if the target is the opponent (direct hit)
-        return target == defender
+        # Check when target is the opponent player (direct hit)
+        return len(self.game_state.get_player_cards(defender)) <= 0 and target == defender
 
     def can_toggle(self, player, card):
         if self.turn_manager.get_current_player() != player:

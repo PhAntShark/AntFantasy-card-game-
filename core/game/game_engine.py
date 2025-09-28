@@ -12,7 +12,7 @@ from .turn_manager import TurnManager
 class GameEngine:
     def __init__(self, players: list[Player]):
         self.game_state = GameState(players)
-        self.turn_manager = TurnManager(self, self.game_state)
+        self.turn_manager = TurnManager(self.game_state)
         self.rule_engine = RuleEngine(self.game_state, self.turn_manager)
 
         self.players = players
@@ -59,6 +59,7 @@ class GameEngine:
                card: MonsterCard,
                target: MonsterCard | Player
                ):
+        print(1)
         if self.rule_engine.can_attack(attacker, defender, card, target):
             self.resolve_battle(attacker, card, target)
             return True
@@ -77,7 +78,6 @@ class GameEngine:
                        card: MonsterCard,
                        target: MonsterCard | Player,
                        ):
-        print(f'this {card} has attack this turn')
         """Resolve a battle between a card and a target (card or player)"""
         if isinstance(target, MonsterCard):
             defender = target.owner
@@ -112,17 +112,14 @@ class GameEngine:
             damage = card.atk
             target.life_points -= damage
             print(f"Direct attack! {target.name} loses {damage} LP.")
-        card.has_attack  = True
-        
-        
-        
+        card.has_attack = True
 
     def end_turn(self):
         """End current player's turn"""
-        if self.turn_manager.end_turn():
-            self.turn_manager.turn_count += 1
-        # self.game_state.next_turn()
-            print(f"Turn {self.turn_manager.turn_count} ended.")
+        self.turn_manager.end_turn()
+        self.draw_card(self.turn_manager.get_current_player())
+        self.turn_manager.turn_count += 1
+        print(f"Turn {self.turn_manager.turn_count} ended.")
 
     @staticmethod
     def buff_effect(card: MonsterCard, buff_value: int):
