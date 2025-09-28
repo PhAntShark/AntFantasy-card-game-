@@ -66,38 +66,38 @@ class MonsterCard(Sprite, Draggable):
 
         self.is_selected = False
 
-    def handle_merge(self):
-            if cell and self.monster_info.owner:
-                target_card = game_engine.game_state.field_matrix[cell[0]][cell[1]]
+    # def handle_merge(self):
+    #         if cell and self.monster_info.owner:
+    #             target_card = game_engine.game_state.field_matrix[cell[0]][cell[1]]
                 
-                # Check if there's a monster card at the target position
-                if (target_card and 
-                    isinstance(target_card, type(self.monster_info)) and
-                    target_card.owner == self.monster_info.owner and
-                    target_card != self.monster_info):  # Can't upgrade with itself
+    #             # Check if there's a monster card at the target position
+    #             if (target_card and 
+    #                 isinstance(target_card, type(self.monster_info)) and
+    #                 target_card.owner == self.monster_info.owner and
+    #                 target_card != self.monster_info):  # Can't upgrade with itself
                     
-                    # Check if both cards are highlighted (eligible for merging)
-                    target_sprite = None
-                    for card, sprite in render_engine.sprites["matrix"].items():
-                        if card == target_card and hasattr(sprite, 'highlight'):
-                            target_sprite = sprite
-                            break
+    #                 # Check if both cards are highlighted (eligible for merging)
+    #                 target_sprite = None
+    #                 for card, sprite in render_engine.sprites["matrix"].items():
+    #                     if card == target_card and hasattr(sprite, 'highlight'):
+    #                         target_sprite = sprite
+    #                         break
                     
-                    # Only allow upgrade if both cards are highlighted
-                    if (target_sprite and target_sprite.highlight and self.highlight and
-                        target_card.type == self.monster_info.type and 
-                        target_card.level_star == self.monster_info.level_star):
+    #                 # Only allow upgrade if both cards are highlighted
+    #                 if (target_sprite and target_sprite.highlight and self.highlight and
+    #                     target_card.type == self.monster_info.type and 
+    #                     target_card.level_star == self.monster_info.level_star):
                         
-                        # Determine target upgrade level
-                        target_level = self.monster_info.level_star + 1
+    #                     # Determine target upgrade level
+    #                     target_level = self.monster_info.level_star + 1
                         
-                        # Try to upgrade
-                        if game_engine.upgrade_monster(self.monster_info.owner, 
-                                                    self.monster_info.type, 
-                                                    target_level):
-                            # Upgrade successful, both cards will be removed
-                            self.is_draggable = False
-                            self.is_selected = False
-                            # Refresh highlights after upgrade
-                            game_engine.update_highlighted_cards(game_engine.render_engine)
-                            return
+    #                     # Try to upgrade
+    #                     if game_engine.upgrade_monster(self.monster_info.owner, 
+    #                                                 self.monster_info.type, 
+    #                                                 target_level):
+    #                         # Upgrade successful, both cards will be removed
+    #                         self.is_draggable = False
+    #                         self.is_selected = False
+    #                         # Refresh highlights after upgrade
+    #                         game_engine.update_highlighted_cards(game_engine.render_engine)
+    #                         return
