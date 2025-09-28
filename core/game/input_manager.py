@@ -50,10 +50,9 @@ class InputManager:
                     if not card_info:
                         continue
                     card = self.render_engine.sprites["matrix"][card_info]
-                    if (
-                        card.rect.collidepoint(pos)
-                        and card_info.owner != self.drag_arrow.targets[0].owner
-                    ):
+                    if not card.rect.collidepoint(pos):
+                        continue
+                    if card_info.owner != self.drag_arrow.targets[0].owner:
                         self.drag_arrow.end_pos = card.rect.center
                         self.drag_arrow.targets[1] = card_info
                         self.game_engine.attack(
@@ -63,6 +62,15 @@ class InputManager:
                             self.drag_arrow.targets[1],
                         )
                         break
+                    else:
+                        self.drag_arrow.end_pos = card.rect.center
+                        self.drag_arrow.targets[1] = card_info
+                        self.game_engine.upgrade_monster(
+                            self.game_engine.turn_manager.get_current_player(),
+                            self.drag_arrow.targets[0],
+                            self.drag_arrow.targets[1],
+                        )
+            
             # Checking for player hitbox
             self._handle_arrow_drop_player_hitbox(pos)
             self.drag_arrow = None

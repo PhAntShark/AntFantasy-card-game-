@@ -17,6 +17,7 @@ class MonsterCard(Card):
                  mode: cardMode = 'attack',
                  image_path: str | None = None,
                  has_attack=False,
+                 monster_type: str = "Unknown",
                  **kwargs,
                  ):
         super().__init__(name, description, "monster", ability, owner, **kwargs)
@@ -28,6 +29,7 @@ class MonsterCard(Card):
         self.is_summoned = False
         self.is_alive = True
         self.has_attack = has_attack
+        self.type = monster_type  # Monster type (Scholar, Conqueror, etc.)
 
     def __str__(self):
         return f"Name: {self.name} \

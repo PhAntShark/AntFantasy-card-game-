@@ -132,3 +132,54 @@ class GameEngine:
         """Apply a debuff to a card"""
         card.atk -= debuff_value
         print(f"{card.name} loses {debuff_value} ATK.")
+
+    def upgrade_monster(self, player: Player, own_card: MonsterCard, target_card: MonsterCard):
+        """Upgrade monsters of the same type to a higher level"""
+        if not self.rule_engine.can_upgrade(player, own_card, target_card):
+            print(f"{player.name} cannot upgrade {own_card} monsters to level {target_card}.")
+            return False
+              
+        # Determine which monsters to remove based on upgrade requirements
+        else:
+            upgrade_position = target_card.pos_in_matrix
+            
+            # Remove the base monsters from the field and move them to graveyard
+            self.move_card_to_graveyard(own_card)
+            self.move_card_to_graveyard(target_card)
+            
+            # Create the upgraded monster
+            upgraded_monster = self.monster_factory.load_by_type_and_level(
+                player, own_card.type, own_card.level_star)
+            
+            if upgraded_monster is None:
+                print(f"Could not create upgraded {own_card} monster of level {target_card}.")
+                return False
+            
+            # Place the upgraded monster on the field
+            if upgrade_position:
+                self.game_state.modify_field("add", upgraded_monster, upgrade_position)
+                upgraded_monster.is_placed = True
+                upgraded_monster.pos_in_matrix = upgrade_position
+                print(f"{player.name} upgraded {own_card} monsters to {upgraded_monster.name}!")
+                return True
+            
+            return False
+
+    def update_highlighted_cards(self, render_engine):
+        """Update which cards should be highlighted for merging"""
+        # Get all monsters on the field for the current player
+        current_player = self.turn_manager.get_current_player()
+        player_monsters = self.game_state.get_player_cards(current_player)
+        
+        # Get mergeable groups
+        mergeable_groups = self.rule_engine.get_mergeable_groups(player_monsters)
+        
+        # Flatten all mergeable cards into a set
+        highlighted_cards = set()
+        for group in mergeable_groups:
+            highlighted_cards.update(group)
+        
+        # Update highlight status for all matrix sprites
+        for card, sprite in render_engine.sprites["matrix"].items():
+            if hasattr(sprite, 'highlight'):
+                sprite.highlight = card in highlighted_cards

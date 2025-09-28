@@ -21,28 +21,32 @@
         "description": "The mage that can good at control his power",
         "attack_points": 2200,
         "defense_points": 1000,
-        "level_star": 2
+        "level_star": 2,
+        "texture": "/images/cards/card.png"
       },
       {
         "name": "Philosopher",
         "description": "A chill guy",
         "attack_points": 1000,
         "defense_points": 2200,
-        "level_star": 2
+        "level_star": 2,
+        "texture": "/images/cards/card.png"
       },
       {
         "name": "Senior Mage",
         "description": "The mage that old has experience in many batle",
         "attack_points": 3000,
         "defense_points": 2500,
-        "level_star": 3
+        "level_star": 3,
+        "texture": "/images/cards/card.png"
       },
       {
         "name": "Grand Mage",
         "description": "The legendary of the mage",
         "attack_points": 4500,
         "defense_points": 3500,
-        "level_star": 4
+        "level_star": 4,
+        "texture": "/images/cards/card.png"
       }
     ],
     "Conqueror": [
