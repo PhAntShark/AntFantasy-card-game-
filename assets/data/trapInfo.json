@@ -1,15 +1,17 @@
 [
   {
     "name": "Crippling Curse",
-    "description": "When an opponent's monster attacks, reduce its ATK by 500 points.",
+    "description": "When an opponent's monster attacks, reduce its ATK by 300 points.",
     "ctype": "trap",
-    "ability": "debuff_enemy_atk"
+    "ability": "debuff_enemy_atk",
+    "texture": "/images/cards/table.png"
   },
   {
     "name": "Shattered Guard",
-    "description": "When an opponent's monster attacks, reduce its DEF by 500 points.",
+    "description": "When an opponent's monster attacks, reduce its DEF by 300 points.",
     "ctype": "trap",
-    "ability": "debuff_enemy_def"
+    "ability": "debuff_enemy_def",
+    "texture": "/images/cards/table.png"
   },
   {
     "name": "Phantom Dodge",

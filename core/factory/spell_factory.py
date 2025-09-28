@@ -1,15 +1,17 @@
 import json
 from pathlib import Path
+from core.cards.spell_card import SpellCard
 import random
-from core.cards.trap_card import TrapCard
 
 
-class TrapFactory:
-    DATA_FILE = Path("./assets/data/trapInfo.json")
+class SpellFactory:
+    DATA_FILE = Path("./assets/data/spellInfo.json")
     _card_index = None
 
+    # def spell_build(self):
+
     def build(self):
-        """Load all trap cards into a lookup table."""
+        """Load all spell cards into a lookup table."""
         if not self.DATA_FILE.exists():
             raise FileNotFoundError(f"{self.DATA_FILE} not found")
 
@@ -18,7 +20,7 @@ class TrapFactory:
 
         # Index by name
         self._card_index = {
-            card_info['name']: card_info
+            card_info["name"]: card_info
             for card_info in data
             if card_info.get("texture") is not None
         }
@@ -32,7 +34,6 @@ class TrapFactory:
             card_info = random.choice(list(self._card_index.values()))
         else:
             card_info = self._card_index.get(name)
-            
         if not card_info:
             return None
 
@@ -41,7 +42,7 @@ class TrapFactory:
             # path = None  # Fallback, maybe use a placeholder
             return
 
-        return TrapCard(
+        return SpellCard(
             name=card_info["name"],
             description=card_info.get("description", ""),
             ability=card_info.get("ability", ""),
@@ -51,19 +52,20 @@ class TrapFactory:
 
     def get_cards(self):
         return self._card_index
+
     # def get_all_cards(self):
-    #     """Get list of all available trap cards"""
+    #     """Get list of all available spell cards"""
     #     if self._card_index is None:
-    #         raise RuntimeError("TrapFactory not initialized. Call build() first.")
-        
+    #         raise RuntimeError("SpellFactory not initialized. Call build() first.")
+
     #     return list(self._card_index.keys())
 
     # def get_card_info(self, name: str):
     #     """Get card information by name"""
     #     if self._card_index is None:
-    #         raise RuntimeError("TrapFactory not initialized. Call build() first.")
-        
+    #         raise RuntimeError("SpellFactory not initialized. Call build() first.")
+
     #     if name not in self._card_index:
-    #         raise ValueError(f"Trap card '{name}' not found")
-        
+    #         raise ValueError(f"Spell card '{name}' not found")
+
     #     return self._card_index[name]

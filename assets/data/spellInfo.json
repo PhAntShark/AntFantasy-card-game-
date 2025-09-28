@@ -1,25 +1,27 @@
 [
   {
     "name": "Mystical Space Typhoon",
-    "description": "Destroy 1 spell or trap card your opponent controls.",
+    "description": "Destroy 1  trap card your opponent controls.",
     "ctype": "spell",
-    "ability": "destroy_spell_trap"
+    "ability": "destroy_spell_trap",
+    "texture": "/images/cards/card1.jpg"
   },
   {
     "name": "Call of the Brave",
     "description": "Summon 1 monster from your hand directly to the field.",
     "ctype": "spell",
-    "ability": "summon_monster_from_hand"
+    "ability": "summon_monster_from_hand",
+    "texture": "/images/cards/card1.jpg"
   },
   {
     "name": "Maniac War",
-    "description": "Increase a monster's ATK by 500 points.",
+    "description": "Increase a monster's ATK by 300 points.",
     "ctype": "spell",
     "ability": "buff_attack"
   },
   {
     "name": "Holy Shield",
-    "description": "Increase a monster's DEF by 500 points.",
+    "description": "Increase a monster's DEF by 300 points.",
     "ctype": "spell",
     "ability": "buff_defense"
   },

@@ -9,12 +9,8 @@ class RenderEngine:
             "matrix": {},
         }  # logic_card -> sprite
 
-    def update(self, game_state, matrix, game_engine=None):
+    def update(self, game_state, matrix):
         self.register_cards(game_state, matrix)
-        
-        # Update highlights if game_engine is provided
-        if game_engine:
-            game_engine.update_highlighted_cards(self)
 
     def register_cards(self, game_state, matrix):
         self.register_hand(game_state, matrix)
@@ -74,6 +70,7 @@ class RenderEngine:
         }
 
         def make_matrix_sprite(card):
+            # TODO: move monster card to generic card
             sprite = MonsterCard(card, size=(
                 matrix.grid["slot_width"] / 2,
                 matrix.grid["slot_height"]

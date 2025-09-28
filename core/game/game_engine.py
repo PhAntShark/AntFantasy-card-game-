@@ -1,12 +1,18 @@
-from typing import Tuple
+from typing import Tuple, List, Any
 
 from core.cards.card import Card
 from core.cards.monster_card import MonsterCard
+from core.cards.spell_card import SpellCard
+from core.cards.trap_card import TrapCard
 from core.player import Player
 from core.factory.monster_factory import MonsterFactory
+from core.factory.spell_factory import SpellFactory
+from core.factory.trap_factory import TrapFactory
 from .game_state import GameState
 from .rule_engine import RuleEngine
 from .turn_manager import TurnManager
+from .effect_tracker import EffectTracker
+import random
 
 
 class GameEngine:
@@ -14,11 +20,18 @@ class GameEngine:
         self.game_state = GameState(players)
         self.turn_manager = TurnManager(self.game_state)
         self.rule_engine = RuleEngine(self.game_state, self.turn_manager)
+        self.effect_tracker = EffectTracker()
 
         self.players = players
 
         self.monster_factory = MonsterFactory()
         self.monster_factory.build()
+        
+        self.spell_factory = SpellFactory()
+        self.spell_factory.build()
+        
+        self.trap_factory = TrapFactory()
+        self.trap_factory.build()
 
     def give_init_cards(self, number: int):
         for player in self.players:
@@ -28,7 +41,10 @@ class GameEngine:
     def draw_card(self, player: Player, check=True):
         """Player draws a card if allowed"""
         if not check or self.rule_engine.can_draw(player):
-            card = self.monster_factory.load(player)
+            cards = [self.monster_factory.load(player),
+                    self.spell_factory.load(player),
+                    self.trap_factory.load(player)]
+            card = random.choice(cards)
             self.game_state.player_info[player]["held_cards"].add(card)
             return True
         print(f"{player.name} cannot draw a card now.")
@@ -61,6 +77,14 @@ class GameEngine:
                ):
         print(1)
         if self.rule_engine.can_attack(attacker, defender, card, target):
+            # Check for trap triggers before resolving battle
+            if isinstance(target, Player):
+                if self.check_trap_triggers(card, target):
+                    return True  # Attack was negated by trap
+            elif isinstance(target, MonsterCard):
+                if self.check_trap_triggers(card, target.owner):
+                    return True  # Attack was negated by trap
+            
             self.resolve_battle(attacker, card, target)
             return True
         print(f"{card.name} cannot attack {
@@ -165,13 +189,9 @@ class GameEngine:
             
             return False
 
-    def update_highlighted_cards(self, render_engine):
-        """Update which cards should be highlighted for merging"""
-        # Get all monsters on the field for the current player
-        current_player = self.turn_manager.get_current_player()
-        player_monsters = self.game_state.get_player_cards(current_player)
-        
-        # Get mergeable groups
+    def get_mergeable_cards(self, player: Player):
+        """Get cards that can be merged for upgrades (pure logic)"""
+        player_monsters = self.game_state.get_player_cards(player)
         mergeable_groups = self.rule_engine.get_mergeable_groups(player_monsters)
         
         # Flatten all mergeable cards into a set
@@ -179,7 +199,110 @@ class GameEngine:
         for group in mergeable_groups:
             highlighted_cards.update(group)
         
-        # Update highlight status for all matrix sprites
-        for card, sprite in render_engine.sprites["matrix"].items():
-            if hasattr(sprite, 'highlight'):
-                sprite.highlight = card in highlighted_cards
+        return highlighted_cards
+
+    def cast_spell(self, spell: SpellCard, target: Any = None):
+        """Cast a spell card immediately"""
+        if not isinstance(spell, SpellCard):
+            return False
+        
+        # Resolve spell based on ability
+        if spell.ability == "draw_two_cards":
+            self.draw_card(spell.owner, check=False)
+            self.draw_card(spell.owner, check=False)
+            
+        elif spell.ability == "buff_attack":
+            if target and hasattr(target, 'atk'):
+                self.effect_tracker.add_effect("buff_attack", target, 300, 3, spell)
+            else:
+                return False
+                
+        elif spell.ability == "buff_defense":
+            if target and hasattr(target, 'defend'):
+                self.effect_tracker.add_effect("buff_defense", target, 300, 3, spell)
+            else:
+                return False
+                
+        elif spell.ability == "destroy_spell_trap":
+            if target and target.type in ["spell", "trap"]:
+                self.move_card_to_graveyard(target)
+            else:
+                return False
+                
+        elif spell.ability == "summon_monster_from_hand":
+            # This requires UI interaction to select monster from hand
+            return False
+        
+        # Move spell to graveyard after use
+        self.game_state.player_info[spell.owner]["held_cards"].remove(spell)
+        self.game_state.player_info[spell.owner]["graveyard_cards"].add(spell)
+        
+        return True
+
+    def set_trap(self, trap: TrapCard, position: Tuple[int, int]):
+        """Set a trap card face-down on the field"""
+        if not isinstance(trap, TrapCard):
+            return False
+        
+        if not self.rule_engine.can_summon(trap.owner, trap, self.game_state.field_matrix, position):
+            return False
+        
+        # Place trap face-down
+        self.game_state.player_info[trap.owner]["held_cards"].remove(trap)
+        self.game_state.modify_field("add", trap, position)
+        trap.is_placed = True
+        trap.is_face_down = True
+        trap.pos_in_matrix = position
+        
+        return True
+
+    def resolve_trap(self, trap: TrapCard, attacker: MonsterCard, defender: Player):
+        """Resolve a trap card when triggered"""
+        if not isinstance(trap, TrapCard) or not trap.is_face_down:
+            return False
+        
+        trap.is_face_down = False  # Reveal the trap
+        
+        if trap.ability == "debuff_enemy_atk":
+            self.effect_tracker.add_effect("debuff_attack", attacker, 300, 3, trap)
+            
+        elif trap.ability == "debuff_enemy_def":
+            self.effect_tracker.add_effect("debuff_defense", attacker, 300, 3, trap)
+            
+        elif trap.ability == "dodge_attack":
+            return True  # Attack is negated
+            
+        elif trap.ability == "reflect_attack":
+            self.move_card_to_graveyard(attacker)
+            return True  # Attacker is destroyed
+            
+        elif trap.ability == "debuff_summon":
+            # Store this for later use when summoning occurs
+            self.game_state.player_info[trap.owner]["active_traps"] = trap
+        
+        # Move trap to graveyard after activation
+        self.move_card_to_graveyard(trap)
+        return False  # Attack continues normally
+
+    def check_trap_triggers(self, attacker: MonsterCard, defender: Player):
+        """Check if any traps should be triggered by an attack"""
+        # Get all face-down traps on the defender's field
+        defender_cards = self.game_state.get_player_cards(defender)
+        traps = [card for card in defender_cards 
+                if isinstance(card, TrapCard) and card.is_face_down]
+        
+        for trap in traps:
+            if self.resolve_trap(trap, attacker, defender):
+                return True  # Attack was negated or reflected
+        return False  # Attack continues
+
+    def update_effects(self):
+        """Update all active effects (call at end of each turn)"""
+        self.effect_tracker.update_round()
+
+    def end_turn(self):
+        """End current player's turn"""
+        self.update_effects()  # Update effects before ending turn
+        self.turn_manager.end_turn()
+        self.draw_card(self.turn_manager.get_current_player())
+        self.turn_manager.turn_count += 1

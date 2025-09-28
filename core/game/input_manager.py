@@ -1,6 +1,6 @@
 import pygame
 from core.arrow import DragArrow
-
+from gui.monster_card import MonsterCard
 
 class InputManager:
     def __init__(self, matrix, game_engine, render_engine):
@@ -100,12 +100,11 @@ class InputManager:
                 if not card_info:
                     continue
                 card = self.render_engine.sprites["matrix"][card_info]
-                # TODO: invoke the rule engine can_attack here
                 if (
                     card.rect.collidepoint(pos)
-                    and card_info.mode == "attack"
-                    and card_info.owner
-                    == self.game_engine.turn_manager.get_current_player()
+                    and card_info.ctype == "monster"
+                    and card_info.mode == "attack" 
+                    and card_info.owner == self.game_engine.turn_manager.get_current_player()
                 ):
                     self.drag_arrow = DragArrow()
                     self.drag_arrow.targets[0] = card_info

@@ -50,7 +50,7 @@ while running:
 
     screen.fill((30, 30, 3e0))
 
-    render_engine.update(game_engine.game_state, field_matrix, game_engine)
+    render_engine.update(game_engine.game_state, field_matrix)
     render_engine.draw()
     input_manager.draw(screen)
     field_matrix.draw() 
