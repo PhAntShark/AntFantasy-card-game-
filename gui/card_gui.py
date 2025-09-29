@@ -1,4 +1,5 @@
 from core.cards.monster_card import MonsterCard as LogicMonsterCard
+from core.cards.card import Card as LogicCard
 from gui.sprite import Sprite
 from typing import Tuple
 from pygame.draw import rect
@@ -50,12 +51,13 @@ class CardGUI(Sprite, Draggable):
             import pygame
             pygame.draw.rect(surface, self.highlight_color, self.rect, 4)
 
-    def on_toggle(self, game_engine):
-        game_engine.toggle_card(self.monster_info)
-        if self.monster_info.mode == "defense":
-            self.image = rotate(self.original_image, 90)
-        else:
-            self.image = rotate(self.original_image, 0)
+    
+    # def on_toggle(self, game_engine):
+    #     game_engine.toggle_card(self.monster_info)
+    #     if self.monster_info.mode == "defense":
+    #         self.image = rotate(self.original_image, 90)
+    #     else:
+    #         self.image = rotate(self.original_image, 0)
 
     def on_drag_start(self):
         self.is_selected = True
@@ -74,4 +76,11 @@ class CardGUI(Sprite, Draggable):
                     self.is_draggable = False
 
         self.is_selected = False
+
+    def on_toggle(self, game_engine):
+        """
+        Default no-op toggle handler for non-monster cards.
+        MonsterCardGUI overrides this to implement behavior.
+        """
+        return
 

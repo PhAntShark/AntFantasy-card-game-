@@ -2,8 +2,8 @@ from typing import Tuple, List, Any
 
 from core.cards.card import Card
 from core.cards.monster_card import MonsterCard
-from core.cards.spell_card import SpellCard
-from core.cards.trap_card import TrapCard
+# from core.cards.spell_card import SpellCard
+from core.cards.spell_trap_card import TrapCard, SpellCard
 from core.player import Player
 from core.factory.monster_factory import MonsterFactory
 from core.factory.spell_factory import SpellFactory
@@ -51,7 +51,7 @@ class GameEngine:
         return False
 
     def toggle_card(self, card):
-        if self.rule_engine.can_toggle(card.owner, card):
+        if self.rule_engine.can_toggle(card.owner, card) and card.ctype == "monster":
             card.switch_position()
             self.game_state.player_info[card.owner]["has_toggled"] = True
 
@@ -75,7 +75,6 @@ class GameEngine:
                card: MonsterCard,
                target: MonsterCard | Player
                ):
-        # print(1)
         if self.rule_engine.can_attack(attacker, defender, card, target):
             # Check for trap triggers before resolving battle
             if isinstance(target, Player):
@@ -138,24 +137,17 @@ class GameEngine:
             print(f"Direct attack! {target.name} loses {damage} LP.")
         card.has_attack = True
 
-    def end_turn(self):
-        """End current player's turn"""
-        self.turn_manager.end_turn()
-        self.draw_card(self.turn_manager.get_current_player())
-        self.turn_manager.turn_count += 1
-        print(f"Turn {self.turn_manager.turn_count} ended.")
+    # @staticmethod
+    # def buff_effect(card: MonsterCard, buff_value: int):
+    #     """Apply a buff to a card"""
+    #     card.atk += buff_value
+    #     print(f"{card.name} gains {buff_value} ATK.")
 
-    @staticmethod
-    def buff_effect(card: MonsterCard, buff_value: int):
-        """Apply a buff to a card"""
-        card.atk += buff_value
-        print(f"{card.name} gains {buff_value} ATK.")
-
-    @staticmethod
-    def debuff_effect(card: MonsterCard, debuff_value: int):
-        """Apply a debuff to a card"""
-        card.atk -= debuff_value
-        print(f"{card.name} loses {debuff_value} ATK.")
+    # @staticmethod
+    # def debuff_effect(card: MonsterCard, debuff_value: int):
+    #     """Apply a debuff to a card"""
+    #     card.atk -= debuff_value
+    #     print(f"{card.name} loses {debuff_value} ATK.")
 
     def upgrade_monster(self, player: Player, own_card: MonsterCard, target_card: MonsterCard):
         """Upgrade monsters of the same type to a higher level"""
@@ -172,8 +164,9 @@ class GameEngine:
             self.move_card_to_graveyard(target_card)
             
             # Create the upgraded monster
+            # Request the next level when creating the upgraded monster
             upgraded_monster = self.monster_factory.load_by_type_and_level(
-                player, own_card.type, own_card.level_star)
+                player, own_card.type, own_card.level_star + 1)
             
             if upgraded_monster is None:
                 print(f"Could not create upgraded {own_card} monster of level {target_card}.")
@@ -212,7 +205,7 @@ class GameEngine:
             self.draw_card(spell.owner, check=False)
             
         elif spell.ability == "buff_attack":
-            if target and hasattr(target, 'atk'):
+            if target and hasattr(target, 'attack'):
                 self.effect_tracker.add_effect("buff_attack", target, 300, 3, spell)
             else:
                 return False
@@ -302,7 +295,14 @@ class GameEngine:
 
     def end_turn(self):
         """End current player's turn"""
+        for card in self.game_state.get_player_cards(self.turn_manager.get_current_player()):
+            if isinstance(card, MonsterCard):
+                card.has_attack = False
         self.update_effects()  # Update effects before ending turn
         self.turn_manager.end_turn()
         self.draw_card(self.turn_manager.get_current_player())
         self.turn_manager.turn_count += 1
+        print(f"Turn {self.turn_manager.turn_count} ended.")
+   
+
+        

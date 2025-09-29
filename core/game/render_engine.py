@@ -1,5 +1,5 @@
 from gui.card_gui import CardGUI
-
+from gui.monster_card import MonsterCardGUI
 
 class RenderEngine:
     def __init__(self, screen):
@@ -52,10 +52,17 @@ class RenderEngine:
                 game_state.player_info[player]["held_cards"].cards)
 
         def make_hand_sprite(card):
-            return CardGUI(card, size=(
-                matrix.grid["slot_width"] / 2,
-                matrix.grid["slot_height"]
-            ))
+            # Create a MonsterCardGUI for monster cards, otherwise a generic CardGUI.
+            if card.ctype == "monster":
+                return MonsterCardGUI(card, size=(
+                    matrix.grid["slot_width"] / 2,
+                    matrix.grid["slot_height"]
+                ))
+            else: #check this part 
+                return CardGUI(card, size=(
+                    matrix.grid["slot_width"] / 2,
+                    matrix.grid["slot_height"]
+                ))
 
         self.sync_sprites(
             desired_set=current_cards,
@@ -70,11 +77,18 @@ class RenderEngine:
         }
 
         def make_matrix_sprite(card):
-            # TODO: move monster card to generic card
-            sprite = CardGUI(card, size=(
-                matrix.grid["slot_width"] / 2,
-                matrix.grid["slot_height"]
-            ))
+            # Use MonsterCardGUI for monster cards so toggling and rotation work.
+            if card.ctype == "monster":
+                sprite = MonsterCardGUI(card, size=(
+                    matrix.grid["slot_width"] / 2,
+                    matrix.grid["slot_height"]
+                ))
+            else: #check this part
+                sprite = CardGUI(card, size=(
+                    matrix.grid["slot_width"] / 2,
+                    matrix.grid["slot_height"]
+                ))
+
             sprite.rect.center = matrix.get_slot_rect(
                 *card.pos_in_matrix).center
             return sprite
@@ -93,3 +107,7 @@ class RenderEngine:
         for group in self.sprites.values():
             for sprite in group.values():
                 sprite.draw(self.screen)
+
+
+'''refactor use generic cards for all cards spell and trap GUI
+developer problem '''

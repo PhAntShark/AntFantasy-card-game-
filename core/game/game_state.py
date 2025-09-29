@@ -23,12 +23,6 @@ class GameState:
                             }
                             for player in players}
 
-        # Global effect stack (chain)
-        # Each dict can store effect info, source card, targets, etc.
-        self.chain: List[Dict] = []
-
-        # Global flags or statuses
-        self.flags: Dict[str, bool] = {}  # e.g. {"end_phase_skipped": False}
 
         # Game log (optional)
         self.log: List[str] = []
@@ -50,16 +44,16 @@ class GameState:
 
         self._player_cards = {player: [] for player in players}
 
-    def add_to_chain(self, effect: Dict):
-        """Add an effect to the global chain"""
-        self.chain.append(effect)
+    # def add_to_chain(self, effect: Dict):
+    #     """Add an effect to the global chain"""
+    #     self.chain.append(effect)
 
     def get_winner(self) -> Player | None:
-        """Return the winning player if the game is over"""
+        """Return the winning player if the game is over""" #check is it inneed ? 
         alive_players = [p for p in self.players if p.life_points > 0]
         if len(alive_players) == 1:
             return alive_players[0]
-        return None
+        return None 
 
     def is_game_over(self):
         """Check if a player's life points reached 0"""
@@ -85,3 +79,6 @@ class GameState:
 
     def get_player_cards(self, player):
         return self._player_cards[player]
+
+
+'''check should put this inside effect tracker get effect tracker in this'''

@@ -1,7 +1,7 @@
 import pygame
 from core.arrow import DragArrow
 from gui.card_gui import CardGUI
-
+from gui.monster_card import MonsterCardGUI
 class InputManager:
     def __init__(self, matrix, game_engine, render_engine):
         self.matrix = matrix
@@ -121,7 +121,11 @@ class InputManager:
                     continue
                 card = self.render_engine.sprites["matrix"][card_info]
                 if card.rect.collidepoint(pos):
-                    card.on_toggle(self.game_engine)
+                    # Only call on_toggle when the sprite implements it.
+                    # MonsterCardGUI implements on_toggle; generic CardGUI does not.
+                    on_toggle = getattr(card, "on_toggle", None)
+                    if callable(on_toggle):
+                        on_toggle(self.game_engine)
                     return  # stop after first card is toggled
 
     def draw(self, screen):

@@ -1,7 +1,8 @@
 from typing import Dict, List, Any
 from core.cards.card import Card
 from core.player import Player
-
+from core.cards.monster_card import MonsterCard
+'''check this stupid thing'''
 
 class EffectTracker:
     """Tracks active effects and their remaining duration"""
@@ -10,7 +11,7 @@ class EffectTracker:
         self.active_effects: List[Dict[str, Any]] = []
         self.current_round = 0
     
-    def add_effect(self, effect_type: str, target: Any, value: int, duration: int = 3, source_card: Card = None):
+    def add_effect(self, effect_type: str, target: MonsterCard, value: int, duration: int = 3): #source_card: Card = None
         """Add a new effect to track"""
         effect = {
             "type": effect_type,
@@ -18,7 +19,7 @@ class EffectTracker:
             "value": value,
             "duration": duration,
             "rounds_remaining": duration,
-            "source_card": source_card,
+            # "source_card": source_card,
             "applied_round": self.current_round
         }
         self.active_effects.append(effect)
@@ -44,11 +45,11 @@ class EffectTracker:
         target = effect["target"]
         value = effect["value"]
         
-        if effect_type == "buff_attack" and hasattr(target, 'atk'):
+        if effect_type == "buff_attack" and hasattr(target, 'attack'):
             target.atk -= value
         elif effect_type == "buff_defense" and hasattr(target, 'defend'):
             target.defend -= value
-        elif effect_type == "debuff_attack" and hasattr(target, 'atk'):
+        elif effect_type == "debuff_attack" and hasattr(target, 'attack'):
             target.atk += value
         elif effect_type == "debuff_defense" and hasattr(target, 'defend'):
             target.defend += value
