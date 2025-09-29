@@ -65,7 +65,14 @@ class RuleEngine:
             return target.owner == defender
 
         # Check when target is the opponent player (direct hit)
-        return len(self.game_state.get_player_cards(defender)) <= 0 and target == defender
+        cards = self.game_state.get_player_cards(defender)
+
+        for card in cards:
+            print(card.ctype)
+            if card.ctype == "monster":
+                return False
+            
+        return target == defender
 
     def can_toggle(self, player, card):
         if self.turn_manager.get_current_player() != player:

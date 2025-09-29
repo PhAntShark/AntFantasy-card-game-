@@ -1,4 +1,4 @@
-from gui.monster_card import MonsterCard
+from gui.card_gui import CardGUI
 
 
 class RenderEngine:
@@ -52,7 +52,7 @@ class RenderEngine:
                 game_state.player_info[player]["held_cards"].cards)
 
         def make_hand_sprite(card):
-            return MonsterCard(card, size=(
+            return CardGUI(card, size=(
                 matrix.grid["slot_width"] / 2,
                 matrix.grid["slot_height"]
             ))
@@ -71,7 +71,7 @@ class RenderEngine:
 
         def make_matrix_sprite(card):
             # TODO: move monster card to generic card
-            sprite = MonsterCard(card, size=(
+            sprite = CardGUI(card, size=(
                 matrix.grid["slot_width"] / 2,
                 matrix.grid["slot_height"]
             ))

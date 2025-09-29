@@ -75,7 +75,7 @@ class GameEngine:
                card: MonsterCard,
                target: MonsterCard | Player
                ):
-        print(1)
+        # print(1)
         if self.rule_engine.can_attack(attacker, defender, card, target):
             # Check for trap triggers before resolving battle
             if isinstance(target, Player):

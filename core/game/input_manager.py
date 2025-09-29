@@ -1,6 +1,6 @@
 import pygame
 from core.arrow import DragArrow
-from gui.monster_card import MonsterCard
+from gui.card_gui import CardGUI
 
 class InputManager:
     def __init__(self, matrix, game_engine, render_engine):
