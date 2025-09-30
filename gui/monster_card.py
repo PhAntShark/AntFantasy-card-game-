@@ -18,7 +18,8 @@ class MonsterCardGUI(CardGUI):
         cell = matrix.get_slot_at_pos(self.rect.center)
 
         if cell and self.logic_card.owner:
-            if game_engine.game_state.field_matrix_ownership[cell[0]][cell[1]] == self.logic_card.owner:
+            ownership = game_engine.game_state.field_matrix_ownership[cell[0]][cell[1]]
+            if ownership == self.logic_card.owner:
                 if game_engine.summon_card(self.logic_card.owner, self.logic_card, cell):
                     self.is_draggable = False
 

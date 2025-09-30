@@ -1,6 +1,7 @@
 class TurnManager:
-    def __init__(self, game_state):
+    def __init__(self, game_state, effect_tracker):
         self.game_state = game_state
+        self.effect_tracker = effect_tracker
         self.current_player_index = 0
         self.turn_count = 0
 
@@ -24,7 +25,8 @@ class TurnManager:
         self.game_state.player_info[self.get_current_player()]["has_summoned"] = False
         self.game_state.player_info[self.get_current_player()]["has_toggled"] = False
         self.current_player_index = self.get_next_player_index()
-        # self.turn_count += 1
+        self.turn_count += 1
+        self.effect_tracker.update_round()
         print(f"current turn {self.turn_count}")
 
     def get_phase_count(self):

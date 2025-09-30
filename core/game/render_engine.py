@@ -1,5 +1,7 @@
 from gui.card_gui import CardGUI
 from gui.monster_card import MonsterCardGUI
+from gui.spell_card import SpellCardGUI
+
 
 class RenderEngine:
     def __init__(self, screen):
@@ -7,7 +9,7 @@ class RenderEngine:
         self.sprites = {
             "hand": {},
             "matrix": {},
-        }  # logic_card -> sprite
+        }
 
     def update(self, game_state, matrix):
         self.register_cards(game_state, matrix)
@@ -45,6 +47,23 @@ class RenderEngine:
         if align_fn and (to_add or to_remove):
             align_fn()
 
+    def create_gui_card(self, card, matrix):
+        if card.ctype == "monster":
+            return MonsterCardGUI(card, size=(
+                matrix.grid["slot_width"] / 2,
+                matrix.grid["slot_height"]
+            ))
+        elif card.ctype == "spell":
+            return SpellCardGUI(card, size=(
+                matrix.grid["slot_width"] / 2,
+                matrix.grid["slot_height"]
+            ))
+        else:  # check this part
+            return CardGUI(card, size=(
+                matrix.grid["slot_width"] / 2,
+                matrix.grid["slot_height"]
+            ))
+
     def register_hand(self, game_state, matrix):
         current_cards = set()
         for player in game_state.players:
@@ -52,17 +71,7 @@ class RenderEngine:
                 game_state.player_info[player]["held_cards"].cards)
 
         def make_hand_sprite(card):
-            # Create a MonsterCardGUI for monster cards, otherwise a generic CardGUI.
-            if card.ctype == "monster":
-                return MonsterCardGUI(card, size=(
-                    matrix.grid["slot_width"] / 2,
-                    matrix.grid["slot_height"]
-                ))
-            else: #check this part 
-                return CardGUI(card, size=(
-                    matrix.grid["slot_width"] / 2,
-                    matrix.grid["slot_height"]
-                ))
+            return self.create_gui_card(card, matrix)
 
         self.sync_sprites(
             desired_set=current_cards,
@@ -77,18 +86,7 @@ class RenderEngine:
         }
 
         def make_matrix_sprite(card):
-            # Use MonsterCardGUI for monster cards so toggling and rotation work.
-            if card.ctype == "monster":
-                sprite = MonsterCardGUI(card, size=(
-                    matrix.grid["slot_width"] / 2,
-                    matrix.grid["slot_height"]
-                ))
-            else: #check this part
-                sprite = CardGUI(card, size=(
-                    matrix.grid["slot_width"] / 2,
-                    matrix.grid["slot_height"]
-                ))
-
+            sprite = self.create_gui_card(card, matrix)
             sprite.rect.center = matrix.get_slot_rect(
                 *card.pos_in_matrix).center
             return sprite
@@ -107,7 +105,3 @@ class RenderEngine:
         for group in self.sprites.values():
             for sprite in group.values():
                 sprite.draw(self.screen)
-
-
-'''refactor use generic cards for all cards spell and trap GUI
-developer problem '''

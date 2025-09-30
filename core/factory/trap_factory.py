@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 import random
-from core.cards.trap_card import TrapCard
+from core.cards.spell_trap_card import TrapCard
 
 
 class TrapFactory:
@@ -26,13 +26,14 @@ class TrapFactory:
     def load(self, player, name=None):
         """Create a spell card by name"""
         if self._card_index is None:
-            raise RuntimeError("SpellFactory not initialized. Call build() first.")
+            raise RuntimeError(
+                "SpellFactory not initialized. Call build() first.")
 
         if not name:
             card_info = random.choice(list(self._card_index.values()))
         else:
             card_info = self._card_index.get(name)
-            
+
         if not card_info:
             return None
 
@@ -55,15 +56,15 @@ class TrapFactory:
     #     """Get list of all available trap cards"""
     #     if self._card_index is None:
     #         raise RuntimeError("TrapFactory not initialized. Call build() first.")
-        
+
     #     return list(self._card_index.keys())
 
     # def get_card_info(self, name: str):
     #     """Get card information by name"""
     #     if self._card_index is None:
     #         raise RuntimeError("TrapFactory not initialized. Call build() first.")
-        
+
     #     if name not in self._card_index:
     #         raise ValueError(f"Trap card '{name}' not found")
-        
+
     #     return self._card_index[name]

@@ -1,6 +1,6 @@
 import json
 from pathlib import Path
-from core.cards.spell_card import SpellCard
+from core.cards.spell_trap_card import SpellCard
 import random
 
 
@@ -28,7 +28,8 @@ class SpellFactory:
     def load(self, player, name=None):
         """Create a spell card by name"""
         if self._card_index is None:
-            raise RuntimeError("SpellFactory not initialized. Call build() first.")
+            raise RuntimeError(
+                "SpellFactory not initialized. Call build() first.")
 
         if not name:
             card_info = random.choice(list(self._card_index.values()))

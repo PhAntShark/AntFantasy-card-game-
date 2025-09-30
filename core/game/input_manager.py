@@ -1,7 +1,7 @@
 import pygame
 from core.arrow import DragArrow
-from gui.card_gui import CardGUI
-from gui.monster_card import MonsterCardGUI
+
+
 class InputManager:
     def __init__(self, matrix, game_engine, render_engine):
         self.matrix = matrix
@@ -70,7 +70,7 @@ class InputManager:
                             self.drag_arrow.targets[0],
                             self.drag_arrow.targets[1],
                         )
-            
+
             # Checking for player hitbox
             self._handle_arrow_drop_player_hitbox(pos)
             self.drag_arrow = None
@@ -103,7 +103,7 @@ class InputManager:
                 if (
                     card.rect.collidepoint(pos)
                     and card_info.ctype == "monster"
-                    and card_info.mode == "attack" 
+                    and card_info.mode == "attack"
                     and card_info.owner == self.game_engine.turn_manager.get_current_player()
                 ):
                     self.drag_arrow = DragArrow()
