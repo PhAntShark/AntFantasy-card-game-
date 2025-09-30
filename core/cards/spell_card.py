@@ -34,6 +34,6 @@ class SpellCard(Card):
             return True  # No target
         elif self.ability in ["buff_attack", "buff_defense"]:
             return target is not None and target.ctype == "monster"
-        elif self.ability == "destroy_spell_trap":
+        elif self.ability == "destroy_trap":
             return target is not None and target.ctype == "trap"
         return False

@@ -10,8 +10,7 @@
     "name": "Shattered Guard",
     "description": "When an opponent's monster attacks, reduce its DEF by 300 points.",
     "ctype": "trap",
-    "ability": "debuff_enemy_def",
-    "texture": "/images/cards/table.png"
+    "ability": "debuff_enemy_def"
   },
   {
     "name": "Phantom Dodge",

@@ -1,5 +1,5 @@
 from gui.card_gui import CardGUI
-from core.cards.spell_trap_card import SpellCard as LogicSpellCard
+from core.cards.spell_card import SpellCard as LogicSpellCard
 
 
 class SpellCardGUI(CardGUI):

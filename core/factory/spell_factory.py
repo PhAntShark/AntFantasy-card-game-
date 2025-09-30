@@ -1,6 +1,6 @@
 import json
 from pathlib import Path
-from core.cards.spell_trap_card import SpellCard
+from core.cards.spell_card import SpellCard
 import random
 
 

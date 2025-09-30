@@ -3,7 +3,8 @@
     "name": "Mystical Space Typhoon",
     "description": "Destroy 1  trap card your opponent controls.",
     "ctype": "spell",
-    "ability": "destroy_spell_trap"
+    "ability": "destroy_trap",
+    "texture": "/images/cards/card1.jpg"
   },
   {
     "name": "Call of the Brave",
@@ -21,8 +22,7 @@
     "name": "Holy Shield",
     "description": "Increase a monster's DEF by 300 points.",
     "ctype": "spell",
-    "ability": "buff_defense",
-    "texture": "/images/cards/card1.jpg"
+    "ability": "buff_defense"
   },
   {
     "name": "Pot of Greed",

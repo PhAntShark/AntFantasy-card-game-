@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 import random
-from core.cards.spell_trap_card import TrapCard
+from core.cards.trap_card import TrapCard
 
 
 class TrapFactory:

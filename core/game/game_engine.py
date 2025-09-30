@@ -2,7 +2,8 @@ from typing import Tuple, List, Any
 
 from core.cards.card import Card
 from core.cards.monster_card import MonsterCard
-from core.cards.spell_trap_card import TrapCard, SpellCard
+from core.cards.spell_card import SpellCard
+from core.cards.trap_card import TrapCard
 from core.player import Player
 from core.factory.monster_factory import MonsterFactory
 from core.factory.spell_factory import SpellFactory
@@ -136,17 +137,6 @@ class GameEngine:
             print(f"Direct attack! {target.name} loses {damage} LP.")
         card.has_attack = True
 
-    # @staticmethod
-    # def buff_effect(card: MonsterCard, buff_value: int):
-    #     """Apply a buff to a card"""
-    #     card.atk += buff_value
-    #     print(f"{card.name} gains {buff_value} ATK.")
-
-    # @staticmethod
-    # def debuff_effect(card: MonsterCard, debuff_value: int):
-    #     """Apply a debuff to a card"""
-    #     card.atk -= debuff_value
-    #     print(f"{card.name} loses {debuff_value} ATK.")
 
     def upgrade_monster(self, player: Player, own_card: MonsterCard, target_card: MonsterCard):
         """Upgrade monsters of the same type to a higher level"""
@@ -198,7 +188,7 @@ class GameEngine:
 
         return highlighted_cards
 
-    def cast_spell(self, spell: SpellCard, target: Any = None):
+    def cast_spell(self, spell: SpellCard, target: Any = None): 
         """Cast a spell card immediately"""
         if not isinstance(spell, SpellCard):
             return False
@@ -216,15 +206,19 @@ class GameEngine:
             self.effect_tracker.add_effect(
                 EffectType.BUFF, target, "defend", 300, 3)
 
-        elif spell.ability == "destroy_spell_trap":
-            if target and target.type in ["spell", "trap"]:
+        elif spell.ability == "destroy_trap":
+            if target and target.ctype in ["trap"]:
                 self.move_card_to_graveyard(target)
             else:
                 return False
 
         elif spell.ability == "summon_monster_from_hand":
-            # This requires UI interaction to select monster from hand
-            return False
+            if isinstance(target, MonsterCard) and target is not None:
+                self.rule_engine.game_state.player_info[spell.owner]['has_summoned'] = False  
+                self.summon_card(spell.owner, target, (0,0))  # Example position
+            else:
+                return False
+            
 
         # Move spell to graveyard after use
         self.game_state.player_info[spell.owner]["held_cards"].remove(spell)

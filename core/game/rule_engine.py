@@ -24,6 +24,10 @@ class RuleEngine:
                    matrix: List[List[None | Card]],
                    pos: Tuple[int, int]):
         current_player = self.turn_manager.get_current_player()
+    
+        # if card.ctype == 'spell' and card.ability is ['summon_monster_from_hand']:
+        #     # These spells let you summon without using your normal summon
+        #     card.has_summon = False
         return (
             current_player == player
             and card in self.game_state.player_info[player]["held_cards"].cards
