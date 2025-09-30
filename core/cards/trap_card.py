@@ -8,6 +8,7 @@ class TrapCard(Card):
                  description: str,
                  owner: Player,
                  ability: str,
+                 is_face_down: bool = True,
                  image_path: str | None = None,
                  **kwargs: Any
                  ):
@@ -17,16 +18,16 @@ class TrapCard(Card):
             ctype="trap",
             ability=ability,
             owner=owner,
-            is_placed=True,  # Traps are placed on field
-            is_face_down=True,  # Traps start face-down
+            is_placed=True,  # Traps are placed on field  
             **kwargs
         )
+        self.is_face_down = is_face_down
         self.image_path = image_path
 
     def __str__(self):
         return f"Trap: {self.name} - {self.description} (Ability: {self.ability})"
 
-    def can_trigger(self, attacker, defender) -> bool:
+    def can_trigger(self) -> bool: #attacker, defender
         """Check if this trap can be triggered by the given attack"""
         if self.ability in ["debuff_enemy_atk", "debuff_enemy_def", "dodge_attack", "reflect_attack"]:
             return True  # Triggered by any attack
@@ -37,3 +38,5 @@ class TrapCard(Card):
     def reveal(self):
         """Reveal the trap (flip face-up)"""
         self.is_face_down = False
+
+'''check line 29 is attacker and defender is necces'''

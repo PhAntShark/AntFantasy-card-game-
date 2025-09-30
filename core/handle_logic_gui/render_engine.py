@@ -1,7 +1,7 @@
-from gui.card_gui import CardGUI
-from gui.monster_card import MonsterCardGUI
-from gui.spell_card import SpellCardGUI
-
+from gui.cards_gui.card_gui import CardGUI
+from gui.cards_gui.monster_card import MonsterCardGUI
+from gui.cards_gui.spell_card import SpellCardGUI
+from gui.cards_gui.trap_card import TrapCardGUI
 
 class RenderEngine:
     def __init__(self, screen):
@@ -58,6 +58,12 @@ class RenderEngine:
                 matrix.grid["slot_width"] / 2,
                 matrix.grid["slot_height"]
             ))
+        elif card.ctype == "trap":
+            return TrapCardGUI(card, size=(
+                matrix.grid["slot_width"] / 2,
+                matrix.grid["slot_height"]
+            ))
+        
         else:  # check this part
             return CardGUI(card, size=(
                 matrix.grid["slot_width"] / 2,

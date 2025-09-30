@@ -17,13 +17,6 @@ class GameControl:
                     card.is_dropped = False
                     card.is_draggable = False
 
-                # if pos[0] in [0, 1] and card.owner.is_opponent == True:
-                    # slot_rect = self.matrix.get_slot_rect(*pos)
-                    # card.rect.center = slot_rect.center
-                    # self.game_engine.summon_card(card.owner, card, pos)
-                    # card.is_dropped = False
-                    # card.is_draggable = False
-
             hands = [self.matrix.hands['my_hand'],
                      self.matrix.hands["opponent_hand"]]
             for hand in hands:

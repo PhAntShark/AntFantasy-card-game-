@@ -1,8 +1,8 @@
-from typing import Tuple, Dict, List
+from typing import Tuple, List
 from core.player import Player
 from core.cards.card import Card
 from typing import Literal
-from gui.hand import CollectionInfo
+from gui.gui_info.hand import CollectionInfo
 
 
 modifyMode = Literal["add", "remove"]
@@ -23,9 +23,6 @@ class GameState:
                             }
                             for player in players}
 
-        # Game log (optional)
-        self.log: List[str] = []
-
         # Game over state
         self.game_over = False
 
@@ -43,16 +40,13 @@ class GameState:
 
         self._player_cards = {player: [] for player in players}
 
-    # def add_to_chain(self, effect: Dict):
-    #     """Add an effect to the global chain"""
-    #     self.chain.append(effect)
 
-    def get_winner(self) -> Player | None:
-        """Return the winning player if the game is over"""  # check is it inneed ?
-        alive_players = [p for p in self.players if p.life_points > 0]
-        if len(alive_players) == 1:
-            return alive_players[0]
-        return None
+    # def get_winner(self) -> Player | None:
+    #     """Return the winning player if the game is over"""  # check is it inneed ?
+    #     alive_players = [p for p in self.players if p.life_points > 0]
+    #     if len(alive_players) == 1:
+    #         return alive_players[0]
+    #     return None
 
     def is_game_over(self):
         """Check if a player's life points reached 0"""
@@ -80,4 +74,3 @@ class GameState:
         return self._player_cards[player]
 
 
-'''check should put this inside effect tracker get effect tracker in this'''

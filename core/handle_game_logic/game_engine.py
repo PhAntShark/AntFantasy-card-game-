@@ -8,10 +8,10 @@ from core.player import Player
 from core.factory.monster_factory import MonsterFactory
 from core.factory.spell_factory import SpellFactory
 from core.factory.trap_factory import TrapFactory
-from .game_state import GameState
+from core.game_info.game_state import GameState
 from .rule_engine import RuleEngine
 from .turn_manager import TurnManager
-from .effect_tracker import EffectTracker, EffectType
+from core.game_info.effect_tracker import EffectTracker, EffectType
 import random
 
 
@@ -79,9 +79,9 @@ class GameEngine:
             # Check for trap triggers before resolving battle
             if isinstance(target, Player):
                 if self.check_trap_triggers(card, target):
-                    return True  # Attack was negated by trap
+                    return False #trap wouldnt active 
             elif isinstance(target, MonsterCard):
-                if self.check_trap_triggers(card, target.owner):
+                if self.check_trap_triggers(card, card.owner):
                     return True  # Attack was negated by trap
 
             self.resolve_battle(attacker, card, target)
@@ -243,7 +243,7 @@ class GameEngine:
 
         return True
 
-    def resolve_trap(self, trap: TrapCard, attacker: MonsterCard, defender: Player):
+    def resolve_trap(self, trap: TrapCard, attacker: MonsterCard):
         """Resolve a trap card when triggered"""
         if not isinstance(trap, TrapCard) or not trap.is_face_down:
             return False
@@ -252,11 +252,12 @@ class GameEngine:
 
         if trap.ability == "debuff_enemy_atk":
             self.effect_tracker.add_effect(
-                "debuff_attack", attacker, 300, 3, trap)
+                EffectType.DEBUFF, attacker, 300, 3, trap)
 
+                
         elif trap.ability == "debuff_enemy_def":
             self.effect_tracker.add_effect(
-                "debuff_defense", attacker, 300, 3, trap)
+                EffectType.DEBUFF, attacker, 300, 3, trap)
 
         elif trap.ability == "dodge_attack":
             return True  # Attack is negated

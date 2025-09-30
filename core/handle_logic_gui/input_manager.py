@@ -1,5 +1,5 @@
 import pygame
-from core.arrow import DragArrow
+from gui.arrow import DragArrow
 
 
 class InputManager:

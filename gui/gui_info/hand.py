@@ -1,4 +1,4 @@
-from gui.game_area import GameArea
+from gui.gui_info.game_area import GameArea
 
 
 class CollectionInfo:

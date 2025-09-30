@@ -1,11 +1,11 @@
 import pygame
 # from core.arrow import DragArrow
 from core.player import Player
-from gui.matrix_field import Matrix
-from core.game.game_engine import GameEngine
+from gui.gui_info.matrix_field import Matrix
+from core.handle_game_logic.game_engine import GameEngine
 # from gui.attack_control import AttackControl
-from core.game.render_engine import RenderEngine
-from core.game.input_manager import InputManager
+from core.handle_logic_gui.render_engine import RenderEngine
+from core.handle_logic_gui.input_manager import InputManager
 
 
 pygame.init()

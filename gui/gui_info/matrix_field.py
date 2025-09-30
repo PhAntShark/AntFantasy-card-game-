@@ -1,6 +1,6 @@
 import pygame
-from gui.game_area import GameArea, GameAreaConfig
-from gui.hand import HandUI
+from gui.gui_info.game_area import GameArea, GameAreaConfig
+from gui.gui_info.hand import HandUI
 
 
 class Matrix:

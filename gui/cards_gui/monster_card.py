@@ -1,5 +1,5 @@
 from pygame.transform import rotate
-from gui.card_gui import CardGUI
+from gui.cards_gui.card_gui import CardGUI
 from core.cards.monster_card import MonsterCard as LogicMonsterCard
 
 

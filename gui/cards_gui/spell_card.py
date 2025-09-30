@@ -1,4 +1,4 @@
-from gui.card_gui import CardGUI
+from gui.cards_gui.card_gui import CardGUI
 from core.cards.spell_card import SpellCard as LogicSpellCard
 
 

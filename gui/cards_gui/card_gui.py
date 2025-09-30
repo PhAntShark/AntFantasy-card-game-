@@ -1,7 +1,7 @@
 from gui.sprite import Sprite
 from typing import Tuple
 from pygame.draw import rect
-from .draggable import Draggable
+from ...gui.draggable import Draggable
 
 
 class CardGUI(Sprite, Draggable):
