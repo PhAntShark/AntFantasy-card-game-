@@ -21,13 +21,13 @@
     "name": "Mirror Strike",
     "description": "Reflect an enemy's attacking monster: the attacker is destroyed instead.",
     "ctype": "trap",
-    "ability": "reflect_attack",
-    "texture": "/images/cards/table.png"
+    "ability": "reflect_attack"
   },
   {
     "name": "Weaken Summon",
     "description": "When an opponent summons a monster, it loses 500 ATK and DEF.",
     "ctype": "trap",
-    "ability": "debuff_summon"
+    "ability": "debuff_summon",
+    "texture": "/images/cards/table.png"
   }
 ]

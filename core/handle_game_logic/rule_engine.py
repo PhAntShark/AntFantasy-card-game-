@@ -86,7 +86,11 @@ class RuleEngine:
     def can_upgrade(self, player: Player, own_card: MonsterCard, target_card: MonsterCard) -> bool:
         """Check if player can upgrade monsters of given type to target level"""
         current_player = self.turn_manager.get_current_player()
+        
         if current_player != player:
+            return False
+        
+        if own_card.ctype != 'monster' or target_card.ctype != 'monster':
             return False
 
         if own_card.level_star != target_card.level_star:

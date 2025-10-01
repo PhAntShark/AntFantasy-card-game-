@@ -68,6 +68,7 @@ class GameEngine:
             # TODO: the fuck does this do
             card.pos_in_matrix = cell
             print(f"{player.name} summoned {card.name}.")
+            self.check_summon_trap(card)
             return True
         print(f"{player.name} cannot summon {card.name}.")
         return False
@@ -215,12 +216,9 @@ class GameEngine:
                 return False
 
         elif spell.ability == "summon_monster_from_hand":
-            if isinstance(target, MonsterCard) and target is not None:
-                self.rule_engine.game_state.player_info[spell.owner]['has_summoned'] = False
-                self.summon_card(spell.owner, target, (0, 0)
-                                 )  # Example position
-            else:
-                return False
+            self.rule_engine.game_state.player_info[spell.owner]['has_summoned_monster'] = False
+            print('{spell.owner.name} summon extra nigga get on the field ')
+            #return False
 
         # Move spell to graveyard after use
         self.game_state.player_info[spell.owner]["held_cards"].remove(spell)
@@ -235,6 +233,7 @@ class GameEngine:
 
         if not self.rule_engine.can_summon(trap.owner, trap, self.game_state.field_matrix, position):
             return False
+
 
         # Place trap face-down
         self.game_state.player_info[trap.owner]["held_cards"].remove(trap)
@@ -269,19 +268,25 @@ class GameEngine:
       
             
         elif trap.ability == "reflect_attack":
+            # self.game_state.player_info[trap.owner]["active_traps"] = trap
             self.move_card_to_graveyard(attacker)
             self.move_card_to_graveyard(trap)
             print(f"{attacker.name}'s phai gi a phai phai phai chjuuuuu")
             return True  # Attacker is destroyed
 
         elif trap.ability == "debuff_summon":
-            # Store this for later use when summoning occurs
-            self.game_state.player_info[trap.owner]["active_traps"] = trap
             self.effect_tracker.add_effect(
-                EffectType.DEBUFF, attacker, 'atk' and 'def', 500, 3)
+                EffectType.DEBUFF, attacker, "atk", 500, 4
+            )
+            self.effect_tracker.add_effect(
+                EffectType.DEBUFF, attacker, "defend", 500, 4
+            )
+            print(f"{attacker.name} is weakened by trap {trap.name} on summon")
+            # Move trap to graveyard after activation
+            self.move_card_to_graveyard(trap)
+            return True
 
-        # Move trap to graveyard after activation
-        self.move_card_to_graveyard(trap)
+          
         return False  # Attack continues normally
 
     def check_trap_triggers(self, attacker: MonsterCard, defender: Player):
@@ -296,6 +301,19 @@ class GameEngine:
                 return True  # Attack was negated or reflected
         return False  # Attack continues
 
+    
+    def check_summon_trap(self, card_summon: MonsterCard):
+        card_summon_owner = card_summon.owner
+        opponents = [player for player in self.players if player != card_summon_owner]
+
+        for opponent in opponents:
+            # Get all face-down traps on the opponent's field
+            opponent_cards = self.game_state.get_player_cards(opponent)
+            traps = [card for card in opponent_cards if isinstance(card, TrapCard) and card.is_face_down]
+            for trap in traps[:]:
+                if trap.ability == 'debuff_summon':
+                    self.resolve_trap(trap, card_summon)
+    
     def update_effects(self):
         """Update all active effects (call at end of each turn)"""
         self.effect_tracker.update_round()
