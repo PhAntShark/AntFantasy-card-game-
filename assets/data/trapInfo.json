@@ -3,8 +3,7 @@
     "name": "Crippling Curse",
     "description": "When an opponent's monster attacks, reduce its ATK by 300 points.",
     "ctype": "trap",
-    "ability": "debuff_enemy_atk",
-    "texture": "/images/cards/table.png"
+    "ability": "debuff_enemy_atk"
   },
   {
     "name": "Shattered Guard",
@@ -22,7 +21,8 @@
     "name": "Mirror Strike",
     "description": "Reflect an enemy's attacking monster: the attacker is destroyed instead.",
     "ctype": "trap",
-    "ability": "reflect_attack"
+    "ability": "reflect_attack",
+    "texture": "/images/cards/table.png"
   },
   {
     "name": "Weaken Summon",

@@ -55,11 +55,14 @@ class GameEngine:
             card.switch_position()
             self.game_state.player_info[card.owner]["has_toggled"] = True
 
-    def summon_card(self, player: Player, card: Card, cell: Tuple[int, int]):
+    def summon_card(self,
+                    player: Player,
+                    card: Card,
+                    cell: Tuple[int, int]):
         """Player summons a card from hand if allowed"""
         if self.rule_engine.can_summon(player, card, self.game_state.field_matrix, cell):
             self.game_state.player_info[player]["held_cards"].remove(card)
-            self.game_state.player_info[player]["has_summoned"] = True
+            self.game_state.player_info[player]["has_summoned_monster"] = True
             self.game_state.modify_field("add", card, cell)
             card.is_placed = True
             # TODO: the fuck does this do
@@ -77,15 +80,15 @@ class GameEngine:
                ):
         if self.rule_engine.can_attack(attacker, defender, card, target):
             # Check for trap triggers before resolving battle
-            if isinstance(target, Player):
-                if self.check_trap_triggers(card, target):
-                    return False #trap wouldnt active 
-            elif isinstance(target, MonsterCard):
-                if self.check_trap_triggers(card, card.owner):
-                    return True  # Attack was negated by trap
+            # self.resolve_battle(attacker, card, target)
 
+            if isinstance(target, MonsterCard):
+                if self.check_trap_triggers(card, defender):
+                    return True
+            
             self.resolve_battle(attacker, card, target)
             return True
+
         print(f"{card.name} cannot attack {
             target.name if isinstance(target, Player) else target.name}.")
         return False
@@ -137,7 +140,6 @@ class GameEngine:
             print(f"Direct attack! {target.name} loses {damage} LP.")
         card.has_attack = True
 
-
     def upgrade_monster(self, player: Player, own_card: MonsterCard, target_card: MonsterCard):
         """Upgrade monsters of the same type to a higher level"""
         if not self.rule_engine.can_upgrade(player, own_card, target_card):
@@ -188,7 +190,7 @@ class GameEngine:
 
         return highlighted_cards
 
-    def cast_spell(self, spell: SpellCard, target: Any = None): 
+    def cast_spell(self, spell: SpellCard, target: Any = None):
         """Cast a spell card immediately"""
         if not isinstance(spell, SpellCard):
             return False
@@ -214,11 +216,11 @@ class GameEngine:
 
         elif spell.ability == "summon_monster_from_hand":
             if isinstance(target, MonsterCard) and target is not None:
-                self.rule_engine.game_state.player_info[spell.owner]['has_summoned'] = False  
-                self.summon_card(spell.owner, target, (0,0))  # Example position
+                self.rule_engine.game_state.player_info[spell.owner]['has_summoned'] = False
+                self.summon_card(spell.owner, target, (0, 0)
+                                 )  # Example position
             else:
                 return False
-            
 
         # Move spell to graveyard after use
         self.game_state.player_info[spell.owner]["held_cards"].remove(spell)
@@ -237,6 +239,7 @@ class GameEngine:
         # Place trap face-down
         self.game_state.player_info[trap.owner]["held_cards"].remove(trap)
         self.game_state.modify_field("add", trap, position)
+        self.game_state.player_info[trap.owner]["has_summoned_trap"] = True
         trap.is_placed = True
         trap.is_face_down = True
         trap.pos_in_matrix = position
@@ -252,23 +255,30 @@ class GameEngine:
 
         if trap.ability == "debuff_enemy_atk":
             self.effect_tracker.add_effect(
-                EffectType.DEBUFF, attacker, 300, 3, trap)
+                EffectType.DEBUFF, attacker, "atk", 500, 3)
 
-                
         elif trap.ability == "debuff_enemy_def":
             self.effect_tracker.add_effect(
-                EffectType.DEBUFF, attacker, 300, 3, trap)
+                EffectType.DEBUFF, attacker, "defend", 500, 3)
 
         elif trap.ability == "dodge_attack":
+            attacker.has_attack = True
+            print(f'bo may ne/ dc r nhe con ch0/')
+            self.move_card_to_graveyard(trap)
             return True  # Attack is negated
-
+      
+            
         elif trap.ability == "reflect_attack":
             self.move_card_to_graveyard(attacker)
+            self.move_card_to_graveyard(trap)
+            print(f"{attacker.name}'s phai gi a phai phai phai chjuuuuu")
             return True  # Attacker is destroyed
 
         elif trap.ability == "debuff_summon":
             # Store this for later use when summoning occurs
             self.game_state.player_info[trap.owner]["active_traps"] = trap
+            self.effect_tracker.add_effect(
+                EffectType.DEBUFF, attacker, 'atk' and 'def', 500, 3)
 
         # Move trap to graveyard after activation
         self.move_card_to_graveyard(trap)
@@ -282,7 +292,7 @@ class GameEngine:
                  if isinstance(card, TrapCard) and card.is_face_down]
 
         for trap in traps:
-            if self.resolve_trap(trap, attacker, defender):
+            if self.resolve_trap(trap, attacker):
                 return True  # Attack was negated or reflected
         return False  # Attack continues
 

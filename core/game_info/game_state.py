@@ -14,7 +14,8 @@ class GameState:
 
         self.player_info = {player:
                             {
-                                "has_summoned": False,
+                                "has_summoned_trap": False,
+                                "has_summoned_monster": False,
                                 "has_toggled": False,
                                 "held_cards": CollectionInfo([], player),
                                 "graveyard_cards": CollectionInfo([], player),
@@ -39,7 +40,6 @@ class GameState:
             self.field_matrix_ownership.append([players[0] for _ in range(5)])
 
         self._player_cards = {player: [] for player in players}
-
 
     # def get_winner(self) -> Player | None:
     #     """Return the winning player if the game is over"""  # check is it inneed ?
@@ -72,5 +72,3 @@ class GameState:
 
     def get_player_cards(self, player):
         return self._player_cards[player]
-
-

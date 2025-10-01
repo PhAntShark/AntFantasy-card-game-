@@ -3,14 +3,14 @@
     "name": "Mystical Space Typhoon",
     "description": "Destroy 1  trap card your opponent controls.",
     "ctype": "spell",
-    "ability": "destroy_trap",
-    "texture": "/images/cards/card1.jpg"
+    "ability": "destroy_trap"
   },
   {
     "name": "Call of the Brave",
     "description": "Summon 1 monster from your hand directly to the field.",
     "ctype": "spell",
-    "ability": "summon_monster_from_hand"
+    "ability": "summon_monster_from_hand",
+    "texture": "/images/cards/card1.jpg"
   },
   {
     "name": "Maniac War",

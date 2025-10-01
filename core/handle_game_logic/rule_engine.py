@@ -24,14 +24,12 @@ class RuleEngine:
                    matrix: List[List[None | Card]],
                    pos: Tuple[int, int]):
         current_player = self.turn_manager.get_current_player()
-    
-        # if card.ctype == 'spell' and card.ability is ['summon_monster_from_hand']:
-        #     # These spells let you summon without using your normal summon
-        #     card.has_summon = False
+
         return (
             current_player == player
             and card in self.game_state.player_info[player]["held_cards"].cards
-            and not self.game_state.player_info[player]["has_summoned"]
+            and ((card.ctype == "monster" and not self.game_state.player_info[player]["has_summoned_monster"])
+                 or (card.ctype == "trap" and not self.game_state.player_info[player]["has_summoned_trap"]))
             and matrix[pos[0]][pos[1]] is None
             and sum(1 for row in matrix for card in row
                     if card is not None and card.owner == player) < 10
@@ -75,7 +73,7 @@ class RuleEngine:
             print(card.ctype)
             if card.ctype == "monster":
                 return False
-            
+
         return target == defender
 
     def can_toggle(self, player, card):
@@ -90,29 +88,29 @@ class RuleEngine:
         current_player = self.turn_manager.get_current_player()
         if current_player != player:
             return False
-        
+
         if own_card.level_star != target_card.level_star:
             return False
-        
+
         if own_card.owner != player or target_card.owner != player:
             return False
-        
+
         if not isinstance(own_card, MonsterCard) or not isinstance(target_card, MonsterCard):
             return False
-    
+
         if own_card.type != target_card.type:
             return False
-        
+
         if own_card == target_card:
             return False
-        
+
         return True
 
     def get_mergeable_groups(self, monsters):
         """Get groups of monsters that can be merged for upgrades"""
         if not monsters:
             return []
-        
+
         # Group monsters by type and level
         groups = {}
         for monster in monsters:
@@ -121,7 +119,7 @@ class RuleEngine:
                 if key not in groups:
                     groups[key] = []
                 groups[key].append(monster)
-        
+
         # Filter groups that meet upgrade requirements
         mergeable_groups = []
         for (monster_type, level), group in groups.items():
@@ -134,18 +132,18 @@ class RuleEngine:
             elif level == 3 and len(group) >= 1:
                 # Check if we have the complex requirement for level 4
                 # Need: 2×(1★) + 2×(2★) + 1×(3★)
-                level_1_count = sum(1 for m in monsters if isinstance(m, MonsterCard) 
-                                  and m.type == monster_type and m.level_star == 1)
-                level_2_count = sum(1 for m in monsters if isinstance(m, MonsterCard) 
-                                  and m.type == monster_type and m.level_star == 2)
+                level_1_count = sum(1 for m in monsters if isinstance(m, MonsterCard)
+                                    and m.type == monster_type and m.level_star == 1)
+                level_2_count = sum(1 for m in monsters if isinstance(m, MonsterCard)
+                                    and m.type == monster_type and m.level_star == 2)
                 level_3_count = len(group)
-                
+
                 if level_1_count >= 2 and level_2_count >= 2 and level_3_count >= 1:
                     # Include all monsters of this type that can be used for level 4 upgrade
-                    all_type_monsters = [m for m in monsters if isinstance(m, MonsterCard) 
-                                       and m.type == monster_type]
+                    all_type_monsters = [m for m in monsters if isinstance(m, MonsterCard)
+                                         and m.type == monster_type]
                     mergeable_groups.append(all_type_monsters)
-        
+
         return mergeable_groups
 
     def next_turn(self):

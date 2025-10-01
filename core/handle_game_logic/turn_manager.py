@@ -17,13 +17,17 @@ class TurnManager:
     def start_turn(self):
         print(
             f"Turn {self.turn_count}  Start: Player{
-              self.get_current_player().player_index}"
+                self.get_current_player().player_index}"
         )
 
     def end_turn(self):
         print(f" Player {self.get_current_player().player_index} Turn Ends ")
-        self.game_state.player_info[self.get_current_player()]["has_summoned"] = False
-        self.game_state.player_info[self.get_current_player()]["has_toggled"] = False
+        self.game_state.player_info[self.get_current_player(
+        )]["has_summoned_monster"] = False
+        self.game_state.player_info[self.get_current_player(
+        )]["has_summoned_trap"] = False
+        self.game_state.player_info[self.get_current_player(
+        )]["has_toggled"] = False
         self.current_player_index = self.get_next_player_index()
         self.turn_count += 1
         self.effect_tracker.update_round()

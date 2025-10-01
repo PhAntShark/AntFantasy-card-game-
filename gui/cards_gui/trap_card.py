@@ -13,11 +13,10 @@ class TrapCardGUI(CardGUI):
     def on_drop(self, matrix, game_engine):
         cell = matrix.get_slot_at_pos(self.rect.center)
         if cell and self.logic_card.owner:
-            card_info = matrix.game_state.field_matrix[cell[0]][cell[1]]
-            if card_info == self.logic_card.owner:
-                if self.logic_card.can_trigger(card_info):
-                    self.on_trigger(game_engine, card_info)
-        
+            ownership = game_engine.game_state.field_matrix_ownership[cell[0]][cell[1]]
+            if ownership == self.logic_card.owner:
+                if game_engine.set_trap(self.logic_card, cell):
+                    self.is_draggable = False
 
         self.is_selected = False
         self.is_face_down = True
@@ -25,16 +24,3 @@ class TrapCardGUI(CardGUI):
     def on_trigger(self, game_engine):
         game_engine.resolve_trap(self.logic_card)
         self.kill()
-
-
-    # def on_drop(self, matrix, game_engine):
-    #     cell = matrix.get_slot_at_pos(self.rect.center)
-
-    #     if cell and self.logic_card.owner:
-    #         ownership = game_engine.game_state.field_matrix_ownership[cell[0]][cell[1]]
-    #         if ownership == self.logic_card.owner:
-    #             if game_engine.summon_card(self.logic_card.owner, self.logic_card, cell):
-    #                 self.is_draggable = False
-
-    #     self.is_selected = False
-
