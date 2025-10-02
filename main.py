@@ -51,9 +51,11 @@ while running:
     screen.fill((30, 30, 30)) 
 
     render_engine.update(game_engine.game_state, field_matrix)
+    field_matrix.areas["preview_card_table"].draw(screen)
+    field_matrix.draw()
     render_engine.draw()
     input_manager.draw(screen)
-    field_matrix.draw()
+    
 
     pygame.display.flip()
 

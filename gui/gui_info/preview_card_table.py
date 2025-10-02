@@ -16,5 +16,5 @@ class CardPreview:
         pygame.draw.rect(screen, self.border_color, self.rect, self.border_width)
 
         if self.card:
-            card_img = pygame.transform.scale(self.card_image, self.rect.size)
-            screen.blits(card_img, self.rect.topleft)
+            card_img = pygame.transform.scale(self.card.image, (self.rect.width, self.rect.height))
+            screen.blit(card_img, self.rect.topleft)
