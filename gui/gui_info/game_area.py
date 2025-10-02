@@ -4,8 +4,8 @@ import pygame
 class GameAreaConfig:
     """Configuration constants for the game layout"""
     # Layout ratios
-    LEFT_RATIO = 0.06
-    RIGHT_RATIO = 0.06
+    LEFT_RATIO = 0.25
+    RIGHT_RATIO = 0.01
     BOTTOM_RATIO = 0.18
     TOP_RATIO = 0.18
 
@@ -18,6 +18,7 @@ class GameAreaConfig:
     GRID_COLOR = (255, 255, 255)
     PLAYER_COLOR = (100, 100, 255)
     OPPONENT_COLOR = (255, 100, 100)
+    CARD_COLOR = (255,215,0)
 
 
 class GameArea:
