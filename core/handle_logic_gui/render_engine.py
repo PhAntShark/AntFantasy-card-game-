@@ -1,3 +1,4 @@
+# from core.cards.card import Card
 from gui.cards_gui.card_gui import CardGUI
 from gui.cards_gui.monster_card import MonsterCardGUI
 from gui.cards_gui.spell_card import SpellCardGUI
@@ -20,15 +21,6 @@ class RenderEngine:
 
     @staticmethod
     def sync_sprites(desired_set, sprite_dict, create_sprite, align_fn=None):
-        """
-        Ensure that sprite_dict matches desired_set by adding/removing as needed.
-
-        - desired_set: set of cards from game state
-        - sprite_dict: dict of current sprites for that zone
-        - create_sprite: function(card) -> sprite
-        - align_fn: optional function() called after changes
-        """
-
         existing_set = set(sprite_dict.keys())
 
         to_add = desired_set - existing_set

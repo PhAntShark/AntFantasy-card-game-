@@ -1,5 +1,5 @@
 from typing import Tuple, List, Any
-
+from core.factory.draw_system import DrawSystem
 from core.cards.card import Card
 from core.cards.monster_card import MonsterCard
 from core.cards.spell_card import SpellCard
@@ -21,7 +21,7 @@ class GameEngine:
         self.effect_tracker = EffectTracker()
         self.turn_manager = TurnManager(self.game_state, self.effect_tracker)
         self.rule_engine = RuleEngine(self.game_state, self.turn_manager)
-
+        self.draw_system = DrawSystem()
         self.players = players
 
         self.monster_factory = MonsterFactory()
@@ -41,15 +41,15 @@ class GameEngine:
     def draw_card(self, player: Player, check=True):
         """Player draws a card if allowed"""
         if not check or self.rule_engine.can_draw(player):
-            cards = [self.monster_factory.load(player),
-                     self.spell_factory.load(player),
-                     self.trap_factory.load(player)]
-            card = random.choice(cards)
+            card = self.draw_system.rate_card_draw(player)
             self.game_state.player_info[player]["held_cards"].add(card)
             return True
         print(f"{player.name} cannot draw a card now.")
         return False
-
+                # cards = [self.monster_factory.load(player),
+                #         self.spell_factory.load(player),
+                #         self.trap_factory.load(player)]
+                # card = random.choice(cards)
     def toggle_card(self, card):
         if self.rule_engine.can_toggle(card.owner, card) and card.ctype == "monster":
             card.switch_position()
@@ -195,25 +195,26 @@ class GameEngine:
         """Cast a spell card immediately"""
         if not isinstance(spell, SpellCard):
             return False
+        
+        if target == self.game_state.field_matrix_ownership:
+            # Resolve spell based on ability
+            if spell.ability == "draw_two_cards":
+                self.draw_card(spell.owner, check=False)
+                self.draw_card(spell.owner, check=False)
 
-        # Resolve spell based on ability
-        if spell.ability == "draw_two_cards":
-            self.draw_card(spell.owner, check=False)
-            self.draw_card(spell.owner, check=False)
+            elif spell.ability == "buff_attack":
+                self.effect_tracker.add_effect(
+                    EffectType.BUFF, target, "atk", 300, 3)
 
-        elif spell.ability == "buff_attack":
-            self.effect_tracker.add_effect(
-                EffectType.BUFF, target, "atk", 300, 3)
+            elif spell.ability == "buff_defense":
+                self.effect_tracker.add_effect(
+                    EffectType.BUFF, target, "defend", 300, 3)
 
-        elif spell.ability == "buff_defense":
-            self.effect_tracker.add_effect(
-                EffectType.BUFF, target, "defend", 300, 3)
-
-        elif spell.ability == "destroy_trap":
-            if target and target.ctype in ["trap"]:
-                self.move_card_to_graveyard(target)
-            else:
-                return False
+            elif spell.ability == "destroy_trap":
+                if target and target.ctype in ["trap"]:
+                    self.move_card_to_graveyard(target)
+                else:
+                    return False
 
         elif spell.ability == "summon_monster_from_hand":
             self.rule_engine.game_state.player_info[spell.owner]['has_summoned_monster'] = False

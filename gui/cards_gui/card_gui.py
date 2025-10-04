@@ -4,6 +4,7 @@ from pygame.draw import rect
 from gui.draggable import Draggable
 
 
+
 class CardGUI(Sprite, Draggable):
     def __init__(
         self,
@@ -20,11 +21,13 @@ class CardGUI(Sprite, Draggable):
             **kwargs
         )
         Draggable.__init__(self, self.rect)
+        
 
         self.logic_card = logic_card
         self.is_selected = False
         self.highlight = False
         self.highlight_color = (255, 255, 0)  # Yellow outline
+        
 
     def update(self):
         if self.is_selected:

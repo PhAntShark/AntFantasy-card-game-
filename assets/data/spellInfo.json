@@ -3,7 +3,8 @@
     "name": "Mystical Space Typhoon",
     "description": "Destroy 1  trap card your opponent controls.",
     "ctype": "spell",
-    "ability": "destroy_trap"
+    "ability": "destroy_trap",
+    "texture": "/images/cards/card1.jpg"
   },
   {
     "name": "Call of the Brave",
@@ -16,18 +17,21 @@
     "name": "Maniac War",
     "description": "Increase a monster's ATK by 300 points.",
     "ctype": "spell",
-    "ability": "buff_attack"
+    "ability": "buff_attack",
+    "texture": "/images/cards/card1.jpg"
   },
   {
     "name": "Holy Shield",
     "description": "Increase a monster's DEF by 300 points.",
     "ctype": "spell",
-    "ability": "buff_defense"
+    "ability": "buff_defense",
+    "texture": "/images/cards/card1.jpg"
   },
   {
     "name": "Pot of Greed",
     "description": "Draw 2 cards.",
     "ctype": "spell",
-    "ability": "draw_two_cards"
+    "ability": "draw_two_cards",
+    "texture": "/images/cards/card1.jpg"
   }
 ]
