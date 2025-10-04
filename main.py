@@ -1,9 +1,9 @@
+from core.factory.drop_system import drop_card
 import pygame
 # from core.arrow import DragArrow
 from core.player import Player
 from gui.gui_info.matrix_field import Matrix
 from core.handle_game_logic.game_engine import GameEngine
-# from gui.attack_control import AttackControl
 from core.handle_logic_gui.render_engine import RenderEngine
 from core.handle_logic_gui.input_manager import InputManager
 
@@ -32,7 +32,6 @@ render_engine = RenderEngine(screen)
 # TODO: fix this
 field_matrix = Matrix(screen, game_engine.game_state)
 
-# attack_control = AttackControl(game_engine.game_state, field_matrix)
 
 input_manager = InputManager(field_matrix, game_engine, render_engine)
 

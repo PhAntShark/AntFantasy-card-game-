@@ -52,19 +52,4 @@ class TrapFactory:
 
     def get_cards(self):
         return self._card_index
-    # def get_all_cards(self):
-    #     """Get list of all available trap cards"""
-    #     if self._card_index is None:
-    #         raise RuntimeError("TrapFactory not initialized. Call build() first.")
-
-    #     return list(self._card_index.keys())
-
-    # def get_card_info(self, name: str):
-    #     """Get card information by name"""
-    #     if self._card_index is None:
-    #         raise RuntimeError("TrapFactory not initialized. Call build() first.")
-
-    #     if name not in self._card_index:
-    #         raise ValueError(f"Trap card '{name}' not found")
-
-    #     return self._card_index[name]
+    
