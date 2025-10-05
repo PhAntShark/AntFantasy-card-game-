@@ -4,34 +4,34 @@
     "description": "Destroy 1  trap card your opponent controls.",
     "ctype": "spell",
     "ability": "destroy_trap",
-    "texture": "/images/cards/card1.jpg"
+    "texture": "/images/spell/typhoon.png"
   },
   {
     "name": "Call of the Brave",
     "description": "Summon 1 monster from your hand directly to the field.",
     "ctype": "spell",
     "ability": "summon_monster_from_hand",
-    "texture": "/images/cards/card1.jpg"
+    "texture": "/images/cards/call_of_brave.png"
   },
   {
     "name": "Maniac War",
     "description": "Increase a monster's ATK by 300 points.",
     "ctype": "spell",
     "ability": "buff_attack",
-    "texture": "/images/cards/card1.jpg"
+    "texture": "/images/spell/buff_damage.png"
   },
   {
-    "name": "Holy Shield",
+    "name": "Aura Shield",
     "description": "Increase a monster's DEF by 300 points.",
     "ctype": "spell",
     "ability": "buff_defense",
-    "texture": "/images/cards/card1.jpg"
+    "texture": "/images/spell/buff_defend.png"
   },
   {
-    "name": "Pot of Greed",
+    "name": "Ally on way",
     "description": "Draw 2 cards.",
     "ctype": "spell",
     "ability": "draw_two_cards",
-    "texture": "/images/cards/card1.jpg"
+    "texture": "/images/spell/pot_of_greed.png"
   }
 ]

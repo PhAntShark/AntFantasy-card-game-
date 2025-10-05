@@ -12,7 +12,6 @@ from core.game_info.game_state import GameState
 from .rule_engine import RuleEngine
 from .turn_manager import TurnManager
 from core.game_info.effect_tracker import EffectTracker, EffectType
-import random
 
 
 class GameEngine:
@@ -196,25 +195,24 @@ class GameEngine:
         if not isinstance(spell, SpellCard):
             return False
         
-        if target == self.game_state.field_matrix_ownership:
             # Resolve spell based on ability
-            if spell.ability == "draw_two_cards":
-                self.draw_card(spell.owner, check=False)
-                self.draw_card(spell.owner, check=False)
+        if spell.ability == "draw_two_cards":
+            self.draw_card(spell.owner, check=False)
+            self.draw_card(spell.owner, check=False)
 
-            elif spell.ability == "buff_attack":
-                self.effect_tracker.add_effect(
-                    EffectType.BUFF, target, "atk", 300, 3)
+        elif spell.ability == "buff_attack":
+            self.effect_tracker.add_effect(
+                EffectType.BUFF, target, "atk", 300, 3)
 
-            elif spell.ability == "buff_defense":
-                self.effect_tracker.add_effect(
-                    EffectType.BUFF, target, "defend", 300, 3)
+        elif spell.ability == "buff_defense":
+            self.effect_tracker.add_effect(
+                EffectType.BUFF, target, "defend", 300, 3)
 
-            elif spell.ability == "destroy_trap":
-                if target and target.ctype in ["trap"]:
-                    self.move_card_to_graveyard(target)
-                else:
-                    return False
+        elif spell.ability == "destroy_trap":
+            if target and target.ctype in ["trap"]:
+                self.move_card_to_graveyard(target)
+            else:
+                return False
 
         elif spell.ability == "summon_monster_from_hand":
             self.rule_engine.game_state.player_info[spell.owner]['has_summoned_monster'] = False
