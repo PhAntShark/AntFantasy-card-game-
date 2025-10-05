@@ -15,6 +15,7 @@ class InputManager:
             if event.button == 1:  # left click → start drag
                 self._handle_left_click(event.pos)
                 self._handle_left_click_arrow(event.pos)
+                self.handle_click_card(event.pos)
             elif event.button == 3:  # right click → toggle
                 self._handle_right_click(event.pos)
 
@@ -128,6 +129,17 @@ class InputManager:
                         on_toggle(self.game_engine)
                     return  # stop after first card is toggled
 
+    def handle_click_card(self, pos):
+        for card_ui in self.render_engine.sprites["matrix"].values():
+            if card_ui.rect.collidepoint(pos):
+                self.matrix.areas["preview_card_table"].set_card(card_ui)
+                return  # stop after first match
+
+        for card_ui in self.render_engine.sprites["hand"].values():
+            if card_ui.rect.collidepoint(pos):
+                self.matrix.areas["preview_card_table"].set_card(card_ui)
+                return
+                
     def draw(self, screen):
         if self.drag_arrow:
             self.drag_arrow.draw(screen)

@@ -20,7 +20,7 @@ class GameState:
                                 "held_cards": CollectionInfo([], player),
                                 "graveyard_cards": CollectionInfo([], player),
                                 "deck_cards": CollectionInfo([], player),
-                                "active_traps": None,  # Track active trap effects
+                                "active_traps": [],  # Track active trap effects
                             }
                             for player in players}
 

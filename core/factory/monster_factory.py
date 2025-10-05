@@ -64,7 +64,7 @@ class MonsterFactory:
         # Find a monster of the specified type and level
         for card_info in self._card_index.values():
             if (card_info.get("type") == monster_type and
-                    card_info.get("level_star") == level_star):
+                card_info.get("level_star") == level_star):
 
                 path = Path("./assets" + card_info.get("texture", ""))
                 if not path.is_file():

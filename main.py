@@ -31,15 +31,11 @@ field_matrix = Matrix(screen, game_engine.game_state)
 
 input_manager = InputManager(field_matrix, game_engine, render_engine)
 
-drag_arrow = DragArrow()
 
 while running:
-    # poll for events
-    # pygame.QUIT event means the user clicked X to close your window
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-        drag_arrow.handle_event(event)
 
         input_manager.handle_event(event)
 
@@ -48,6 +44,11 @@ while running:
             game_engine.end_turn()
 
     screen.fill((30, 30, 30))
+
+    field_matrix.areas["preview_card_table"].draw(screen)
+    field_matrix.draw()
+
+    input_manager.draw(screen)
 
     render_engine.update(game_engine,
                          game_engine.game_state,
@@ -59,15 +60,13 @@ while running:
     EffectManager.update()
     EffectManager.draw(screen)
 
-    input_manager.draw(screen)
-    field_matrix.draw()
-
-    # flip() the display to put your work on screen
     pygame.display.flip()
 
-    # limits FPS to 60
-    # dt is delta time in seconds since last frame, used for framerate-
-    # independent physics.
+    # Delta time for rate limit
     dt = clock.tick(60) / 1000
+
+    if game_engine.game_state.is_game_over():
+        pygame.time.wait(1000)  # pause to show message
+        running = False
 
 pygame.quit()

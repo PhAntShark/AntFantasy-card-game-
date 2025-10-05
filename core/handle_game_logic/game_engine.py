@@ -1,5 +1,5 @@
 from typing import Tuple, List, Any
-
+from core.factory.draw_system import DrawSystem
 from core.cards.card import Card
 from core.cards.monster_card import MonsterCard
 from core.cards.spell_card import SpellCard
@@ -22,6 +22,7 @@ class GameEngine:
         self.effect_tracker = EffectTracker()
         self.turn_manager = TurnManager(self.game_state, self.effect_tracker)
         self.rule_engine = RuleEngine(self.game_state, self.turn_manager)
+        self.draw_system = DrawSystem()
         self.event_logger = EventLogger()
 
         self.players = players
@@ -48,10 +49,7 @@ class GameEngine:
     def draw_card(self, player: Player, check=True):
         """Player draws a card if allowed"""
         if not check or self.rule_engine.can_draw(player):
-            cards = [self.monster_factory.load(player),
-                     self.spell_factory.load(player),
-                     self.trap_factory.load(player)]
-            card = random.choice(cards)
+            card = self.draw_system.rate_card_draw(player)
             self.game_state.player_info[player]["held_cards"].add(card)
             return True
         print(f"{player.name} cannot draw a card now.")
@@ -76,6 +74,7 @@ class GameEngine:
             # TODO: the fuck does this do
             card.pos_in_matrix = cell
             print(f"{player.name} summoned {card.name}.")
+            self.check_summon_trap(card)
             return True
         print(f"{player.name} cannot summon {card.name}.")
         return False
@@ -219,11 +218,9 @@ class GameEngine:
                 return False
 
         elif spell.ability == "summon_monster_from_hand":
-            if isinstance(target, MonsterCard) and target is not None:
-                self.rule_engine.game_state.player_info[spell.owner]['has_summoned'] = False
-                self.summon_card(spell.owner, target, (0, 0))
-            else:
-                return False
+            self.rule_engine.game_state.player_info[spell.owner]['has_summoned_monster'] = False
+            print('{spell.owner.name} summon extra nigga get on the field ')
+            #return False
 
         # Move spell to graveyard after use
         self.event_logger.add_event(SpellActiveEvent(spell, target))
@@ -278,13 +275,18 @@ class GameEngine:
             return True  # Attacker is destroyed
 
         elif trap.ability == "debuff_summon":
-            # Store this for later use when summoning occurs
-            self.game_state.player_info[trap.owner]["active_traps"] = trap
             self.effect_tracker.add_effect(
-                EffectType.DEBUFF, attacker, 'atk' and 'def', 500, 3)
+                EffectType.DEBUFF, attacker, "atk", 500, 4
+            )
+            self.effect_tracker.add_effect(
+                EffectType.DEBUFF, attacker, "defend", 500, 4
+            )
+            print(f"{attacker.name} is weakened by trap {trap.name} on summon")
+            # Move trap to graveyard after activation
+            self.move_card_to_graveyard(trap)
+            return True
 
-        # Move trap to graveyard after activation
-        self.move_card_to_graveyard(trap)
+
         return False  # Attack continues normally
 
     def check_trap_triggers(self, attacker: MonsterCard, defender: Player):
@@ -298,6 +300,19 @@ class GameEngine:
             if self.resolve_trap(trap, attacker):
                 return True  # Attack was negated or reflected
         return False  # Attack continues
+
+
+    def check_summon_trap(self, card_summon: MonsterCard):
+        card_summon_owner = card_summon.owner
+        opponents = [player for player in self.players if player != card_summon_owner]
+
+        for opponent in opponents:
+            # Get all face-down traps on the opponent's field
+            opponent_cards = self.game_state.get_player_cards(opponent)
+            traps = [card for card in opponent_cards if isinstance(card, TrapCard) and card.is_face_down]
+            for trap in traps[:]:
+                if trap.ability == 'debuff_summon':
+                    self.resolve_trap(trap, card_summon)
 
     def update_effects(self):
         """Update all active effects (call at end of each turn)"""
