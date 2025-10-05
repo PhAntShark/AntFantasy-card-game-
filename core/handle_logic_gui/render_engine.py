@@ -67,6 +67,7 @@ class RenderEngine:
             if isinstance(event, AttackEvent):
                 card1 = self.sprites["matrix"][event.card]
                 card2 = self.sprites["matrix"][event.target]
+                # FIX: this doesnt handle attacking the player
                 self.animation_mgr.create_attack_animation(card1, card2)
 
             elif isinstance(event, TrapTriggerEvent):

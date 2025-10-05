@@ -6,7 +6,7 @@
         "attack_points": 1000,
         "defense_points": 500,
         "level_star": 1,
-        "texture": "/images/scholar/mushroom-mage.png" 
+        "texture": "/images/scholar/wandering-mage.png" 
       },
       {
         "name": "Mushroom Mage",
@@ -83,7 +83,7 @@
         "texture": "/images/conqueror/Priest.png"
       },
       {
-        "name": "Paladinb",
+        "name": "Paladin",
         "description": "The mage that old has experience in many batle",
         "attack_points": 3000,
         "defense_points": 2500,
@@ -96,7 +96,7 @@
         "attack_points": 4500,
         "defense_points": 3500,
         "level_star": 4,
-        "texture": "/images/conqueror/Holy knight.png"
+        "texture": "/images/conqueror/holy_knight.png"
       }
     ],
     "Forest Monster": [

@@ -69,5 +69,7 @@ class DrawSystem:
             card = self.spell_factory.load(player, k)
         elif card_type == "trap":
             card = self.trap_factory.load(player, k)
+        if not card:
+            print(card_type, k)
         return card
     

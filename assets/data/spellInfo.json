@@ -11,7 +11,7 @@
     "description": "Summon 1 monster from your hand directly to the field.",
     "ctype": "spell",
     "ability": "summon_monster_from_hand",
-    "texture": "/images/cards/call_of_brave.png"
+    "texture": "/images/spell/call_of_brave.png"
   },
   {
     "name": "Maniac War",

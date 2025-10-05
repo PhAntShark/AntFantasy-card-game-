@@ -13,12 +13,6 @@ clock = pygame.time.Clock()
 running = True
 dt = 0
 
-bd_path = Path("./assets/card1.jpg")
-blue_dragon = Card("dragon", 'dragon', 'fire ball', (100, 100), (0,0), bd_path)
-blue_dragon2 = Card("dragon", 'dragon', 'fire ball', (100, 100), (300,300), bd_path)
-
-    
-
 # Players creation
 player1 = Player(0, 'Binh')
 player2 = Player(1, 'An', is_opponent=True)
@@ -70,3 +64,8 @@ while running:
         running = False
 
 pygame.quit()
+
+#TODO: when defend and get attack it change to attack but it still in attack pos defend
+#TODO: draw atk and def to card and star 
+#TODO: where  trap already triger it not work
+#TODO: animation for player
