@@ -105,7 +105,7 @@ class Matrix:
                 self.grid['width'], margins['top'] - (2 * padding),
                 self.config.OPPONENT_COLOR, self.config.AREA_BORDER_WIDTH
             ),
-            
+
             # Player areas (bottom)
             'my_deck': GameArea(
                 padding*16.5, screen_height - margins['bottom'] + padding,
@@ -113,7 +113,7 @@ class Matrix:
                 self.config.PLAYER_COLOR, self.config.AREA_BORDER_WIDTH
             ),
             'preview_card_table': CardPreview(
-                padding*4, padding*13, #find x,y 
+                padding*4, padding*13, #find x,y
                 self.grid['width']/3.5 #find width
                 , self.grid['height'] *1, #find height
                 self.config.CARD_COLOR, self.config.AREA_BORDER_WIDTH
@@ -131,11 +131,10 @@ class Matrix:
     def draw(self):
         """Draw the entire game matrix"""
         # self.update_dimensions()
-        
+
         self._draw_grid()
         self._draw_areas()
         self.areas["preview_card_table"].draw(self.screen)
-        # self._draw_hands()
 
     def _draw_grid(self):
         """Draw the playing field grid"""

@@ -13,7 +13,6 @@ class RuleEngine:
 
     def can_draw(self, player):
         current_player = self.turn_manager.get_current_player()
-        print(player, current_player)
         return (
             current_player == player
             and len(self.game_state.player_info[player]["held_cards"].cards) < 10)
@@ -70,7 +69,6 @@ class RuleEngine:
         cards = self.game_state.get_player_cards(defender)
 
         for card in cards:
-            print(card.ctype)
             if card.ctype == "monster":
                 return False
 
@@ -86,10 +84,10 @@ class RuleEngine:
     def can_upgrade(self, player: Player, own_card: MonsterCard, target_card: MonsterCard) -> bool:
         """Check if player can upgrade monsters of given type to target level"""
         current_player = self.turn_manager.get_current_player()
-        
+
         if current_player != player:
             return False
-        
+
         if own_card.ctype != 'monster' or target_card.ctype != 'monster':
             return False
 
@@ -110,45 +108,22 @@ class RuleEngine:
 
         return True
 
-    def get_mergeable_groups(self, monsters):
+    @staticmethod
+    def get_mergeable_groups(player, monsters):
         """Get groups of monsters that can be merged for upgrades"""
         if not monsters:
-            return []
+            return {}
 
         # Group monsters by type and level
         groups = {}
         for monster in monsters:
             if isinstance(monster, MonsterCard):
-                key = (monster.type, monster.level_star)
+                key = (player, monster.type, monster.level_star)
                 if key not in groups:
                     groups[key] = []
                 groups[key].append(monster)
 
-        # Filter groups that meet upgrade requirements
-        mergeable_groups = []
-        for (monster_type, level), group in groups.items():
-            if level == 1 and len(group) >= 2:
-                # 2 level 1 monsters can upgrade to level 2
-                mergeable_groups.append(group)
-            elif level == 2 and len(group) >= 2:
-                # 2 level 2 monsters can upgrade to level 3
-                mergeable_groups.append(group)
-            elif level == 3 and len(group) >= 1:
-                # Check if we have the complex requirement for level 4
-                # Need: 2×(1★) + 2×(2★) + 1×(3★)
-                level_1_count = sum(1 for m in monsters if isinstance(m, MonsterCard)
-                                    and m.type == monster_type and m.level_star == 1)
-                level_2_count = sum(1 for m in monsters if isinstance(m, MonsterCard)
-                                    and m.type == monster_type and m.level_star == 2)
-                level_3_count = len(group)
-
-                if level_1_count >= 2 and level_2_count >= 2 and level_3_count >= 1:
-                    # Include all monsters of this type that can be used for level 4 upgrade
-                    all_type_monsters = [m for m in monsters if isinstance(m, MonsterCard)
-                                         and m.type == monster_type]
-                    mergeable_groups.append(all_type_monsters)
-
-        return mergeable_groups
+        return groups
 
     def next_turn(self):
         # Reset toggles for all players at the start of a new turn

@@ -5,6 +5,7 @@ from core.cards.trap_card import TrapCard as LogicTrapCard
 class TrapCardGUI(CardGUI):
     def __init__(self, trap_info: LogicTrapCard, *args, **kwargs):
         super().__init__(trap_info, *args, **kwargs)
+        self.is_face_down = True
 
     def on_set(self, game_engine):
         game_engine.set_trap(self.logic_card)
@@ -19,8 +20,8 @@ class TrapCardGUI(CardGUI):
                     self.is_draggable = False
 
         self.is_selected = False
-        self.is_face_down = True
 
     def on_trigger(self, game_engine):
+        self.is_face_down = False
         game_engine.resolve_trap(self.logic_card)
         self.kill()

@@ -12,5 +12,5 @@ class Sprite(PySprite):
         self.original_image = self.image
 
         self.rect = self.image.get_rect()
-        self.rect.x = pos[0]
-        self.rect.y = pos[1]
+        self.rect.x = int(pos[0])
+        self.rect.y = int(pos[1])

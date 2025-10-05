@@ -128,7 +128,7 @@ class InputManager:
                     if callable(on_toggle):
                         on_toggle(self.game_engine)
                     return  # stop after first card is toggled
-                
+
     def handle_click_card(self, pos):
         for card_ui in self.render_engine.sprites["matrix"].values():
             if card_ui.rect.collidepoint(pos):
@@ -139,48 +139,6 @@ class InputManager:
             if card_ui.rect.collidepoint(pos):
                 self.matrix.areas["preview_card_table"].set_card(card_ui)
                 return
-    # # Check matrix cards
-    #     for card_ui in self.render_engine.sprites["matrix"].values():
-    #         if card_ui.rect.collidepoint(pos):
-    #             self.matrix.areas["preview_card_table"].set_card(card_ui)
-    #             return
-
-    #     # Check hand cards
-    #     hand_sprites = self.render_engine.sprites.get("hand", {})
-    #     if isinstance(hand_sprites, dict):
-    #         for card_ui in hand_sprites.values():
-    #             if card_ui.rect.collidepoint(pos):
-    #                 self.matrix.areas["preview_card_table"].set_card(card_ui)
-    #                 return
-    #     elif isinstance(hand_sprites, (list, tuple)):
-    #         for card_ui in hand_sprites:
-    #             if card_ui.rect.collidepoint(pos):
-    #                 self.matrix.areas["preview_card_table"].set_card(card_ui)
-    #                 return
-    #     else:
-    #         # If it's just one card
-    #         if hasattr(hand_sprites, "rect") and hand_sprites.rect.collidepoint(pos):
-    #             self.matrix.areas["preview_card_table"].set_card(hand_sprites)
-    #             return
-
-                
-    # def handle_click_card(self, pos):
-    #     slot = self.matrix.get_slot_at_pos(pos)
-    #     if slot:
-    #         row, col = slot
-    #         logic_card = self.game_engine.game_state.field_matrix[row][col]
-    #         if logic_card is None:
-    #             return
-    #         card_ui = self.render_engine.sprites['matrix'].get(logic_card)
-    #         if card_ui:
-    #             self.matrix.areas['preview_card_table'].set_card(card_ui)
-    #         return
-        
-    #     for sprite_dict in self.render_engine.sprites.get('hand', {}):
-    #         for card_ui in sprite_dict.items():
-    #             if card_ui.rect.collidepoint(pos):
-    #                 self.matrix.areas['preview_card_table'].set_card(card_ui)
-    #                 return
                 
     def draw(self, screen):
         if self.drag_arrow:

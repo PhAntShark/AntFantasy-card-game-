@@ -1,11 +1,10 @@
-# from core.factory.draw_system import DrawSystem
 import pygame
-# from core.arrow import DragArrow
 from core.player import Player
 from gui.gui_info.matrix_field import Matrix
 from core.handle_game_logic.game_engine import GameEngine
 from core.handle_logic_gui.render_engine import RenderEngine
 from core.handle_logic_gui.input_manager import InputManager
+from gui.effects.manager import EffectManager
 
 
 pygame.init()
@@ -14,24 +13,21 @@ clock = pygame.time.Clock()
 running = True
 dt = 0
 
+bd_path = Path("./assets/card1.jpg")
+blue_dragon = Card("dragon", 'dragon', 'fire ball', (100, 100), (0,0), bd_path)
+blue_dragon2 = Card("dragon", 'dragon', 'fire ball', (100, 100), (300,300), bd_path)
 
-'''PLAYER FOR TESTING'''
-
-# Monster factory for generating new cards
+    
 
 # Players creation
 player1 = Player(0, 'Binh')
 player2 = Player(1, 'An', is_opponent=True)
 
-
 game_engine = GameEngine([player1, player2])
 game_engine.give_init_cards(5)
 
 render_engine = RenderEngine(screen)
-# Matrix field creation
-# TODO: fix this
 field_matrix = Matrix(screen, game_engine.game_state)
-
 
 input_manager = InputManager(field_matrix, game_engine, render_engine)
 
@@ -47,14 +43,22 @@ while running:
         if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
             game_engine.end_turn()
 
-    screen.fill((30, 30, 30)) 
+    screen.fill((30, 30, 30))
 
-    render_engine.update(game_engine.game_state, field_matrix)
     field_matrix.areas["preview_card_table"].draw(screen)
     field_matrix.draw()
-    render_engine.draw()
+
     input_manager.draw(screen)
-    
+
+    render_engine.update(game_engine,
+                         game_engine.game_state,
+                         field_matrix,
+                         game_engine.event_logger)
+    render_engine.animation_mgr.update(dt)
+    render_engine.draw()
+
+    EffectManager.update()
+    EffectManager.draw(screen)
 
     pygame.display.flip()
 
@@ -66,8 +70,3 @@ while running:
         running = False
 
 pygame.quit()
-
-
-# TODO: allow only one monster card to be toggled per turn
-# TODO: handle resolve battle (cards disappear after fight)
-# TODO: complete turn phase flow (full)

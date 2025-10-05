@@ -44,3 +44,4 @@ class MonsterCard(Card):
         """Change the card mode to either attack or defense."""
         self.mode = 'defense' if self.mode == 'attack' else 'attack'
         print(f"{self.name} switched to {self.mode} position.")
+        return self.mode

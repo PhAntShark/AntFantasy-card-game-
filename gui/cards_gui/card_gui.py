@@ -2,43 +2,43 @@ from gui.sprite import Sprite
 from typing import Tuple
 from pygame.draw import rect
 from gui.draggable import Draggable
-
+import pygame
 
 
 class CardGUI(Sprite, Draggable):
     def __init__(
         self,
         logic_card,
-        pos: Tuple[float, float] = [0, 0],
-        size: Tuple[float, float] = [0, 0],
-        **kwargs
+        pos: Tuple[float, float] = (0, 0),
+        size: Tuple[float, float] = (0, 0),
     ):
         Sprite.__init__(
             self,
             pos=pos,
             size=size,
-            image_path=logic_card.image_path,
-            **kwargs
+            image_path=logic_card.image_path
         )
         Draggable.__init__(self, self.rect)
-        
 
         self.logic_card = logic_card
         self.is_selected = False
         self.highlight = False
         self.highlight_color = (255, 255, 0)  # Yellow outline
-        
+
+        if self.logic_card.owner.is_opponent:
+            self.image = pygame.transform.flip(
+                self.original_image, False, True)
+            self.original_image = self.image
 
     def update(self):
         if self.is_selected:
-            rect(self.image, (255, 255, 0), self.rect, 3)
+            rect(self.image, self.highlight_color, self.rect, 3)
 
     def draw(self, surface):
         surface.blit(self.image, self.rect)
 
         # Draw highlight outline if enabled
         if self.highlight:
-            import pygame
             pygame.draw.rect(surface, self.highlight_color, self.rect, 4)
 
     def on_drag_start(self):
