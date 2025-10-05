@@ -1,7 +1,12 @@
+# from core.factory.draw_system import DrawSystem
 import pygame
-from core.card import Card
-from pathlib import Path
-from core.arrow import DragArrow
+# from core.arrow import DragArrow
+from core.player import Player
+from gui.gui_info.matrix_field import Matrix
+from core.handle_game_logic.game_engine import GameEngine
+from core.handle_logic_gui.render_engine import RenderEngine
+from core.handle_logic_gui.input_manager import InputManager
+
 
 pygame.init()
 screen = pygame.display.set_mode((1280, 720))
@@ -9,44 +14,60 @@ clock = pygame.time.Clock()
 running = True
 dt = 0
 
-bd_path = Path("./assets/card1.jpg")
-blue_dragon = Card("dragon", 'dragon', 'fire ball', (100, 100), (0,0), bd_path)
-blue_dragon2 = Card("dragon", 'dragon', 'fire ball', (100, 100), (300,300), bd_path)
 
-    
+'''PLAYER FOR TESTING'''
 
-all_sprites = pygame.sprite.Group() 
-all_sprites.add(blue_dragon)
-all_sprites.add(blue_dragon2)
+# Monster factory for generating new cards
 
+# Players creation
+player1 = Player(0, 'Binh')
+player2 = Player(1, 'An', is_opponent=True)
 
 
-drag_arrow = DragArrow()
+game_engine = GameEngine([player1, player2])
+game_engine.give_init_cards(5)
+
+render_engine = RenderEngine(screen)
+# Matrix field creation
+# TODO: fix this
+field_matrix = Matrix(screen, game_engine.game_state)
+
+
+input_manager = InputManager(field_matrix, game_engine, render_engine)
+
 
 while running:
-    # poll for events
-    # pygame.QUIT event means the user clicked X to close your window
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-        drag_arrow.handle_event(event)
 
-    screen.fill((30, 30, 30))
-    
-    all_sprites.update()
-    all_sprites.draw(screen)
-    
-    drag_arrow.draw(screen)
+        input_manager.handle_event(event)
 
-    # flip() the display to put your work on screen
+        # TODO: change this with a real turn end button
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+            game_engine.end_turn()
+
+    screen.fill((30, 30, 30)) 
+
+    render_engine.update(game_engine.game_state, field_matrix)
+    field_matrix.areas["preview_card_table"].draw(screen)
+    field_matrix.draw()
+    render_engine.draw()
+    input_manager.draw(screen)
+    
+
     pygame.display.flip()
 
-    # limits FPS to 60
-    # dt is delta time in seconds since last frame, used for framerate-
-    # independent physics.
+    # Delta time for rate limit
     dt = clock.tick(60) / 1000
+
+    if game_engine.game_state.is_game_over():
+        pygame.time.wait(1000)  # pause to show message
+        running = False
 
 pygame.quit()
 
 
-
+# TODO: allow only one monster card to be toggled per turn
+# TODO: handle resolve battle (cards disappear after fight)
+# TODO: complete turn phase flow (full)

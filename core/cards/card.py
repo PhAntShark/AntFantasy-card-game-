@@ -1,10 +1,6 @@
-from pygame.sprite import Sprite
-# from pygame.image import load
-# from pygame.transform import scale
-# from typings import Tuple
+from typing import Literal, Optional, Tuple
 
-
-cardType = "monster" | "spell" | "trap"
+cardType = Literal["monster", "spell", "trap"]
 
 
 class Card:
@@ -13,19 +9,13 @@ class Card:
                  description: str,
                  ctype: cardType,
                  ability: str,
-                 # size: Tuple[int, int],
-                 # pos: Tuple[int, int],
-                 # image_path: str,
+                 owner,
+                 is_placed: bool = False
                  ):
-        Sprite.__init__(self)
         self.name = name
         self.description = description
         self.ability = ability
-        self.type = ctype
-
-        # self.image = load(image_path).convert_alpha()
-        # self.image = scale(self.image, size)
-
-        # self.rect = self.image.get_rect()
-        # self.rect.x = pos[0]
-        # self.rect.y = pos[1]
+        self.ctype = ctype
+        self.owner = owner
+        self.is_placed = is_placed
+        self.pos_in_matrix: Optional[Tuple[int, int]] = None
