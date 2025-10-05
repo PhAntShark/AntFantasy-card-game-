@@ -258,10 +258,12 @@ class GameEngine:
         if trap.ability == "debuff_enemy_atk":
             self.effect_tracker.add_effect(
                 EffectType.DEBUFF, attacker, "atk", 500, 3)
+            self.move_card_to_graveyard(trap)
 
         elif trap.ability == "debuff_enemy_def":
             self.effect_tracker.add_effect(
                 EffectType.DEBUFF, attacker, "defend", 500, 3)
+            self.move_card_to_graveyard(trap)
 
         elif trap.ability == "dodge_attack":
             attacker.has_attack = True

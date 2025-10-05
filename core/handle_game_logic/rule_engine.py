@@ -23,7 +23,7 @@ class RuleEngine:
                    matrix: List[List[None | Card]],
                    pos: Tuple[int, int]):
         current_player = self.turn_manager.get_current_player()
-
+        print(matrix[pos[0]][pos[1]])
         return (
             current_player == player
             and card in self.game_state.player_info[player]["held_cards"].cards

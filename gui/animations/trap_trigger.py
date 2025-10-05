@@ -48,3 +48,6 @@ class TrapTriggerAnimation(Animation):
             # Reset trap card to normal state
             self.card.image = self.card.original_image
             self.card.rect.center = self.start_pos
+
+
+            

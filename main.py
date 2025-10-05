@@ -50,7 +50,7 @@ while running:
                          game_engine.event_logger)
     render_engine.animation_mgr.update(dt)
     render_engine.draw()
-
+   
     EffectManager.update()
     EffectManager.draw(screen)
 
@@ -65,7 +65,6 @@ while running:
 
 pygame.quit()
 
-#TODO: when defend and get attack it change to attack but it still in attack pos defend
 #TODO: draw atk and def to card and star 
 #TODO: where  trap already triger it not work
 #TODO: animation for player

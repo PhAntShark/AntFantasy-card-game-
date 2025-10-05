@@ -9,6 +9,8 @@ class AttackAnimation(Animation):
         super().__init__({card1, card2}, duration)
         self.card1 = card1
         self.card2 = card2
+        self.card1_original = self.card1.image.copy()
+        self.card2_original = self.card2.image.copy()
         self.start_pos1 = pygame.Vector2(card1.rect.center)
         self.start_pos2 = pygame.Vector2(card2.rect.center)
         self.midpoint = (self.start_pos1 + self.start_pos2) / 2
@@ -80,20 +82,20 @@ class AttackAnimation(Animation):
 
                 # Add squash/stretch impact
                 self.card1.image = pygame.transform.scale(
-                    self.card1.original_image,
+                    self.card1_original,
                     (int(self.card1.rect.width * 1.1),
                      int(self.card1.rect.height * 0.9))
                 )
                 self.card2.image = pygame.transform.scale(
-                    self.card2.original_image,
+                    self.card2_original,
                     (int(self.card2.rect.width * 1.1),
                      int(self.card2.rect.height * 0.9))
                 )
                 self.impact_done = True
 
-        if self.is_finished:
+        if t >= 1:
             # Reset state
-            self.card1.image = self.card1.original_image
-            self.card2.image = self.card2.original_image
+            self.card1.image = self.card1_original
+            self.card2.image = self.card2_original
             self.card1.rect.center = self.start_pos1
             self.card2.rect.center = self.start_pos2
