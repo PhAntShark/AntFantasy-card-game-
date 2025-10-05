@@ -18,6 +18,7 @@ class HandUI(GameArea):
         super().__init__(*args, **kwargs)
         self.hand_info = hand_info
 
+    # TODO: this might not be the best choice
     def align(self, sprites):
         for index, card_info in enumerate(self.hand_info.cards):
             card = sprites.get(card_info, None)

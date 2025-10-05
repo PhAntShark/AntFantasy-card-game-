@@ -1,5 +1,5 @@
 from typing import Tuple, List, Any
-from core.factory.draw_system import DrawSystem
+
 from core.cards.card import Card
 from core.cards.monster_card import MonsterCard
 from core.cards.spell_card import SpellCard
@@ -12,6 +12,8 @@ from core.game_info.game_state import GameState
 from .rule_engine import RuleEngine
 from .turn_manager import TurnManager
 from core.game_info.effect_tracker import EffectTracker, EffectType
+from core.game_info.events import EventLogger, AttackEvent, TrapTriggerEvent, ToggleEvent, SpellActiveEvent, MergeEvent
+import random
 
 
 class GameEngine:
@@ -20,7 +22,8 @@ class GameEngine:
         self.effect_tracker = EffectTracker()
         self.turn_manager = TurnManager(self.game_state, self.effect_tracker)
         self.rule_engine = RuleEngine(self.game_state, self.turn_manager)
-        self.draw_system = DrawSystem()
+        self.event_logger = EventLogger()
+
         self.players = players
 
         self.monster_factory = MonsterFactory()
@@ -37,21 +40,27 @@ class GameEngine:
             for _ in range(number):
                 self.draw_card(player, check=False)
 
+    # DEBUG FUNCTION
+    def draw_specific_card(self, player, name):
+        card = self.monster_factory.load(player, name)
+        self.game_state.player_info[player]["held_cards"].add(card)
+
     def draw_card(self, player: Player, check=True):
         """Player draws a card if allowed"""
         if not check or self.rule_engine.can_draw(player):
-            card = self.draw_system.rate_card_draw(player)
+            cards = [self.monster_factory.load(player),
+                     self.spell_factory.load(player),
+                     self.trap_factory.load(player)]
+            card = random.choice(cards)
             self.game_state.player_info[player]["held_cards"].add(card)
             return True
         print(f"{player.name} cannot draw a card now.")
         return False
-                # cards = [self.monster_factory.load(player),
-                #         self.spell_factory.load(player),
-                #         self.trap_factory.load(player)]
-                # card = random.choice(cards)
+
     def toggle_card(self, card):
         if self.rule_engine.can_toggle(card.owner, card) and card.ctype == "monster":
-            card.switch_position()
+            mode = card.switch_position()
+            self.event_logger.add_event(ToggleEvent(card=card, mode=mode))
             self.game_state.player_info[card.owner]["has_toggled"] = True
 
     def summon_card(self,
@@ -67,7 +76,6 @@ class GameEngine:
             # TODO: the fuck does this do
             card.pos_in_matrix = cell
             print(f"{player.name} summoned {card.name}.")
-            self.check_summon_trap(card)
             return True
         print(f"{player.name} cannot summon {card.name}.")
         return False
@@ -80,12 +88,11 @@ class GameEngine:
                ):
         if self.rule_engine.can_attack(attacker, defender, card, target):
             # Check for trap triggers before resolving battle
-            # self.resolve_battle(attacker, card, target)
 
             if isinstance(target, MonsterCard):
                 if self.check_trap_triggers(card, defender):
                     return True
-            
+
             self.resolve_battle(attacker, card, target)
             return True
 
@@ -96,8 +103,6 @@ class GameEngine:
     def move_card_to_graveyard(self, card):
         self.game_state.modify_field("remove", card, card.pos_in_matrix)
         self.game_state.player_info[card.owner]["graveyard_cards"].add(card)
-        print(self.game_state.field_matrix)
-        print(self.game_state.player_info[card.owner]["graveyard_cards"].cards)
 
     def resolve_battle(self,
                        attacker: Player,
@@ -105,6 +110,7 @@ class GameEngine:
                        target: MonsterCard | Player,
                        ):
         """Resolve a battle between a card and a target (card or player)"""
+        self.event_logger.add_event(AttackEvent(card=card, target=target))
         if isinstance(target, MonsterCard):
             defender = target.owner
             if target.mode == 'attack':
@@ -144,7 +150,7 @@ class GameEngine:
         """Upgrade monsters of the same type to a higher level"""
         if not self.rule_engine.can_upgrade(player, own_card, target_card):
             print(f"{player.name} cannot upgrade {
-                  own_card} monsters to level {target_card}.")
+                  own_card.name} monsters to level {target_card.level_star+1}.")
             return False
 
         # Determine which monsters to remove based on upgrade requirements
@@ -155,14 +161,15 @@ class GameEngine:
             self.move_card_to_graveyard(own_card)
             self.move_card_to_graveyard(target_card)
 
+            new_level = own_card.level_star + 1
             # Create the upgraded monster
             # Request the next level when creating the upgraded monster
             upgraded_monster = self.monster_factory.load_by_type_and_level(
-                player, own_card.type, own_card.level_star + 1)
+                player, own_card.type, new_level)
 
             if upgraded_monster is None:
-                print(f"Could not create upgraded {
-                      own_card} monster of level {target_card}.")
+                print(f"Could not create upgraded {own_card.name} \
+                      monster of level {new_level}.")
                 return False
 
             # Place the upgraded monster on the field
@@ -173,29 +180,26 @@ class GameEngine:
                 upgraded_monster.pos_in_matrix = upgrade_position
                 print(f"{player.name} upgraded {
                       own_card} monsters to {upgraded_monster.name}!")
+                self.event_logger.add_event(MergeEvent(
+                    own_card, target_card, upgraded_monster))
                 return True
 
             return False
 
-    def get_mergeable_cards(self, player: Player):
+    def get_mergeable_groups(self, player: Player):
         """Get cards that can be merged for upgrades (pure logic)"""
         player_monsters = self.game_state.get_player_cards(player)
         mergeable_groups = self.rule_engine.get_mergeable_groups(
-            player_monsters)
+            player, player_monsters)
 
-        # Flatten all mergeable cards into a set
-        highlighted_cards = set()
-        for group in mergeable_groups:
-            highlighted_cards.update(group)
-
-        return highlighted_cards
+        return mergeable_groups
 
     def cast_spell(self, spell: SpellCard, target: Any = None):
         """Cast a spell card immediately"""
         if not isinstance(spell, SpellCard):
             return False
-        
-            # Resolve spell based on ability
+
+        # Resolve spell based on ability
         if spell.ability == "draw_two_cards":
             self.draw_card(spell.owner, check=False)
             self.draw_card(spell.owner, check=False)
@@ -215,11 +219,14 @@ class GameEngine:
                 return False
 
         elif spell.ability == "summon_monster_from_hand":
-            self.rule_engine.game_state.player_info[spell.owner]['has_summoned_monster'] = False
-            print('{spell.owner.name} summon extra nigga get on the field ')
-            #return False
+            if isinstance(target, MonsterCard) and target is not None:
+                self.rule_engine.game_state.player_info[spell.owner]['has_summoned'] = False
+                self.summon_card(spell.owner, target, (0, 0))
+            else:
+                return False
 
         # Move spell to graveyard after use
+        self.event_logger.add_event(SpellActiveEvent(spell, target))
         self.game_state.player_info[spell.owner]["held_cards"].remove(spell)
         self.game_state.player_info[spell.owner]["graveyard_cards"].add(spell)
 
@@ -232,7 +239,6 @@ class GameEngine:
 
         if not self.rule_engine.can_summon(trap.owner, trap, self.game_state.field_matrix, position):
             return False
-
 
         # Place trap face-down
         self.game_state.player_info[trap.owner]["held_cards"].remove(trap)
@@ -250,6 +256,7 @@ class GameEngine:
             return False
 
         trap.is_face_down = False  # Reveal the trap
+        self.event_logger.add_event(TrapTriggerEvent(trap, attacker))
 
         if trap.ability == "debuff_enemy_atk":
             self.effect_tracker.add_effect(
@@ -261,31 +268,23 @@ class GameEngine:
 
         elif trap.ability == "dodge_attack":
             attacker.has_attack = True
-            print(f'bo may ne/ dc r nhe con ch0/')
             self.move_card_to_graveyard(trap)
             return True  # Attack is negated
-      
-            
+
         elif trap.ability == "reflect_attack":
-            # self.game_state.player_info[trap.owner]["active_traps"] = trap
             self.move_card_to_graveyard(attacker)
             self.move_card_to_graveyard(trap)
             print(f"{attacker.name}'s phai gi a phai phai phai chjuuuuu")
             return True  # Attacker is destroyed
 
         elif trap.ability == "debuff_summon":
+            # Store this for later use when summoning occurs
+            self.game_state.player_info[trap.owner]["active_traps"] = trap
             self.effect_tracker.add_effect(
-                EffectType.DEBUFF, attacker, "atk", 500, 4
-            )
-            self.effect_tracker.add_effect(
-                EffectType.DEBUFF, attacker, "defend", 500, 4
-            )
-            print(f"{attacker.name} is weakened by trap {trap.name} on summon")
-            # Move trap to graveyard after activation
-            self.move_card_to_graveyard(trap)
-            return True
+                EffectType.DEBUFF, attacker, 'atk' and 'def', 500, 3)
 
-          
+        # Move trap to graveyard after activation
+        self.move_card_to_graveyard(trap)
         return False  # Attack continues normally
 
     def check_trap_triggers(self, attacker: MonsterCard, defender: Player):
@@ -300,19 +299,6 @@ class GameEngine:
                 return True  # Attack was negated or reflected
         return False  # Attack continues
 
-    
-    def check_summon_trap(self, card_summon: MonsterCard):
-        card_summon_owner = card_summon.owner
-        opponents = [player for player in self.players if player != card_summon_owner]
-
-        for opponent in opponents:
-            # Get all face-down traps on the opponent's field
-            opponent_cards = self.game_state.get_player_cards(opponent)
-            traps = [card for card in opponent_cards if isinstance(card, TrapCard) and card.is_face_down]
-            for trap in traps[:]:
-                if trap.ability == 'debuff_summon':
-                    self.resolve_trap(trap, card_summon)
-    
     def update_effects(self):
         """Update all active effects (call at end of each turn)"""
         self.effect_tracker.update_round()

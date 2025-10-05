@@ -1,4 +1,3 @@
-from pygame.transform import rotate
 from gui.cards_gui.card_gui import CardGUI
 from core.cards.monster_card import MonsterCard as LogicMonsterCard
 
@@ -9,10 +8,6 @@ class MonsterCardGUI(CardGUI):
 
     def on_toggle(self, game_engine):
         game_engine.toggle_card(self.logic_card)
-        if self.logic_card.mode == "defense":
-            self.image = rotate(self.original_image, 90)
-        else:
-            self.image = rotate(self.original_image, 0)
 
     def on_drop(self, matrix, game_engine):
         cell = matrix.get_slot_at_pos(self.rect.center)

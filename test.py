@@ -53,7 +53,7 @@ while running:
     render_engine.update(game_engine.game_state, field_matrix)
     render_engine.draw()
     input_manager.draw(screen)
-    field_matrix.draw() 
+    field_matrix.draw()
 
     pygame.display.flip()
 
@@ -61,8 +61,3 @@ while running:
     dt = clock.tick(60) / 1000
 
 pygame.quit()
-
-
-# TODO: allow only one monster card to be toggled per turn
-# TODO: handle resolve battle (cards disappear after fight)
-# TODO: complete turn phase flow (full)

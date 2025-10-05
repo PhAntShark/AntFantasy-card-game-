@@ -16,10 +16,6 @@ class DragArrow:
         if event.type == pygame.MOUSEMOTION and self.dragging:
             self.end_pos = event.pos
 
-        # elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
-            # self.dragging = False
-            # self.end_pos = event.pos
-
     def draw(self, surface):
         if not self.start_pos or not self.end_pos:
             return

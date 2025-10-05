@@ -1,7 +1,6 @@
 import pygame
 from gui.gui_info.game_area import GameArea, GameAreaConfig
 from gui.gui_info.hand import HandUI
-from gui.gui_info.preview_card_table import CardPreview
 
 
 class Matrix:
@@ -11,6 +10,7 @@ class Matrix:
         self.cols = cols
         self.game_state = game_state
         self.config = GameAreaConfig()
+        self.grid = None
 
         # Initialize areas (will be updated in update_dimensions)
         self.areas = {}
@@ -77,15 +77,16 @@ class Matrix:
     def _calculate_area_dimensions(self, margins):
         """Calculate dimensions for deck/graveyard areas"""
         deck_width = margins['left'] - (2 * self.config.AREA_PADDING)
-
+        grave_width = margins['right'] - (2 * self.config.AREA_PADDING)
 
         return {
             'deck_width': max(0, deck_width),
+            'grave_width': max(0, grave_width),
             'top_height': margins['top'] - (2 * self.config.AREA_PADDING),
             'bottom_height': margins['bottom'] - (2 * self.config.AREA_PADDING)
         }
 
-    def _create_game_areas(self, screen_width, screen_height, margins): #screen_width
+    def _create_game_areas(self, screen_width, screen_height, margins):
         """Create all game areas (decks, graveyards, etc.)"""
         area_dims = self._calculate_area_dimensions(margins)
         padding = self.config.AREA_PADDING
@@ -93,9 +94,13 @@ class Matrix:
         # Opponent areas (top)
         self.areas = {
             'opponent_deck': GameArea(
-                area_dims['deck_width']/1.8, padding,
-                area_dims['deck_width']/2
-                , area_dims['top_height'],
+                padding, padding,
+                area_dims['deck_width'], area_dims['top_height'],
+                self.config.OPPONENT_COLOR, self.config.AREA_BORDER_WIDTH
+            ),
+            'opponent_graveyard': GameArea(
+                screen_width - margins['right'] + padding, padding,
+                area_dims['grave_width'], area_dims['top_height'],
                 self.config.OPPONENT_COLOR, self.config.AREA_BORDER_WIDTH
             ),
             'opponent_hand_area': HandUI(
@@ -105,18 +110,18 @@ class Matrix:
                 self.grid['width'], margins['top'] - (2 * padding),
                 self.config.OPPONENT_COLOR, self.config.AREA_BORDER_WIDTH
             ),
-            
+
             # Player areas (bottom)
             'my_deck': GameArea(
-                padding*16.5, screen_height - margins['bottom'] + padding,
-                area_dims['deck_width']/2, area_dims['bottom_height'],
+                padding, screen_height - margins['bottom'] + padding,
+                area_dims['deck_width'], area_dims['bottom_height'],
                 self.config.PLAYER_COLOR, self.config.AREA_BORDER_WIDTH
             ),
-            'preview_card_table': CardPreview(
-                padding*4, padding*13, #find x,y 
-                self.grid['width']/3.5 #find width
-                , self.grid['height'] *1, #find height
-                self.config.CARD_COLOR, self.config.AREA_BORDER_WIDTH
+            'my_graveyard': GameArea(
+                screen_width - margins['right'] + padding,
+                screen_height - margins['bottom'] + padding,
+                area_dims['grave_width'], area_dims['bottom_height'],
+                self.config.PLAYER_COLOR, self.config.AREA_BORDER_WIDTH
             ),
             'my_hand_area': HandUI(
                 self.game_state.player_info[self.game_state.players[0]
@@ -130,11 +135,10 @@ class Matrix:
 
     def draw(self):
         """Draw the entire game matrix"""
-        # self.update_dimensions()
-        
+        self.update_dimensions()
+
         self._draw_grid()
         self._draw_areas()
-        self.areas["preview_card_table"].draw(self.screen)
         # self._draw_hands()
 
     def _draw_grid(self):
@@ -163,12 +167,12 @@ class Matrix:
 
     def _draw_areas(self):
         """Draw all game areas except hands"""
-        for area in self.areas.values():
+        for area_name, area in self.areas.items():
             area.draw(self.screen)
 
     def _draw_hands(self):
         """Draw player hands"""
-        for area_name, hand in self.hands.values():
+        for hand in self.hands:
             hand.draw(self.screen)
 
     def get_slot_at_pos(self, pos):
