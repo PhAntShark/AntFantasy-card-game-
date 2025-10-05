@@ -4,6 +4,7 @@ from pathlib import Path
 from core.cards.monster_card import MonsterCard
 import random
 
+
 class MonsterFactory:
     DATA_FILE = Path("./assets/data/monsterInfo.json")
     _card_index = None
@@ -58,18 +59,17 @@ class MonsterFactory:
             raise RuntimeError(
                 "MonsterFactory not initialized. Call build() first.")
 
-        
         monster_random = []
         # TODO: this shit will return the first (2) start monster that it can find (the second is forgotten)
         # Find a monster of the specified type and level
         for card_info in self._card_index.values():
-            if (card_info.get("type") == monster_type and 
-                card_info.get("level_star") == level_star):
-                
+            if (card_info.get("type") == monster_type and
+                    card_info.get("level_star") == level_star):
+
                 path = Path("./assets" + card_info.get("texture", ""))
                 if not path.is_file():
                     continue  # Skip if texture not found
-                
+
                 card = MonsterCard(
                     name=card_info["name"],
                     description=card_info.get("description", ""),
@@ -80,11 +80,11 @@ class MonsterFactory:
                     level_star=card_info.get("level_star", 1),
                     monster_type=card_info.get("type", "Unknown")
                 )
-                
+
                 monster_random.append(card)
         if monster_random == []:
             return None
-        
+
         monster = random.choice(monster_random)
         return monster
 
