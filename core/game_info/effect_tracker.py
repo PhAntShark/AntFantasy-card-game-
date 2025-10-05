@@ -73,7 +73,6 @@ class EffectTracker:
 
     def _apply_effect(self, effect: Effect):
         """Apply the effect to the target"""
-        print(effect.target, effect.stat)
         if hasattr(effect.target, effect.stat):
             if effect.effect_type == EffectType.BUFF:
                 setattr(effect.target, effect.stat,
