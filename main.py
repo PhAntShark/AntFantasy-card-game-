@@ -20,8 +20,8 @@ player2 = Player(1, 'An', is_opponent=True)
 game_engine = GameEngine([player1, player2])
 game_engine.give_init_cards(5)
 
-render_engine = RenderEngine(screen)
 field_matrix = Matrix(screen, game_engine.game_state)
+render_engine = RenderEngine(field_matrix, screen)
 
 input_manager = InputManager(field_matrix, game_engine, render_engine)
 
@@ -50,7 +50,7 @@ while running:
                          game_engine.event_logger)
     render_engine.animation_mgr.update(dt)
     render_engine.draw()
-   
+
     EffectManager.update()
     EffectManager.draw(screen)
 
@@ -65,6 +65,4 @@ while running:
 
 pygame.quit()
 
-#TODO: draw atk and def to card and star 
-#TODO: where  trap already triger it not work
-#TODO: animation for player
+

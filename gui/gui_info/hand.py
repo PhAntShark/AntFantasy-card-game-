@@ -14,9 +14,10 @@ class CollectionInfo:
 
 
 class HandUI(GameArea):
-    def __init__(self, hand_info, *args, **kwargs):
+    def __init__(self, player, hand_info, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.hand_info = hand_info
+        self.player = player
 
     # TODO: this might not be the best choice
     def align(self, sprites):

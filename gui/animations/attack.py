@@ -9,6 +9,7 @@ class AttackAnimation(Animation):
         super().__init__({card1, card2}, duration)
         self.card1 = card1
         self.card2 = card2
+        print(card1, card2)
         self.card1_original = self.card1.image.copy()
         self.card2_original = self.card2.image.copy()
         self.start_pos1 = pygame.Vector2(card1.rect.center)

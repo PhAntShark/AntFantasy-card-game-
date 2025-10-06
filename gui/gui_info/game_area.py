@@ -18,7 +18,7 @@ class GameAreaConfig:
     GRID_COLOR = (255, 255, 255)
     PLAYER_COLOR = (100, 100, 255)
     OPPONENT_COLOR = (255, 100, 100)
-    CARD_COLOR = (255,215,0)
+    CARD_COLOR = (255, 215, 0)
 
 
 class GameArea:

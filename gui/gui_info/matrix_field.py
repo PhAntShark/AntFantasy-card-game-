@@ -78,14 +78,13 @@ class Matrix:
         """Calculate dimensions for deck/graveyard areas"""
         deck_width = margins['left'] - (2 * self.config.AREA_PADDING)
 
-
         return {
             'deck_width': max(0, deck_width),
             'top_height': margins['top'] - (2 * self.config.AREA_PADDING),
             'bottom_height': margins['bottom'] - (2 * self.config.AREA_PADDING)
         }
 
-    def _create_game_areas(self, screen_width, screen_height, margins): #screen_width
+    def _create_game_areas(self, screen_width, screen_height, margins):  # screen_width
         """Create all game areas (decks, graveyards, etc.)"""
         area_dims = self._calculate_area_dimensions(margins)
         padding = self.config.AREA_PADDING
@@ -94,13 +93,13 @@ class Matrix:
         self.areas = {
             'opponent_deck': GameArea(
                 area_dims['deck_width']/1.8, padding,
-                area_dims['deck_width']/2
-                , area_dims['top_height'],
+                area_dims['deck_width']/2, area_dims['top_height'],
                 self.config.OPPONENT_COLOR, self.config.AREA_BORDER_WIDTH
             ),
             'opponent_hand_area': HandUI(
-                self.game_state.player_info[self.game_state.players[1]
-                                            ]["held_cards"],
+                self.game_state.players[1],
+                self.game_state.player_info[
+                    self.game_state.players[1]]["held_cards"],
                 self.grid['origin_x'], padding,
                 self.grid['width'], margins['top'] - (2 * padding),
                 self.config.OPPONENT_COLOR, self.config.AREA_BORDER_WIDTH
@@ -112,15 +111,17 @@ class Matrix:
                 area_dims['deck_width']/2, area_dims['bottom_height'],
                 self.config.PLAYER_COLOR, self.config.AREA_BORDER_WIDTH
             ),
+            # TODO: this is hardcoded for now
             'preview_card_table': CardPreview(
-                padding*4, padding*13, #find x,y
-                self.grid['width']/3.5 #find width
-                , self.grid['height'] *1, #find height
+                padding*4 - 25, padding*13,  # find x,y
+                self.grid['width']/3.5 + 25,  # find width
+                self.grid['height'] * 1,  # find height
                 self.config.CARD_COLOR, self.config.AREA_BORDER_WIDTH
             ),
             'my_hand_area': HandUI(
-                self.game_state.player_info[self.game_state.players[0]
-                                            ]["held_cards"],
+                self.game_state.players[0],
+                self.game_state.player_info[
+                    self.game_state.players[0]]["held_cards"],
                 self.grid['origin_x'],
                 screen_height - margins['bottom'] + padding,
                 self.grid['width'], area_dims['bottom_height'],

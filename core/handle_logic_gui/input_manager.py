@@ -139,7 +139,7 @@ class InputManager:
             if card_ui.rect.collidepoint(pos):
                 self.matrix.areas["preview_card_table"].set_card(card_ui)
                 return
-                
+
     def draw(self, screen):
         if self.drag_arrow:
             self.drag_arrow.draw(screen)

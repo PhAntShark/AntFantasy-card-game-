@@ -9,6 +9,7 @@ from .trap_trigger import TrapTriggerAnimation
 from .toggle import ToggleRotateAnimation
 from .spell_activate import SpellAnimation
 from .merge import MergeAnimation
+from .attack_player import AttackPlayerAnimation
 
 
 class AnimationManager:
@@ -59,6 +60,9 @@ class AnimationManager:
 
     def create_attack_animation(self, card1, card2, duration=1):
         self.add_animation(AttackAnimation(card1, card2, duration))
+
+    def create_attack_player_animation(self, card, game_area):
+        self.add_animation(AttackPlayerAnimation(card, game_area))
 
     def create_trigger_animation(self, card, duration=1):
         self.add_animation(TrapTriggerAnimation(card))

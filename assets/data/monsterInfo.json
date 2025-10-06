@@ -2,15 +2,15 @@
     "Scholar": [
       {
         "name": "Wandering Mage",
-        "description": "A new mage",
+        "description": "A young mage exploring the lands, eager to learn new spells.",
         "attack_points": 1000,
         "defense_points": 500,
         "level_star": 1,
-        "texture": "/images/scholar/wandering-mage.png" 
+        "texture": "/images/scholar/mushroom-mage.png" 
       },
       {
         "name": "Mushroom Mage",
-        "description": "A student",
+        "description": "A curious scholar who harnesses the power of fungi for magic.",
         "attack_points": 500,
         "defense_points": 1000,
         "level_star": 1,
@@ -18,7 +18,7 @@
       },
       {
         "name": "Fire Mage",
-        "description": "The mage that can good at control his power",
+        "description": "A mage who wields fire with precision, controlling flames effortlessly.",
         "attack_points": 2200,
         "defense_points": 1000,
         "level_star": 2,
@@ -26,7 +26,7 @@
       },
       {
         "name": "Water Magician",
-        "description": "A chill guy",
+        "description": "A calm mage who manipulates water to protect and attack.",
         "attack_points": 1000,
         "defense_points": 2200,
         "level_star": 2,
@@ -34,7 +34,7 @@
       },
       {
         "name": "Lightning Mage",
-        "description": "The mage that old has experience in many batle",
+        "description": "An experienced mage, striking enemies with powerful lightning.",
         "attack_points": 3000,
         "defense_points": 2500,
         "level_star": 3,
@@ -42,7 +42,7 @@
       },
       {
         "name": "Silent Witch",
-        "description": "The legendary of the mage",
+        "description": "A legendary mage whose silent presence hides immense power.",
         "attack_points": 4500,
         "defense_points": 3500,
         "level_star": 4,
@@ -52,23 +52,23 @@
     "Conqueror": [
       {
         "name": "Mercenary",
-        "description": "A new mage",
+        "description": "A fresh fighter, skilled in basic combat and strategy.",
         "attack_points": 1000,
         "defense_points": 500,
         "level_star": 1,
-        "texture": "/images/conqueror/mercany.png"
+        "texture": "/images/conqueror/mercenary.png"
       },
       {
         "name": "Warrior",
-        "description": "A student",
+        "description": "A dedicated student learning the ways of battle and honor.",
         "attack_points": 500,
         "defense_points": 1000,
         "level_star": 1,
         "texture": "/images/conqueror/warrior.png"
       },
       {
-        "name": "Assasin ",
-        "description": "The mage that can good at control his power",
+        "name": "Assassin",
+        "description": "A deadly fighter who strikes from the shadows with precision.",
         "attack_points": 2200,
         "defense_points": 1000,
         "level_star": 2,
@@ -76,15 +76,15 @@
       },
       {
         "name": "Priest",
-        "description": "A chill guy",
+        "description": "A calm and wise protector who heals and shields allies.",
         "attack_points": 1000,
         "defense_points": 2200,
         "level_star": 2,
-        "texture": "/images/conqueror/Priest.png"
+        "texture": "/images/conqueror/priest.png"
       },
       {
         "name": "Paladin",
-        "description": "The mage that old has experience in many batle",
+        "description": "A battle-hardened warrior, righteous and experienced in many fights.",
         "attack_points": 3000,
         "defense_points": 2500,
         "level_star": 3,
@@ -92,17 +92,17 @@
       },
       {
         "name": "Holy Knight",
-        "description": "The legendary of the mage",
+        "description": "A legendary knight whose valor inspires all on the battlefield.",
         "attack_points": 4500,
         "defense_points": 3500,
         "level_star": 4,
-        "texture": "/images/conqueror/holy_knight.png"
+        "texture": "/images/conqueror/holy-knight.png"
       }
     ],
     "Forest Monster": [
       {
         "name": "Goblin",
-        "description": "A new mage",
+        "description": "A mischievous creature, quick but fragile in combat.",
         "attack_points": 1000,
         "defense_points": 500,
         "level_star": 1,
@@ -110,23 +110,23 @@
       },
       {
         "name": "Slime",
-        "description": "A student",
+        "description": "A slow, gelatinous creature that absorbs attacks with ease.",
         "attack_points": 500,
         "defense_points": 1000,
         "level_star": 1,
-        "texture": "/images/monster/Slime.png"
+        "texture": "/images/monster/slime.png"
       },
       {
         "name": "Orc",
-        "description": "The mage that can good at control his power",
+        "description": "A strong forest brute with unmatched strength in battles.",
         "attack_points": 2200,
         "defense_points": 1000,
         "level_star": 2,
-        "texture": "/images/monster/ORC.png"
+        "texture": "/images/monster/orc.png"
       },
       {
         "name": "Troll",
-        "description": "A chill guy",
+        "description": "A tough monster, patient but deadly when provoked.",
         "attack_points": 1000,
         "defense_points": 2200,
         "level_star": 2,
@@ -134,25 +134,25 @@
       },
       {
         "name": "Shaman",
-        "description": "The mage that old has experience in many batle",
+        "description": "A mystical creature channeling forest magic to attack and defend.",
         "attack_points": 3000,
         "defense_points": 2500,
         "level_star": 3,
-        "texture": "/images/monster/Shaman.png"
+        "texture": "/images/monster/shaman.png"
       },
       {
         "name": "Goblin King",
-        "description": "The legendary of the mage",
+        "description": "The cunning ruler of goblins, feared and respected by all.",
         "attack_points": 4500,
         "defense_points": 3500,
         "level_star": 4,
-        "texture": "/images/monster/King_goblin.png"
+        "texture": "/images/monster/king-goblin.png"
       }
     ],
     "Demon": [
       {
         "name": "Skeleton",
-        "description": "A new mage",
+        "description": "A restless skeleton, weak but relentless in numbers.",
         "attack_points": 1000,
         "defense_points": 500,
         "level_star": 1,
@@ -160,7 +160,7 @@
       },
       {
         "name": "Hell Spider",
-        "description": "A student",
+        "description": "A cunning spider that traps prey in dark, fiery webs.",
         "attack_points": 500,
         "defense_points": 1000,
         "level_star": 1,
@@ -168,7 +168,7 @@
       },
       {
         "name": "Hell Bee",
-        "description": "The mage that can good at control his power",
+        "description": "A venomous demon insect that attacks in swift swarms.",
         "attack_points": 2200,
         "defense_points": 1000,
         "level_star": 2,
@@ -176,15 +176,15 @@
       },
       {
         "name": "Hell Worm",
-        "description": "A chill guy",
+        "description": "A massive underground worm, burrowing and ambushing enemies.",
         "attack_points": 1000,
         "defense_points": 2200,
         "level_star": 2,
         "texture": "/images/demon/hell-worm.png"
       },
       {
-        "name":  "vampire",
-        "description": "The mage that old has experience in many batle",
+        "name": "Vampire",
+        "description": "A night stalker who drains life to strengthen its own powers.",
         "attack_points": 3000,
         "defense_points": 2500,
         "level_star": 3,
@@ -192,7 +192,7 @@
       },
       {
         "name": "Hell Knight",
-        "description": "The legendary of the mage",
+        "description": "A legendary demon warrior, armored and feared across realms.",
         "attack_points": 4500,
         "defense_points": 3500,
         "level_star": 4,
@@ -202,7 +202,7 @@
     "Forest Guard": [
       {
         "name": "Boar",
-        "description": "A new mage",
+        "description": "A wild forest boar, charging at enemies with raw strength.",
         "attack_points": 1000,
         "defense_points": 500,
         "level_star": 1,
@@ -210,7 +210,7 @@
       },
       {
         "name": "Flower",
-        "description": "A student",
+        "description": "A gentle plant creature, using nature to shield and heal allies.",
         "attack_points": 500,
         "defense_points": 1000,
         "level_star": 1,
@@ -218,7 +218,7 @@
       },
       {
         "name": "Elf Guard",
-        "description": "The mage that can good at control his power",
+        "description": "A skilled forest warrior, agile and precise in battle.",
         "attack_points": 2200,
         "defense_points": 1000,
         "level_star": 2,
@@ -226,15 +226,15 @@
       },
       {
         "name": "Golem",
-        "description": "A chill guy",
+        "description": "A sturdy guardian of the woods, slow but nearly unstoppable.",
         "attack_points": 1000,
         "defense_points": 2200,
         "level_star": 2,
         "texture": "/images/forest_guard/golem.png"
       },
       {
-        "name": "Drawf Warrior",
-        "description": "The mage that old has experience in many batle",
+        "name": "Dwarf Warrior",
+        "description": "A battle-hardened dwarf, defending the forest with axe and shield.",
         "attack_points": 3000,
         "defense_points": 2500,
         "level_star": 3,
@@ -242,7 +242,7 @@
       },
       {
         "name": "Ancient Golem",
-        "description": "The legendary of the mage",
+        "description": "A legendary guardian, imbued with ancient magic and immense strength.",
         "attack_points": 4500,
         "defense_points": 3500,
         "level_star": 4,
