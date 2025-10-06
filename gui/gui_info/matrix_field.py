@@ -5,7 +5,7 @@ from gui.gui_info.preview_card_table import CardPreview
 
 
 class Matrix:
-    def __init__(self, screen, game_state, rows=4, cols=5):
+    def __init__(self, screen, game_state, rows=4, cols=5, image_path = "assets/images/field.png"):
         self.screen = screen
         self.rows = rows
         self.cols = cols
@@ -16,10 +16,18 @@ class Matrix:
         self.areas = {}
 
         self.update_dimensions()
+        if image_path:
+            self.field_image = pygame.image.load(image_path)
+            self.field_image = pygame.transform.scale(
+                self.field_image, self.screen.get_size()
+            )
+        else:
+            self.field_image = None
 
         # TODO: refactor this area part
         self.hands = [self.areas["my_hand_area"],
                       self.areas["opponent_hand_area"]]
+    
 
     def update_dimensions(self):
         """Calculate all dimensions and create game areas"""
@@ -131,8 +139,9 @@ class Matrix:
 
     def draw(self):
         """Draw the entire game matrix"""
-        # self.update_dimensions()
-
+        if self.field_image:
+            self.screen.blit(self.field_image, (0,0))
+            
         self._draw_grid()
         self._draw_areas()
         self.areas["preview_card_table"].draw(self.screen)
