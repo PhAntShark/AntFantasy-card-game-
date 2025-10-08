@@ -28,10 +28,10 @@
     "texture": "/images/spell/buff_defend.png"
   },
   {
-    "name": "Ally on way",
+    "name": "Reinforcement",
     "description": "Draw 2 cards.",
     "ctype": "spell",
     "ability": "draw_two_cards",
-    "texture": "/images/spell/pot_of_greed.png"
+    "texture": "/images/spell/reinforcement.png"
   }
 ]

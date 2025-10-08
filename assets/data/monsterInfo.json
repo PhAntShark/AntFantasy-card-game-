@@ -6,7 +6,7 @@
         "attack_points": 1000,
         "defense_points": 500,
         "level_star": 1,
-        "texture": "/images/scholar/mushroom-mage.png" 
+        "texture": "/images/scholar/wandering-mage.png" 
       },
       {
         "name": "Mushroom Mage",
@@ -196,7 +196,7 @@
         "attack_points": 4500,
         "defense_points": 3500,
         "level_star": 4,
-        "texture": "/images/demon/demon.png"
+        "texture": "/images/demon/hell-knight.png"
       }
     ],
     "Forest Guard": [
@@ -214,7 +214,7 @@
         "attack_points": 500,
         "defense_points": 1000,
         "level_star": 1,
-        "texture": "/images/forest_guard/tree-man.png"
+        "texture": "/images/forest_guard/flower.png"
       },
       {
         "name": "Elf Guard",

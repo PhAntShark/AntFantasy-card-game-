@@ -33,6 +33,6 @@
     "description": "When an opponent summons a monster, it loses 500 ATK and DEF.",
     "ctype": "trap",
     "ability": "debuff_summon",
-    "texture": "/images/trap/debuff_summon2.png"  
+    "texture": "/images/trap/debuff_summon.png"  
   }
 ]
