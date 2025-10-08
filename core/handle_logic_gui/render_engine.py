@@ -178,7 +178,8 @@ class RenderEngine:
             desired_set=current_cards,
             sprite_dict=self.sprites["hand"],
             create_sprite=make_hand_sprite,
-            add_animation=self.animation_mgr.create_draw_animation,
+            add_animation=lambda card: self.animation_mgr.create_draw_animation(
+                matrix, card),
             align_fn=lambda: self.align_cards(matrix)
         )
 

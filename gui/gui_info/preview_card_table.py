@@ -3,6 +3,9 @@ import pygame
 
 class CardPreview:
     def __init__(self, x, y, width, height, border_color=(0, 0, 0), border_width=2):
+        image_path = "assets/card-preview.png"
+        self.image = pygame.image.load(image_path).convert_alpha()
+        self.image = pygame.transform.scale(self.image, (width, height))
         self.rect = pygame.Rect(x, y, width, height)
         self.border_color = border_color
         self.border_width = border_width
@@ -16,10 +19,9 @@ class CardPreview:
         self.card_gui.image = self.card_gui.annotated_image
 
     def draw(self, screen):
-        pygame.draw.rect(screen, self.border_color,
-                         self.rect, self.border_width)
-
         if self.card_gui:
-            # Center inside preview rect
             self.card_gui.rect.center = self.rect.center
             self.card_gui.draw(screen)
+
+        else:
+            screen.blit(self.image, self.rect)

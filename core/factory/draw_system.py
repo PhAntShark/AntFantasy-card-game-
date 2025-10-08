@@ -7,7 +7,7 @@ from core.factory.trap_factory import TrapFactory
 class DrawSystem:
     def __init__(self):
 
-        self.generic_draw = {'monster': 60, 'spell': 40, 'trap': 40}
+        self.generic_draw = {'monster': 60, 'spell': 50, 'trap': 50}
         self.monster_factory = MonsterFactory()
         self.monster_factory.build()
         self.spell_factory = SpellFactory()

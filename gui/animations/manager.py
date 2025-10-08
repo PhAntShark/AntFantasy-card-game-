@@ -51,9 +51,10 @@ class AnimationManager:
             sprite.kill()
             sprite_dict.pop(card)
 
-    def create_draw_animation(self, card, duration=0.3):
+    def create_draw_animation(self, matrix, card, duration=0.3):
+        start_pos = matrix.player_zones[card.logic_card.owner]["deck"].rect.center
         self.add_animation(MoveAnimation(
-            card, (0, 0), card.rect.center, duration))
+            card, start_pos, card.rect.center, duration))
 
     def create_place_animation(self, card, duration=0.5):
         self.add_animation(PlaceAnimation(card, card.rect.center, duration))

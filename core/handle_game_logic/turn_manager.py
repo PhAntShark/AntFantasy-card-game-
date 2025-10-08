@@ -14,6 +14,12 @@ class TurnManager:
     def get_next_player_index(self):
         return (self.current_player_index + 1) % len(self.game_state.players)
 
+    def start_turn(self):
+        print(
+            f"Turn {self.turn_count}  Start: Player{
+                self.get_current_player().player_index}"
+        )
+
     def end_turn(self):
         print(f" Player {self.get_current_player().player_index} Turn Ends ")
         self.game_state.player_info[self.get_current_player(

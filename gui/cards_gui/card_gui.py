@@ -64,6 +64,17 @@ class CardGUI(Sprite, Draggable):
 
         # Draw description in padded textbox
         description = getattr(self.logic_card, "description", "")
+        level_star = getattr(self.logic_card, "level_star", None)
+        monster_type = getattr(self.logic_card, "type", None)
+
+        if level_star and monster_type:
+            description = (
+                f"Type: {monster_type}\n"
+                f"Level: {level_star}*\n"
+                f"Description: {description}"
+            )
+        else:
+            description = f"Description: {description}"
         if description:
             self._render_wrapped_text(description, inner_textbox)
 
@@ -94,36 +105,39 @@ class CardGUI(Sprite, Draggable):
 
     def _render_wrapped_text(self, text, rect):
         """Render description inside textbox dynamically"""
-        words = text.split(" ")
-        lines = []
-        current_line = []
-
-        # Dynamically shrink font if text too long
+        paragraphs = text.splitlines()
         font = self.desc_font
+
+        # Function to wrap text for a given font
+        def wrap_text_for_font(fnt):
+            wrapped_lines = []
+            for paragraph in paragraphs:
+                words = paragraph.split(" ")
+                current_line = []
+                for word in words:
+                    test_line = current_line + [word]
+                    test_text = " ".join(test_line)
+                    if fnt.size(test_text)[0] > rect.width:
+                        if current_line:
+                            wrapped_lines.append(" ".join(current_line))
+                            current_line = [word]
+                        else:
+                            wrapped_lines.append(word)
+                            current_line = []
+                    else:
+                        current_line = test_line
+                if current_line:
+                    wrapped_lines.append(" ".join(current_line))
+            return wrapped_lines
+
+        # Try shrinking font until it fits vertically
         while True:
-            lines = []
-            current_line = []
+            lines = wrap_text_for_font(font)
             line_height = font.get_height()
             max_lines = rect.height // line_height
 
-            for word in words:
-                test_line = current_line + [word]
-                test_text = " ".join(test_line)
-                if font.size(test_text)[0] > rect.width:
-                    if current_line:
-                        lines.append(" ".join(current_line))
-                        current_line = [word]
-                    else:
-                        lines.append(word)
-                        current_line = []
-                else:
-                    current_line = test_line
-            if current_line:
-                lines.append(" ".join(current_line))
-
             if len(lines) <= max_lines:
-                break  # Fits!
-            # Otherwise shrink font and retry
+                break  # Fits within textbox
             font_size = font.get_height()
             if font_size <= 6:
                 break  # Stop shrinking
@@ -145,7 +159,7 @@ class CardGUI(Sprite, Draggable):
     def draw(self, surface):
         surface.blit(self.image, self.rect)
         if self.highlight:
-            pygame.draw.rect(surface, self.highlight_color, self.rect, 2)
+            pygame.draw.rect(surface, self.highlight_color, self.rect, 5)
 
     def on_drag_start(self):
         self.is_selected = True

@@ -8,7 +8,8 @@ from gui.effects.manager import EffectManager
 
 
 pygame.init()
-screen = pygame.display.set_mode((1280, 720))
+screen_size = (1280, 720)
+screen = pygame.display.set_mode(screen_size)
 clock = pygame.time.Clock()
 running = True
 dt = 0
@@ -25,6 +26,10 @@ render_engine = RenderEngine(field_matrix, screen)
 
 input_manager = InputManager(field_matrix, game_engine, render_engine)
 
+image_path = "assets/background.png"
+background = pygame.image.load(image_path).convert_alpha()
+background = pygame.transform.scale(background, screen_size)
+
 
 while running:
     for event in pygame.event.get():
@@ -37,7 +42,7 @@ while running:
         if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
             game_engine.end_turn()
 
-    screen.fill((30, 30, 30))
+    screen.blit(background, background.get_rect())
 
     field_matrix.areas["preview_card_table"].draw(screen)
     field_matrix.draw()
@@ -65,4 +70,6 @@ while running:
 
 pygame.quit()
 
-
+# TODO: draw atk and def to card and star
+# TODO: where  trap already triger it not work
+# TODO: animation for player

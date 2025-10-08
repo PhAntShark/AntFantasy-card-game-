@@ -1,50 +1,206 @@
 import pygame
 from gui.gui_info.game_area import GameArea, GameAreaConfig
 from gui.gui_info.hand import HandUI
+from gui.gui_info.text_area import TextArea
 from gui.gui_info.preview_card_table import CardPreview
+from gui.gui_info.deck_area import DeckArea
+
+
+class TileSpriteManager:
+    """Manages loading, caching, and retrieval of tile sprites"""
+
+    def __init__(self):
+        self.sprites = {}
+        self.sprite_paths = {}
+
+    def register_sprite(self, name, path):
+        """Register a sprite path with a name"""
+        self.sprite_paths[name] = path
+
+    def load_sprites(self, slot_width, slot_height):
+        """Load and scale all registered sprites"""
+        self.sprites.clear()
+
+        for name, path in self.sprite_paths.items():
+            try:
+                sprite = pygame.image.load(path)
+                self.sprites[name] = pygame.transform.scale(
+                    sprite, (slot_width, slot_height)
+                )
+            except pygame.error as e:
+                print(f"Warning: Could not load sprite '{
+                      name}' from {path}: {e}")
+                self.sprites[name] = self._create_fallback_sprite(
+                    slot_width, slot_height
+                )
+
+    def _create_fallback_sprite(self, width, height):
+        """Create a colored rectangle as fallback"""
+        surface = pygame.Surface((width, height))
+        surface.fill((50, 50, 70))
+        return surface
+
+    def get_sprite(self, name):
+        """Get a loaded sprite by name"""
+        return self.sprites.get(name)
+
+
+class TileRenderer:
+    """Handles rendering of the game grid tiles"""
+
+    def __init__(self, rows, cols, grid_info, sprite_manager):
+        self.rows = rows
+        self.cols = cols
+        self.grid = grid_info
+        self.sprite_manager = sprite_manager
+        self.show_grid_lines = False
+        self.tile_map = {}
+
+    def set_tile_mapping(self, tile_map):
+        """
+        Set which sprite to use for which tiles
+        tile_map format: {(row, col): 'sprite_name', ...}
+        or: {'rows': {0: 'sprite1', 1: 'sprite1', 2: 'sprite2', ...}}
+        """
+        self.tile_map = tile_map
+
+    def get_tile_sprite_name(self, row, col):
+        """Determine which sprite to use for a given tile"""
+        if 'rows' in self.tile_map:
+            return self.tile_map['rows'].get(row, 'default')
+
+        return self.tile_map.get((row, col), 'default')
+
+    def draw_tiles(self, screen):
+        """Draw all tile sprites"""
+        for row in range(self.rows):
+            for col in range(self.cols):
+                sprite_name = self.get_tile_sprite_name(row, col)
+                sprite = self.sprite_manager.get_sprite(sprite_name)
+
+                if sprite:
+                    x = self.grid['origin_x'] + col * self.grid['slot_width']
+                    y = self.grid['origin_y'] + row * self.grid['slot_height']
+                    screen.blit(sprite, (x, y))
+
+    def draw_grid_lines(self, screen, color, line_width):
+        """Draw grid lines over the tiles"""
+        if not self.show_grid_lines:
+            return
+
+        grid = self.grid
+
+        for col in range(self.cols + 1):
+            x = grid['origin_x'] + col * grid['slot_width']
+            pygame.draw.line(
+                screen, color,
+                (x, grid['origin_y']),
+                (x, grid['origin_y'] + grid['height']),
+                line_width
+            )
+
+        for row in range(self.rows + 1):
+            y = grid['origin_y'] + row * grid['slot_height']
+            pygame.draw.line(
+                screen, color,
+                (grid['origin_x'], y),
+                (grid['origin_x'] + grid['width'], y),
+                line_width
+            )
+
+    def toggle_grid_lines(self):
+        """Toggle grid line visibility"""
+        self.show_grid_lines = not self.show_grid_lines
 
 
 class Matrix:
-    def __init__(self, screen, game_state, rows=4, cols=5, image_path = "assets/images/field.png"):
+    def __init__(self, screen, game_state, rows=4, cols=5):
         self.screen = screen
         self.rows = rows
         self.cols = cols
         self.game_state = game_state
         self.config = GameAreaConfig()
 
-        # Initialize areas (will be updated in update_dimensions)
         self.areas = {}
+        self.sprite_manager = TileSpriteManager()
 
+        self._setup_default_sprites()
         self.update_dimensions()
-        if image_path:
-            self.field_image = pygame.image.load(image_path)
-            self.field_image = pygame.transform.scale(
-                self.field_image, self.screen.get_size()
-            )
-        else:
-            self.field_image = None
 
-        # TODO: refactor this area part
+        self.tile_renderer = TileRenderer(
+            rows, cols, self.grid, self.sprite_manager
+        )
+
+        self._setup_tile_mapping()
+
         self.hands = [self.areas["my_hand_area"],
                       self.areas["opponent_hand_area"]]
-    
+
+        self.player_zones = {
+            self.game_state.players[0]: {
+                "hand": self.areas["my_hand_area"],
+                "deck": self.areas["my_deck"],
+                "lp": self.areas["my_lp_area"],
+            },
+            self.game_state.players[1]: {
+                "hand": self.areas["opponent_hand_area"],
+                "deck": self.areas["opponent_deck"],
+                "lp": self.areas["opponent_lp_area"],
+            },
+        }
+
+    def _setup_default_sprites(self):
+        """Register default sprite paths"""
+        self.sprite_manager.register_sprite(
+            'opponent_tile', 'assets/tile1.png')
+        self.sprite_manager.register_sprite(
+            'player_tile', 'assets/tile2.png')
+        self.sprite_manager.register_sprite(
+            'default', 'assets/tile1.png')
+
+    def _setup_tile_mapping(self):
+        """Configure which sprites are used for which rows"""
+        tile_mapping = {
+            'rows': {
+                0: 'opponent_tile',
+                1: 'opponent_tile',
+                2: 'player_tile',
+                3: 'player_tile'
+            }
+        }
+        self.tile_renderer.set_tile_mapping(tile_mapping)
+
+    def register_tile_sprite(self, name, path):
+        """Register a new tile sprite"""
+        self.sprite_manager.register_sprite(name, path)
+        self.sprite_manager.load_sprites(
+            self.grid['slot_width'],
+            self.grid['slot_height']
+        )
+
+    def set_tile_mapping(self, tile_map):
+        """Update the tile mapping"""
+        self.tile_renderer.set_tile_mapping(tile_map)
+
+    def toggle_grid_lines(self):
+        """Toggle grid line visibility"""
+        self.tile_renderer.toggle_grid_lines()
 
     def update_dimensions(self):
         """Calculate all dimensions and create game areas"""
         screen_width, screen_height = self.screen.get_size()
-
-        # Calculate margins
         margins = self._calculate_margins(screen_width, screen_height)
-
-        # Calculate grid dimensions
         grid_info = self._calculate_grid_dimensions(
             screen_width, screen_height, margins)
 
-        # Store grid information
         self.grid = grid_info
-
-        # Create all game areas
         self._create_game_areas(screen_width, screen_height, margins)
+
+        if hasattr(self, 'sprite_manager'):
+            self.sprite_manager.load_sprites(
+                self.grid['slot_width'],
+                self.grid['slot_height']
+            )
 
     def _calculate_margins(self, screen_width, screen_height):
         """Calculate margin sizes based on screen dimensions"""
@@ -57,19 +213,15 @@ class Matrix:
 
     def _calculate_grid_dimensions(self, screen_width, screen_height, margins):
         """Calculate grid layout information"""
-        # Available space for the grid
         avail_width = screen_width - (margins['left'] + margins['right'])
         avail_height = screen_height - (margins['top'] + margins['bottom'])
 
-        # Slot dimensions
         slot_width = avail_width // self.cols
         slot_height = avail_height // self.rows
 
-        # Actual grid size
         grid_width = self.cols * slot_width
         grid_height = self.rows * slot_height
 
-        # Center the grid
         origin_x = margins['left'] + (avail_width - grid_width) // 2
         origin_y = margins['top'] + (avail_height - grid_height) // 2
 
@@ -92,15 +244,20 @@ class Matrix:
             'bottom_height': margins['bottom'] - (2 * self.config.AREA_PADDING)
         }
 
-    def _create_game_areas(self, screen_width, screen_height, margins):  # screen_width
+    def _create_game_areas(self, screen_width, screen_height, margins):
         """Create all game areas (decks, graveyards, etc.)"""
         area_dims = self._calculate_area_dimensions(margins)
         padding = self.config.AREA_PADDING
 
-        # Opponent areas (top)
         self.areas = {
-            'opponent_deck': GameArea(
+            'opponent_deck': DeckArea(
                 area_dims['deck_width']/1.8, padding,
+                area_dims['deck_width']/2, area_dims['top_height'],
+                self.config.OPPONENT_COLOR, self.config.AREA_BORDER_WIDTH
+            ),
+            'opponent_lp_area': TextArea(
+                self.game_state.players[1],
+                padding, padding,
                 area_dims['deck_width']/2, area_dims['top_height'],
                 self.config.OPPONENT_COLOR, self.config.AREA_BORDER_WIDTH
             ),
@@ -113,18 +270,16 @@ class Matrix:
                 self.config.OPPONENT_COLOR, self.config.AREA_BORDER_WIDTH
             ),
 
-            # Player areas (bottom)
-            'my_deck': GameArea(
+            'my_deck': DeckArea(
                 padding*16.5, screen_height - margins['bottom'] + padding,
                 area_dims['deck_width']/2, area_dims['bottom_height'],
                 self.config.PLAYER_COLOR, self.config.AREA_BORDER_WIDTH
             ),
-            # TODO: this is hardcoded for now
-            'preview_card_table': CardPreview(
-                padding*4 - 25, padding*13,  # find x,y
-                self.grid['width']/3.5 + 25,  # find width
-                self.grid['height'] * 1,  # find height
-                self.config.CARD_COLOR, self.config.AREA_BORDER_WIDTH
+            'my_lp_area': TextArea(
+                self.game_state.players[0],
+                padding, screen_height - margins['bottom'] + padding,
+                area_dims['deck_width']/2, area_dims['bottom_height'],
+                self.config.PLAYER_COLOR, self.config.AREA_BORDER_WIDTH
             ),
             'my_hand_area': HandUI(
                 self.game_state.players[0],
@@ -134,41 +289,26 @@ class Matrix:
                 screen_height - margins['bottom'] + padding,
                 self.grid['width'], area_dims['bottom_height'],
                 self.config.PLAYER_COLOR, self.config.AREA_BORDER_WIDTH
-            )
+            ),
+
+            'preview_card_table': CardPreview(
+                padding*4 - 25, padding*13,
+                self.grid['width']/3.5 + 25,
+                self.grid['height'] * 1,
+                self.config.CARD_COLOR, self.config.AREA_BORDER_WIDTH
+            ),
         }
 
     def draw(self):
         """Draw the entire game matrix"""
-        if self.field_image:
-            self.screen.blit(self.field_image, (0,0))
-            
-        self._draw_grid()
+        self.tile_renderer.draw_tiles(self.screen)
+        self.tile_renderer.draw_grid_lines(
+            self.screen,
+            self.config.GRID_COLOR,
+            self.config.GRID_LINE_WIDTH
+        )
         self._draw_areas()
         self.areas["preview_card_table"].draw(self.screen)
-
-    def _draw_grid(self):
-        """Draw the playing field grid"""
-        grid = self.grid
-
-        # Vertical lines
-        for col in range(self.cols + 1):
-            x = grid['origin_x'] + col * grid['slot_width']
-            pygame.draw.line(
-                self.screen, self.config.GRID_COLOR,
-                (x, grid['origin_y']),
-                (x, grid['origin_y'] + grid['height']),
-                self.config.GRID_LINE_WIDTH
-            )
-
-        # Horizontal lines
-        for row in range(self.rows + 1):
-            y = grid['origin_y'] + row * grid['slot_height']
-            pygame.draw.line(
-                self.screen, self.config.GRID_COLOR,
-                (grid['origin_x'], y),
-                (grid['origin_x'] + grid['width'], y),
-                self.config.GRID_LINE_WIDTH
-            )
 
     def _draw_areas(self):
         """Draw all game areas except hands"""
@@ -207,15 +347,12 @@ class Matrix:
 
     def get_area_at_pos(self, pos):
         """Determine which area was clicked"""
-        # Check grid first
         slot = self.get_slot_at_pos(pos)
         if slot:
             return {"type": "field", "row": slot[0], "col": slot[1]}
 
-        # Check other areas
         for area_name, area in self.areas.items():
             if area.contains_point(pos):
-                # Remove '_area' suffix for hand areas
                 clean_name = area_name.replace('_area', '')
                 return {"type": clean_name}
 

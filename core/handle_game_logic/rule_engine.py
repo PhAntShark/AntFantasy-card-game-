@@ -49,7 +49,7 @@ class RuleEngine:
         current_player = self.turn_manager.get_current_player()
         if self.turn_manager.turn_count == 1 and current_player:
             return False
-        
+
         if current_player != attacker:
             return False
 
