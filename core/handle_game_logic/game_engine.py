@@ -197,6 +197,14 @@ class GameEngine:
         """Cast a spell card immediately"""
         if not isinstance(spell, SpellCard):
             return False
+        if spell.owner != self.turn_manager.get_current_player(): #TODO check and fix buff enemy
+            return False
+        if isinstance(target, MonsterCard):
+            if spell.owner != target.owner:
+                return False
+        if isinstance(target, TrapCard):
+            if spell.owner == target.owner:
+                return False
 
         # Resolve spell based on ability
         if spell.ability == "draw_two_cards":
