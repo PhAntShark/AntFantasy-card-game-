@@ -2,8 +2,10 @@ from gui.cards_gui.card_gui import CardGUI
 from gui.cards_gui.monster_card import MonsterCardGUI
 from gui.cards_gui.spell_card import SpellCardGUI
 from gui.cards_gui.trap_card import TrapCardGUI
+from gui.cards_gui.stat_overlay import CardStatOverlay
 from gui.animations.manager import AnimationManager
 from gui.utils import random_color
+from core.player import Player
 from core.game_info.events import (
     AttackEvent, TrapTriggerEvent, ToggleEvent,
     SpellActiveEvent, MergeEvent
@@ -12,12 +14,13 @@ from collections import defaultdict
 
 
 class RenderEngine:
-    def __init__(self, screen):
+    def __init__(self, field_matrix, screen):
         self.screen = screen
         self.sprites = {
             "hand": {},
             "matrix": {},
         }
+        self.field_matrix = field_matrix
         self.animation_mgr = AnimationManager()
         self.exisiting_colors = defaultdict(dict)
         self.pending_merges = []
@@ -65,9 +68,16 @@ class RenderEngine:
     def handle_events(self, events):
         for event in events.get_events():
             if isinstance(event, AttackEvent):
-                card1 = self.sprites["matrix"][event.card]
-                card2 = self.sprites["matrix"][event.target]
-                self.animation_mgr.create_attack_animation(card1, card2)
+                card = self.sprites["matrix"][event.card]
+                if isinstance(event.target, Player):
+                    for hand in self.field_matrix.hands:
+                        if hand.player == event.target:
+                            opponent_hand = hand
+                    self.animation_mgr.create_attack_player_animation(
+                        card, opponent_hand)
+                else:
+                    target = self.sprites["matrix"][event.target]
+                    self.animation_mgr.create_attack_animation(card, target)
 
             elif isinstance(event, TrapTriggerEvent):
                 trap = self.sprites["matrix"][event.card]
@@ -135,10 +145,10 @@ class RenderEngine:
 
     def create_gui_card(self, card, matrix):
         if card.ctype == "monster":
-            return MonsterCardGUI(card, size=(
+            return CardStatOverlay(MonsterCardGUI(card, size=(
                 matrix.grid["slot_width"] / 2,
                 matrix.grid["slot_height"]
-            ))
+            )))
         elif card.ctype == "spell":
             return SpellCardGUI(card, size=(
                 matrix.grid["slot_width"] / 2,
@@ -168,7 +178,8 @@ class RenderEngine:
             desired_set=current_cards,
             sprite_dict=self.sprites["hand"],
             create_sprite=make_hand_sprite,
-            add_animation=self.animation_mgr.create_draw_animation,
+            add_animation=lambda card: self.animation_mgr.create_draw_animation(
+                matrix, card),
             align_fn=lambda: self.align_cards(matrix)
         )
 

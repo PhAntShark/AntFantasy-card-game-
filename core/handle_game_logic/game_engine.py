@@ -197,6 +197,14 @@ class GameEngine:
         """Cast a spell card immediately"""
         if not isinstance(spell, SpellCard):
             return False
+        if spell.owner != self.turn_manager.get_current_player(): #TODO check and fix buff enemy
+            return False
+        if isinstance(target, MonsterCard):
+            if spell.owner != target.owner:
+                return False
+        if isinstance(target, TrapCard):
+            if spell.owner == target.owner:
+                return False
 
         # Resolve spell based on ability
         if spell.ability == "draw_two_cards":
@@ -258,10 +266,12 @@ class GameEngine:
         if trap.ability == "debuff_enemy_atk":
             self.effect_tracker.add_effect(
                 EffectType.DEBUFF, attacker, "atk", 500, 3)
+            self.move_card_to_graveyard(trap)
 
         elif trap.ability == "debuff_enemy_def":
             self.effect_tracker.add_effect(
                 EffectType.DEBUFF, attacker, "defend", 500, 3)
+            self.move_card_to_graveyard(trap)
 
         elif trap.ability == "dodge_attack":
             attacker.has_attack = True

@@ -23,7 +23,7 @@ class RuleEngine:
                    matrix: List[List[None | Card]],
                    pos: Tuple[int, int]):
         current_player = self.turn_manager.get_current_player()
-
+        print(matrix[pos[0]][pos[1]])
         return (
             current_player == player
             and card in self.game_state.player_info[player]["held_cards"].cards
@@ -47,6 +47,8 @@ class RuleEngine:
                    target: MonsterCard | Player,
                    ):
         current_player = self.turn_manager.get_current_player()
+        if self.turn_manager.turn_count == 1 and current_player:
+            return False
 
         if current_player != attacker:
             return False

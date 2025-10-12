@@ -3,7 +3,7 @@ class TurnManager:
         self.game_state = game_state
         self.effect_tracker = effect_tracker
         self.current_player_index = 0
-        self.turn_count = 0
+        self.turn_count = 1
 
     def get_current_player(self):
         return self.game_state.players[self.current_player_index]

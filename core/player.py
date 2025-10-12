@@ -2,7 +2,7 @@ class Player:
     def __init__(self,
                  player_index: int,
                  name: str,
-                 life_points: int = 5000,
+                 life_points: int = 8000,
                  is_opponent: bool = False
                  ):
         self.player_index = player_index
