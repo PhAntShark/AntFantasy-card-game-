@@ -2,6 +2,7 @@ import math
 import pygame
 from .animation import Animation
 from gui.effects.manager import EffectManager
+from gui.audio_manager import AudioManager
 
 
 class SpellAnimation(Animation):
@@ -39,7 +40,7 @@ class SpellAnimation(Animation):
         elif t < 0.6:
             if not self.effect_spawned:
                 EffectManager.spawn("spell-glow", self.start_pos)
-                pygame.mixer.Sound("assets/sounds/spell-activate.mp3").play()
+                AudioManager.play_sound("assets/sounds/spell-activate.mp3")
                 self.effect_spawned = True
 
         # Phase 3: settle back (0.6 → 1.0)

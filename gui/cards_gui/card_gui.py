@@ -3,12 +3,16 @@ from pygame.draw import rect
 from typing import Tuple
 from gui.sprite import Sprite
 from gui.draggable import Draggable
+from gui.cache import get_font
 
 
 class CardGUI(Sprite, Draggable):
     BASE_SIZE = (64, 81)
 
-    def __init__(self, logic_card, pos: Tuple[float, float] = (0, 0), size: Tuple[int, int] = None):
+    def __init__(self,
+                 logic_card,
+                 pos: Tuple[float, float] = (0, 0),
+                 size: Tuple[int, int] = None):
         if size is None:
             size = self.BASE_SIZE
 
@@ -25,14 +29,23 @@ class CardGUI(Sprite, Draggable):
         self.scale_y = self.display_size[1] / self.BASE_SIZE[1]
 
         # Fonts scaled according to card height
-        self.name_font = pygame.font.Font(None, max(8, int(14 * self.scale_y)))
-        self.desc_font = pygame.font.Font(None, max(6, int(12 * self.scale_y)))
+        self.name_font = get_font(max(8, int(14 * self.scale_y)))
+        self.desc_font = get_font(max(6, int(12 * self.scale_y)))
 
         self.card_surface = None
         self._render_card_with_text()
         self.annotated_image = self.card_surface
 
+        '''Opponenet check'''
+        self.image_face_down = pygame.image.load("assets/card-back.png")
+        self.is_face_down = False
+        self.show_text = False
+
         if self.logic_card.owner.is_opponent:
+            self.is_face_down = True
+            self.card_surface = self.image_face_down
+            self.card_surface = pygame.transform.smoothscale(
+                self.card_surface, self.display_size)
             self.card_surface = pygame.transform.flip(
                 self.card_surface, False, True)
 
@@ -82,13 +95,13 @@ class CardGUI(Sprite, Draggable):
         name = getattr(self.logic_card, "name", "Unknown")
         max_name_width = w - 2 * padding  # respect left/right padding
         name_font_size = max(6, int(14 * self.scale_y))
-        font = pygame.font.Font(None, name_font_size)
+        font = get_font(name_font_size)
         name_surface = font.render(name, True, (255, 255, 255))
 
         # Dynamically shrink font if name too wide
         while name_surface.get_width() > max_name_width and font.get_height() > 6:
             name_font_size -= 1
-            font = pygame.font.Font(None, name_font_size)
+            font = get_font(name_font_size)
             name_surface = font.render(name, True, (255, 255, 255))
 
         name_rect = name_surface.get_rect(
@@ -107,8 +120,8 @@ class CardGUI(Sprite, Draggable):
         """Render description inside textbox dynamically"""
         paragraphs = text.splitlines()
         font = self.desc_font
-
         # Function to wrap text for a given font
+
         def wrap_text_for_font(fnt):
             wrapped_lines = []
             for paragraph in paragraphs:
@@ -141,7 +154,7 @@ class CardGUI(Sprite, Draggable):
             font_size = font.get_height()
             if font_size <= 6:
                 break  # Stop shrinking
-            font = pygame.font.Font(None, font_size - 1)
+            font = get_font(font_size - 1)
 
         # Draw text lines
         y_offset = rect.top

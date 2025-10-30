@@ -1,6 +1,7 @@
 import math
 import pygame
 from gui.effects.manager import EffectManager
+from gui.audio_manager import AudioManager
 from .animation import Animation
 
 
@@ -32,8 +33,8 @@ class TrapTriggerAnimation(Animation):
         elif t < 0.6:
             # Glow phase
             if not self.glow_done:
+                AudioManager.play_sound("assets/sounds/trap-reveal.mp3")
                 EffectManager.spawn("trap-glow", self.start_pos)
-                pygame.mixer.Sound("assets/sounds/trap-reveal.mp3").play()
                 self.glow_done = True
 
         else:
@@ -43,11 +44,3 @@ class TrapTriggerAnimation(Animation):
                 (1 - p)  # decaying shake
             self.card.rect.center = (
                 self.start_pos.x + offset_x, self.start_pos.y)
-
-        if self.is_finished:
-            # Reset trap card to normal state
-            self.card.image = self.card.original_image
-            self.card.rect.center = self.start_pos
-
-
-            

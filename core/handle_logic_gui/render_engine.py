@@ -1,3 +1,5 @@
+import pygame
+from collections import defaultdict
 from gui.cards_gui.card_gui import CardGUI
 from gui.cards_gui.monster_card import MonsterCardGUI
 from gui.cards_gui.spell_card import SpellCardGUI
@@ -10,27 +12,30 @@ from core.game_info.events import (
     AttackEvent, TrapTriggerEvent, ToggleEvent,
     SpellActiveEvent, MergeEvent
 )
-from collections import defaultdict
 
 
 class RenderEngine:
-    def __init__(self, field_matrix, screen):
+    def __init__(self, field_matrix, screen, train_mode=False):
         self.screen = screen
-        self.sprites = {
-            "hand": {},
-            "matrix": {},
-        }
         self.field_matrix = field_matrix
-        self.animation_mgr = AnimationManager()
+        self.sprites = {
+            "hand": {},   # {card.id: CardGUI}
+            "matrix": {},  # {card.id: CardGUI}
+        }
         self.exisiting_colors = defaultdict(dict)
         self.pending_merges = []
+        self.animation_mgr = AnimationManager(train_mode=train_mode)
+
+    def reset(self):
+        for value in self.sprites.values():
+            value.clear()
+        self.exisiting_colors = defaultdict(dict)
+        self.pending_merges.clear()
 
     def update(self, game_engine, game_state, matrix, events):
-        self.handle_events(events)
+        self.handle_events(matrix, events)
         self.register_cards(game_state, matrix)
         self.handle_merge(game_engine, game_state)
-
-        # After sync, process deferred merge events
         self.process_pending_merges()
 
     def handle_merge(self, game_engine, game_state):
@@ -42,108 +47,131 @@ class RenderEngine:
                 if len(group) < 2:
                     continue
 
-                if key not in extc.keys():
+                color = extc.get(key, None)
+                if color is None:
                     color = random_color()
                     while color in extc.values():
                         color = random_color()
                     extc[key] = color
-                else:
-                    color = extc[key]
 
                 for card in group:
-                    card_ui = self.sprites["matrix"][card]
-                    card_ui.highlight = True
-                    card_ui.highlight_color = color
+                    card_ui = self.sprites["matrix"].get(card.id)
+                    if card_ui:
+                        card_ui.highlight = True
+                        card_ui.highlight_color = color
 
-            removed = [key for key in extc.keys()
-                       if key not in groups.keys()]
+            removed = [key for key in list(extc.keys()) if key not in groups]
             for key in removed:
-                extc.pop(key)
+                extc.pop(key, None)
 
     def register_cards(self, game_state, matrix):
         self.register_hand(game_state, matrix)
         self.register_matrix(game_state, matrix,
                              self.animation_mgr.create_place_animation)
 
-    def handle_events(self, events):
-        for event in events.get_events():
-            if isinstance(event, AttackEvent):
-                card = self.sprites["matrix"][event.card]
-                if isinstance(event.target, Player):
-                    for hand in self.field_matrix.hands:
-                        if hand.player == event.target:
-                            opponent_hand = hand
-                    self.animation_mgr.create_attack_player_animation(
-                        card, opponent_hand)
-                else:
-                    target = self.sprites["matrix"][event.target]
-                    self.animation_mgr.create_attack_animation(card, target)
+    def handle_events(self, matrix, events):
+        try:
+            for event in events.get_events():
+                et = type(event)
 
-            elif isinstance(event, TrapTriggerEvent):
-                trap = self.sprites["matrix"][event.card]
-                self.animation_mgr.create_trigger_animation(trap)
+                if et is AttackEvent:
+                    card = self.sprites["matrix"].get(event.card.id)
+                    if not card:
+                        continue
 
-            elif isinstance(event, ToggleEvent):
-                card = self.sprites["matrix"][event.card]
-                self.animation_mgr.create_toggle_animation(card, event.mode)
+                    if isinstance(event.target, Player):
+                        opponent_hand = next(
+                            (h for h in getattr(self.field_matrix, "hands", [])
+                             if getattr(h, "player", None) == event.target),
+                            None
+                        )
+                        if opponent_hand:
+                            self.animation_mgr.create_attack_player_animation(
+                                card, opponent_hand)
+                    else:
+                        target = self.sprites["matrix"].get(event.target.id)
+                        if target:
+                            self.animation_mgr.create_attack_animation(
+                                card, target)
 
-            elif isinstance(event, SpellActiveEvent):
-                spell = self.sprites["hand"][event.spell]
-                self.animation_mgr.create_spell_animation(spell)
+                elif et is TrapTriggerEvent:
+                    trap = self.sprites["matrix"].get(event.card.id)
+                    if trap:
+                        self.animation_mgr.create_trigger_animation(trap)
+                        matrix.areas["preview_card_table"].set_card(trap)
 
-            elif isinstance(event, MergeEvent):
-                # Defer merge until sprites are synced
-                self.pending_merges.append(event)
+                elif et is ToggleEvent:
+                    card = self.sprites["matrix"].get(event.card.id)
+                    if card:
+                        self.animation_mgr.create_toggle_animation(
+                            card, event.mode)
 
-        events.clear_events()
+                elif et is SpellActiveEvent:
+                    spell = self.sprites["hand"].get(event.spell.id)
+                    if spell:
+                        self.animation_mgr.create_spell_animation(spell)
+
+                elif et is MergeEvent:
+                    self.pending_merges.append(event)
+
+            events.clear_events()
+        except Exception as e:
+            print(f"[ERROR] handle_events failed: {e}")
 
     def process_pending_merges(self):
-        """Try to run merge animations once result sprite exists."""
         still_pending = []
         for event in self.pending_merges:
-            if event.card in self.sprites["matrix"] \
-               and event.target in self.sprites["matrix"] \
-               and event.result_card in self.sprites["matrix"]:
-                card = self.sprites["matrix"][event.card]
-                target = self.sprites["matrix"][event.target]
-                result = self.sprites["matrix"][event.result_card]
+            card_id = event.card.id
+            target_id = event.target.id
+            result_id = event.result_card.id
+
+            if (card_id in self.sprites["matrix"] and
+                    target_id in self.sprites["matrix"] and
+                    result_id in self.sprites["matrix"]):
+                card = self.sprites["matrix"][card_id]
+                target = self.sprites["matrix"][target_id]
+                result = self.sprites["matrix"][result_id]
                 self.animation_mgr.create_merge_animation(card, target, result)
             else:
-                # keep waiting
                 still_pending.append(event)
+
         self.pending_merges = still_pending
 
-    def is_pending_merge(self, card):
+    def is_pending_merge(self, card_id):
         for event in self.pending_merges:
-            if card in vars(event).values():
+            if card_id in (event.card.id, event.target.id, event.result_card.id):
                 return True
         return False
 
     def sync_sprites(self, desired_set, sprite_dict, create_sprite,
                      add_animation=None, align_fn=None):
-        existing_set = set(sprite_dict.keys())
-        to_add = desired_set - existing_set
-        to_remove = existing_set - desired_set
+        existing_ids = set(sprite_dict.keys())
+        desired_ids = {card.id for card in desired_set}
 
-        # Remove old sprites (death anim instead of instant removal)
-        for card in to_remove:
-            if not self.is_pending_merge(card):
-                self.animation_mgr.create_death_animation(card, sprite_dict)
+        to_add = desired_ids - existing_ids
+        to_remove = existing_ids - desired_ids
+
+        # Remove old sprites with animation
+        for cid in to_remove:
+            if not self.is_pending_merge(cid):
+                self.animation_mgr.create_death_animation(cid, sprite_dict)
 
         # Add new sprites
-        for card in to_add:
-            card_ui = create_sprite(card)
-            sprite_dict[card] = card_ui
+        for card in desired_set:
+            if card.id in to_add:
+                sprite = create_sprite(card)
+                sprite_dict[card.id] = sprite
 
         if align_fn and (to_add or to_remove):
             align_fn()
 
         if add_animation and to_add:
-            for card in to_add:
-                if not self.is_pending_merge(card):
-                    add_animation(sprite_dict[card])
+            for cid in to_add:
+                if not self.is_pending_merge(cid):
+                    add_animation(sprite_dict[cid])
 
-    def create_gui_card(self, card, matrix):
+    @staticmethod
+    def create_gui_card(card, matrix):
         if card.ctype == "monster":
             return CardStatOverlay(MonsterCardGUI(card, size=(
                 matrix.grid["slot_width"] / 2,
@@ -159,7 +187,7 @@ class RenderEngine:
                 matrix.grid["slot_width"] / 2,
                 matrix.grid["slot_height"]
             ))
-        else:  # fallback
+        else:
             return CardGUI(card, size=(
                 matrix.grid["slot_width"] / 2,
                 matrix.grid["slot_height"]
@@ -168,8 +196,12 @@ class RenderEngine:
     def register_hand(self, game_state, matrix):
         current_cards = set()
         for player in game_state.players:
-            current_cards.update(
-                game_state.player_info[player]["held_cards"].cards)
+            held_cards = game_state.player_info[player]["held_cards"]
+            current_cards.update(held_cards.cards)
+            if not player.is_opponent:
+                self.field_matrix.areas["my_hand_area"].hand_info = held_cards
+            else:
+                self.field_matrix.areas["opponent_hand_area"].hand_info = held_cards
 
         def make_hand_sprite(card):
             return self.create_gui_card(card, matrix)
@@ -178,20 +210,38 @@ class RenderEngine:
             desired_set=current_cards,
             sprite_dict=self.sprites["hand"],
             create_sprite=make_hand_sprite,
-            add_animation=lambda card: self.animation_mgr.create_draw_animation(
-                matrix, card),
-            align_fn=lambda: self.align_cards(matrix)
+            add_animation=lambda sprite: self.animation_mgr.create_draw_animation(
+                matrix, sprite),
+            align_fn=lambda: self.align_cards(matrix, check=False)
         )
 
     def register_matrix(self, game_state, matrix, animation=None):
         current_cards = {
-            card for row in game_state.field_matrix for card in row if card is not None
+            card for row in game_state.field_matrix for card in row if card
         }
 
         def make_matrix_sprite(card):
             sprite = self.create_gui_card(card, matrix)
             sprite.rect.center = matrix.get_slot_rect(
                 *card.pos_in_matrix).center
+            sprite.placed_pos = sprite.rect.center
+
+            if isinstance(sprite, TrapCardGUI):
+                if card.owner.is_opponent:
+                    sprite.is_face_down = True
+                    sprite.card_surface = pygame.transform.smoothscale(
+                        sprite.image_face_down.copy(), sprite.display_size)
+                else:
+                    sprite.is_face_down = False
+                    sprite._render_card_with_text()
+                sprite.update()
+            else:
+                sprite.is_face_down = False
+                sprite._render_card_with_text()
+                if card.owner.is_opponent:
+                    sprite.card_surface = pygame.transform.flip(
+                        sprite.card_surface, False, True)
+                sprite.update()
             return sprite
 
         self.sync_sprites(
@@ -201,9 +251,9 @@ class RenderEngine:
             create_sprite=make_matrix_sprite
         )
 
-    def align_cards(self, matrix):
+    def align_cards(self, matrix, check=False):
         for hand in matrix.hands:
-            hand.align(self.sprites["hand"])
+            hand.align(self.sprites["hand"], check=check)
 
     def draw(self):
         for group in self.sprites.values():

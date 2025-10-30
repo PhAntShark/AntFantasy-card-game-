@@ -1,6 +1,7 @@
 import math
 import pygame
 from gui.effects.manager import EffectManager
+from gui.audio_manager import AudioManager
 from .animation import Animation
 
 
@@ -9,11 +10,8 @@ class AttackAnimation(Animation):
         super().__init__({card1, card2}, duration)
         self.card1 = card1
         self.card2 = card2
-        print(card1, card2)
-        self.card1_original = self.card1.image.copy()
-        self.card2_original = self.card2.image.copy()
-        self.start_pos1 = pygame.Vector2(card1.rect.center)
-        self.start_pos2 = pygame.Vector2(card2.rect.center)
+        self.start_pos1 = pygame.Vector2(card1.placed_pos)
+        self.start_pos2 = pygame.Vector2(card2.placed_pos)
         self.midpoint = (self.start_pos1 + self.start_pos2) / 2
         self.impact_done = False
 
@@ -78,25 +76,32 @@ class AttackAnimation(Animation):
 
             if not self.impact_done:
                 EffectManager.spawn("slam", self.midpoint)
-                pygame.mixer.music.load("assets/sounds/sword-clash.mp3")
-                pygame.mixer.music.play()
+                AudioManager.play_sound("assets/sounds/sword-clash.mp3")
 
                 # Add squash/stretch impact
                 self.card1.image = pygame.transform.scale(
-                    self.card1_original,
+                    self.card1.original_image,
                     (int(self.card1.rect.width * 1.1),
                      int(self.card1.rect.height * 0.9))
                 )
                 self.card2.image = pygame.transform.scale(
-                    self.card2_original,
+                    self.card2.original_image,
                     (int(self.card2.rect.width * 1.1),
                      int(self.card2.rect.height * 0.9))
                 )
                 self.impact_done = True
 
         if t >= 1:
-            # Reset state
-            self.card1.image = self.card1_original
-            self.card2.image = self.card2_original
-            self.card1.rect.center = self.start_pos1
-            self.card2.rect.center = self.start_pos2
+            # Reset both cards to their original state and orientation
+            for card in (self.card1, self.card2):
+                card.rect.center = card.placed_pos  # Back to initial position
+
+                # Determine correct rotation based on mode and ownership
+                if card.logic_card.mode == "attack":
+                    angle = 0  # upright for both sides
+                else:
+                    # Defense cards rotate differently depending on side
+                    angle = 90 if not card.logic_card.owner.is_opponent else -90
+
+                # Restore the proper orientation from original image
+                card.image = pygame.transform.rotate(card.original_image, angle)

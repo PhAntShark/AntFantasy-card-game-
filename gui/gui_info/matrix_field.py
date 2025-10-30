@@ -1,9 +1,10 @@
 import pygame
-from gui.gui_info.game_area import GameArea, GameAreaConfig
+from gui.gui_info.game_area import GameAreaConfig
 from gui.gui_info.hand import HandUI
 from gui.gui_info.text_area import TextArea
 from gui.gui_info.preview_card_table import CardPreview
 from gui.gui_info.deck_area import DeckArea
+from gui.cache import load_image
 
 
 class TileSpriteManager:
@@ -23,7 +24,7 @@ class TileSpriteManager:
 
         for name, path in self.sprite_paths.items():
             try:
-                sprite = pygame.image.load(path)
+                sprite = load_image(path)
                 self.sprites[name] = pygame.transform.scale(
                     sprite, (slot_width, slot_height)
                 )
@@ -118,21 +119,16 @@ class Matrix:
         self.screen = screen
         self.rows = rows
         self.cols = cols
-        self.game_state = game_state
+        self.game_state = None
         self.config = GameAreaConfig()
 
         self.areas = {}
         self.sprite_manager = TileSpriteManager()
 
         self._setup_default_sprites()
-        self.update_dimensions()
+        self.set_game_state(game_state)
 
-        self.tile_renderer = TileRenderer(
-            rows, cols, self.grid, self.sprite_manager
-        )
-
-        self._setup_tile_mapping()
-
+    def _setup_zones(self):
         self.hands = [self.areas["my_hand_area"],
                       self.areas["opponent_hand_area"]]
 
@@ -169,6 +165,15 @@ class Matrix:
             }
         }
         self.tile_renderer.set_tile_mapping(tile_mapping)
+
+    def set_game_state(self, gs):
+        if gs and gs is not self.game_state:
+            self.game_state = gs
+            self.update_dimensions()
+            self.tile_renderer = TileRenderer(
+                self.rows, self.cols, self.grid, self.sprite_manager)
+            self._setup_tile_mapping()
+            self._setup_zones()
 
     def register_tile_sprite(self, name, path):
         """Register a new tile sprite"""

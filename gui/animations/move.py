@@ -1,5 +1,5 @@
-import pygame
 from .animation import Animation
+from gui.audio_manager import AudioManager
 
 
 class MoveAnimation(Animation):
@@ -17,5 +17,4 @@ class MoveAnimation(Animation):
         self.sprite.rect.center = (x, y)
         if not self.impact_done and t >= 0.1:
             self.impact_done = True
-            pygame.mixer.music.load("assets/sounds/card-draw.mp3")
-            pygame.mixer.music.play()
+            AudioManager.play_sound("assets/sounds/card-draw.mp3")

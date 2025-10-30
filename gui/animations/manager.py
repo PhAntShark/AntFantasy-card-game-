@@ -1,5 +1,5 @@
-import pygame
 from collections import defaultdict
+from .animation import Animation
 from .attack import AttackAnimation
 from .death import DeathAnimation
 from .place import PlaceAnimation
@@ -10,11 +10,23 @@ from .toggle import ToggleRotateAnimation
 from .spell_activate import SpellAnimation
 from .merge import MergeAnimation
 from .attack_player import AttackPlayerAnimation
+from gui.effects.manager import EffectManager
+from gui.audio_manager import AudioManager
 
 
 class AnimationManager:
-    def __init__(self):
+    def __init__(self, train_mode=False):
         self.queues = defaultdict(AnimationQueue)
+        self.train_mode = train_mode
+        EffectManager.set_train_mode(train_mode)
+        AudioManager.set_train_mode(train_mode)
+
+        if train_mode:
+            Animation.audio = False
+
+    def _duration(self, value):
+        """Return 0 duration if train_mode is True, else the given value."""
+        return 0 if self.train_mode else value
 
     def add_animation(self, animation):
         for sprite in animation.locks:
@@ -41,7 +53,8 @@ class AnimationManager:
     # Convenience creators
     def create_death_animation(self, card, sprite_dict, duration=0.2):
         self.add_animation(DeathAnimation(
-            sprite_dict[card], duration,
+            sprite_dict[card],
+            self._duration(duration),
             on_finish=lambda: self._cleanup(card, sprite_dict)
         ))
 
@@ -54,32 +67,31 @@ class AnimationManager:
     def create_draw_animation(self, matrix, card, duration=0.3):
         start_pos = matrix.player_zones[card.logic_card.owner]["deck"].rect.center
         self.add_animation(MoveAnimation(
-            card, start_pos, card.rect.center, duration))
+            card, start_pos, card.rect.center, self._duration(duration)))
 
     def create_place_animation(self, card, duration=0.5):
-        self.add_animation(PlaceAnimation(card, card.rect.center, duration))
+        self.add_animation(PlaceAnimation(
+            card, card.rect.center, self._duration(duration)))
 
     def create_attack_animation(self, card1, card2, duration=1):
-        self.add_animation(AttackAnimation(card1, card2, duration))
+        self.add_animation(AttackAnimation(
+            card1, card2, self._duration(duration)))
 
-    def create_attack_player_animation(self, card, game_area):
-        self.add_animation(AttackPlayerAnimation(card, game_area))
+    def create_attack_player_animation(self, card, game_area, duration=0.6):
+        self.add_animation(AttackPlayerAnimation(
+            card, game_area, duration=self._duration(duration)))
 
     def create_trigger_animation(self, card, duration=1):
-        self.add_animation(TrapTriggerAnimation(card))
+        self.add_animation(TrapTriggerAnimation(
+            card, duration=self._duration(duration)))
 
     def create_merge_animation(self, card1, card2, result_card, duration=1):
-        def _callback(_):
-            self.create_place_animation(result_card)
         self.add_animation(MergeAnimation(
-            card1, card2, result_card, duration, on_finish=_callback))
+            card1, card2, result_card,
+            duration=self._duration(duration),
+            on_finish=lambda c: self.create_place_animation(c)))
 
     def create_toggle_animation(self, card, mode, duration=0.3):
-        def callback(file):
-            pygame.mixer.music.load(file)
-            pygame.mixer.music.play()
-
-        # Ensure base_image exists
         if mode == "attack":
             start_angle = 90
             end_angle = 0
@@ -93,9 +105,9 @@ class AnimationManager:
             card,
             start_angle=start_angle,
             end_angle=end_angle,
-            duration=duration,
-            on_finished=lambda: callback(file)
+            duration=self._duration(duration),
+            on_finished=lambda: AudioManager.play_sound(file)
         ))
 
     def create_spell_animation(self, spell, duration=0.2):
-        self.add_animation(SpellAnimation(spell, duration))
+        self.add_animation(SpellAnimation(spell, self._duration(duration)))

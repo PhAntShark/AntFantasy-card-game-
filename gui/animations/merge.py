@@ -1,10 +1,11 @@
 import pygame
 from .animation import Animation
 from gui.effects.manager import EffectManager
+from gui.audio_manager import AudioManager
 
 
 class MergeAnimation(Animation):
-    def __init__(self, card1, card2, result_card, target_pos, duration=1.0, on_finish=None):
+    def __init__(self, card1, card2, result_card, duration=1.0, on_finish=None):
         """
         - card1, card2: cards being merged
         - result_card: the new upgraded card
@@ -14,7 +15,6 @@ class MergeAnimation(Animation):
         self.card1 = card1
         self.card2 = card2
         self.result_card = result_card
-        self.target_pos = pygame.Vector2(target_pos)
         self.start_pos1 = pygame.Vector2(card1.rect.center)
         self.start_pos2 = pygame.Vector2(card2.rect.center)
         self.midpoint = (self.start_pos1 + self.start_pos2) / 2
@@ -47,7 +47,7 @@ class MergeAnimation(Animation):
         # Trigger merge effect once near end
         if not self.impact_done and t >= 0.8:
             EffectManager.spawn("merge", self.midpoint)
-            pygame.mixer.Sound("assets/sounds/merge.mp3").play()
+            AudioManager.play_sound("assets/sounds/merge.mp3")
             self.impact_done = True
 
         # Finish: hide old cards and show result card at its slot

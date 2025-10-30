@@ -15,17 +15,21 @@
   },
   {
     "name": "Maniac War",
-    "description": "Increase a monster's ATK by 300 points.",
+    "description": "Increase a monster's ATK by 500 points.",
     "ctype": "spell",
     "ability": "buff_attack",
-    "texture": "/images/spell/buff_damage.png"
+    "texture": "/images/spell/buff_damage.png",
+    "value": 500,
+    "duration": 5
   },
   {
     "name": "Aura Shield",
-    "description": "Increase a monster's DEF by 300 points.",
+    "description": "Increase a monster's DEF by 500 points.",
     "ctype": "spell",
     "ability": "buff_defense",
-    "texture": "/images/spell/buff_defend.png"
+    "texture": "/images/spell/buff_defend.png",
+    "value": 500,
+    "duration": 5
   },
   {
     "name": "Reinforcement",

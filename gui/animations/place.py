@@ -1,6 +1,6 @@
 import math
-import pygame
 from gui.effects.manager import EffectManager
+from gui.audio_manager import AudioManager
 from .animation import Animation
 
 
@@ -26,5 +26,4 @@ class PlaceAnimation(Animation):
         if not self.impact_done and t >= 0.95:
             self.impact_done = True
             EffectManager.spawn("slam", self.end_pos)
-            pygame.mixer.music.load("assets/sounds/card-disappear.mp3")
-            pygame.mixer.music.play()
+            AudioManager.play_sound("assets/sounds/card-disappear.mp3")

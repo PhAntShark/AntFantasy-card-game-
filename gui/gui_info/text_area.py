@@ -1,12 +1,12 @@
-import pygame
 from gui.gui_info.game_area import GameArea
+from gui.cache import get_font
 
 
 class TextArea(GameArea):
     def __init__(self, player, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.player = player
-        self.font = pygame.font.Font(None, 80)
+        self.font = get_font(80)
 
     def draw(self, screen):
         super().draw(screen)

@@ -1,10 +1,11 @@
 import pygame
+from gui.cache import load_image
 
 
 class CardPreview:
     def __init__(self, x, y, width, height, border_color=(0, 0, 0), border_width=2):
         image_path = "assets/card-preview.png"
-        self.image = pygame.image.load(image_path).convert_alpha()
+        self.image = load_image(image_path)
         self.image = pygame.transform.scale(self.image, (width, height))
         self.rect = pygame.Rect(x, y, width, height)
         self.border_color = border_color
@@ -13,9 +14,16 @@ class CardPreview:
 
     def set_card(self, card_ui):
         """Create a fresh CardGUI scaled to the preview size"""
-        from gui.cards_gui.card_gui import CardGUI  # import here to avoid circular imports
-        self.card_gui = CardGUI(card_ui.logic_card, pos=self.rect.topleft, size=(
-            self.rect.width, self.rect.height))
+        from gui.cards_gui.card_gui import CardGUI
+        if card_ui.logic_card.owner.is_opponent and \
+                (card_ui.logic_card.is_face_down
+                 or card_ui.is_face_down):
+            return
+        self.card_gui = CardGUI(
+            card_ui.logic_card,
+            pos=self.rect.topleft,
+            size=(self.rect.width, self.rect.height)
+        )
         self.card_gui.image = self.card_gui.annotated_image
 
     def draw(self, screen):

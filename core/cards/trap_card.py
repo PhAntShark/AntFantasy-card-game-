@@ -9,7 +9,8 @@ class TrapCard(Card):
                  description: str,
                  owner: Player,
                  ability: str,
-                 is_face_down: bool = True,
+                 value: int | None,
+                 duration: int | None,
                  image_path: str | None = None,
                  **kwargs: Any
                  ):
@@ -20,10 +21,13 @@ class TrapCard(Card):
             ability=ability,
             owner=owner,
             is_placed=True,  # Traps are placed on field
+            is_face_down=False,
             **kwargs
         )
-        self.is_face_down = is_face_down
+        self.value = value
+        self.duration = duration
         self.image_path = image_path
+        self.is_trigger = False
 
     def __str__(self):
         return f"Trap: {self.name} - {self.description} (Ability: {self.ability})"
@@ -39,3 +43,4 @@ class TrapCard(Card):
     def reveal(self):
         """Reveal the trap (flip face-up)"""
         self.is_face_down = False
+        self.is_trigger = True
