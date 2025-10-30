@@ -14,14 +14,7 @@ class TurnManager:
     def get_next_player_index(self):
         return (self.current_player_index + 1) % len(self.game_state.players)
 
-    def start_turn(self):
-        print(
-            f"Turn {self.turn_count}  Start: Player{
-                self.get_current_player().player_index}"
-        )
-
     def end_turn(self):
-        print(f" Player {self.get_current_player().player_index} Turn Ends ")
         self.game_state.player_info[self.get_current_player(
         )]["has_summoned_monster"] = False
         self.game_state.player_info[self.get_current_player(
@@ -31,7 +24,10 @@ class TurnManager:
         self.current_player_index = self.get_next_player_index()
         self.turn_count += 1
         self.effect_tracker.update_round()
-        print(f"current turn {self.turn_count}")
 
     def get_phase_count(self):
         return self.turn_count // len(self.game_state.players)
+
+    def reset(self):
+        self.turn_count = 1
+        self.current_player_index = 0

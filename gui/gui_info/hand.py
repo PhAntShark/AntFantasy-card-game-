@@ -1,11 +1,18 @@
 import pygame
 from gui.gui_info.game_area import GameArea
+from gui.cache import load_image
 
 
 class CollectionInfo:
     def __init__(self, cards, player):
         self.cards = cards
         self.player = player
+
+    def __len__(self):
+        return len(self.cards)
+
+    def __iter__(self):
+        return iter(self.cards)
 
     def add(self, card):
         self.cards.append(card)
@@ -19,18 +26,28 @@ class HandUI(GameArea):
         super().__init__(*args, **kwargs)
         self.hand_info = hand_info
         self.player = player
+        self.last_count = len(self.hand_info.cards)
 
         image_path = "assets/deck.png"
-        self.image = pygame.image.load(image_path).convert_alpha()
+        self.image = load_image(image_path).convert_alpha()
         self.image = pygame.transform.scale(self.image, self.rect.size)
 
     def draw(self, screen):
         screen.blit(self.image, self.rect)
 
-    # TODO: this might not be the best choice
-    def align(self, sprites):
-        for index, card_info in enumerate(self.hand_info.cards):
-            card = sprites.get(card_info, None)
-            if card:
-                card.rect.topleft = (self.rect.x + index *
-                                     card.rect.w, self.rect.y)
+    def align(self, sprites, check=False):
+        # Skip if no card count change
+        if check and len(self.hand_info.cards) == self.last_count:
+            return
+
+        for idx, card_info in enumerate(self.hand_info.cards):
+            sprite = sprites.get(card_info.id)
+            if not sprite:
+                continue
+
+            sprite.rect.topleft = (
+                self.rect.x + idx * sprite.rect.w,
+                self.rect.y
+            )
+
+        self.last_count = len(self.hand_info.cards)

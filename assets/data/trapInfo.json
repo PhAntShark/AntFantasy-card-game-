@@ -1,10 +1,12 @@
 [
   {
     "name": "Crippling Curse",
-    "description": "When an opponent's monster attacks, reduce its ATK by 300 points.",
+    "description": "When an opponent's monster attacks, reduce its ATK by 500 points.",
     "ctype": "trap",
     "ability": "debuff_enemy_atk",
-    "texture": "/images/trap/debuff_atk.png"
+    "texture": "/images/trap/debuff_atk.png",
+    "value": 500,
+    "duration": 5
 
   },
   {
@@ -12,7 +14,9 @@
     "description": "When an opponent's monster attacks, reduce its DEF by 300 points.",
     "ctype": "trap",
     "ability": "debuff_enemy_def",
-    "texture": "/images/trap/debuff_def.png"
+    "texture": "/images/trap/debuff_def.png",
+    "value": 500,
+    "duration": 5
   },
   {
     "name": "Phantom Dodge",
@@ -33,6 +37,9 @@
     "description": "When an opponent summons a monster, it loses 500 ATK and DEF.",
     "ctype": "trap",
     "ability": "debuff_summon",
-    "texture": "/images/trap/debuff_summon.png"  
+    "texture": "/images/trap/debuff_summon.png",
+    "value": 500,
+    "duration": 5
   }
 ]
+

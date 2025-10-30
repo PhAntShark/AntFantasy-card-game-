@@ -8,7 +8,12 @@ class Player:
         self.player_index = player_index
         self.name = name
         self.life_points = life_points
+        self.original_life_points = life_points
+        self.max_life_points = life_points
         self.is_opponent = is_opponent
+
+    def reset(self):
+        self.life_points = self.original_life_points
 
     def __str__(self):
         return f"Name: {self.name} \

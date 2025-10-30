@@ -1,10 +1,10 @@
-import pygame
+from gui.cache import get_font
 
 
 class CardStatOverlay:
     def __init__(self, card_gui, font_size=20):
         self._card = card_gui
-        self.font = pygame.font.Font(None, font_size)
+        self.font = get_font(font_size)
 
     def __getattr__(self, name):
         """

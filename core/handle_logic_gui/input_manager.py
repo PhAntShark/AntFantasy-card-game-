@@ -1,5 +1,6 @@
 import pygame
 from gui.arrow import DragArrow
+from core.cards.monster_card import MonsterCard
 
 
 class InputManager:
@@ -36,8 +37,10 @@ class InputManager:
         # Check hands from top-most first
         for hand in reversed(self.matrix.hands):
             for card_info in hand.hand_info.cards:
-                card = self.render_engine.sprites["hand"][card_info]
-                if card.rect.collidepoint(pos) and card.is_draggable:
+                card = self.render_engine.sprites["hand"][card_info.id]
+                if card.rect.collidepoint(pos) \
+                        and card.is_draggable \
+                        and not card.logic_card.owner.is_opponent:
                     self.dragging_card = card
                     card.on_drag_start()
                     return  # stop after first draggable card is
@@ -50,7 +53,7 @@ class InputManager:
                 for card_info in row:
                     if not card_info:
                         continue
-                    card = self.render_engine.sprites["matrix"][card_info]
+                    card = self.render_engine.sprites["matrix"][card_info.id]
                     if not card.rect.collidepoint(pos):
                         continue
                     if card_info.owner != self.drag_arrow.targets[0].owner:
@@ -63,18 +66,24 @@ class InputManager:
                             self.drag_arrow.targets[1],
                         )
                         break
-                    else:
+                    if card_info.owner == self.drag_arrow.targets[0].owner:
                         self.drag_arrow.end_pos = card.rect.center
                         self.drag_arrow.targets[1] = card_info
-                        self.game_engine.upgrade_monster(
-                            self.game_engine.turn_manager.get_current_player(),
-                            self.drag_arrow.targets[0],
-                            self.drag_arrow.targets[1],
-                        )
 
+                        # Use logic_card to check type
+                        if isinstance(card.logic_card, MonsterCard):
+                            self.game_engine.upgrade_monster(
+                                self.game_engine.turn_manager.get_current_player(),
+                                # attacking/dragging monster
+                                self.drag_arrow.targets[0],
+                                # target monster to merge with
+                                self.drag_arrow.targets[1],
+                            )
+                            break   # stop after successful merge
             # Checking for player hitbox
-            self._handle_arrow_drop_player_hitbox(pos)
-            self.drag_arrow = None
+            if self.drag_arrow:
+                self._handle_arrow_drop_player_hitbox(pos)
+                self.drag_arrow = None
 
     def _handle_arrow_drop_player_hitbox(self, pos):
         current_player_index = self.game_engine.turn_manager.current_player_index
@@ -100,12 +109,13 @@ class InputManager:
             for card_info in row:
                 if not card_info:
                     continue
-                card = self.render_engine.sprites["matrix"][card_info]
+                card = self.render_engine.sprites["matrix"][card_info.id]
                 if (
                     card.rect.collidepoint(pos)
                     and card_info.ctype == "monster"
                     and card_info.mode == "attack"
                     and card_info.owner == self.game_engine.turn_manager.get_current_player()
+                    and not card_info.owner.is_opponent
                 ):
                     self.drag_arrow = DragArrow()
                     self.drag_arrow.targets[0] = card_info
@@ -120,7 +130,7 @@ class InputManager:
             for card_info in row:
                 if not card_info:
                     continue
-                card = self.render_engine.sprites["matrix"][card_info]
+                card = self.render_engine.sprites["matrix"][card_info.id]
                 if card.rect.collidepoint(pos):
                     # Only call on_toggle when the sprite implements it.
                     # MonsterCardGUI implements on_toggle; generic CardGUI does not.

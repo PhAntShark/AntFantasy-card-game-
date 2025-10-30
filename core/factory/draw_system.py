@@ -1,18 +1,22 @@
 import random
+import logging
 from core.factory.monster_factory import MonsterFactory
 from core.factory.spell_factory import SpellFactory
 from core.factory.trap_factory import TrapFactory
 
+logger = logging.getLogger(__name__)
+
 
 class DrawSystem:
     def __init__(self):
-        # Overall chance to draw each card type (total weight doesn't have to be 100)
+        # Weighted probabilities for each card category
         self.generic_draw = {
-            'monster': 60,  # 60% chance roughly
-            'spell': 25,    # 25%
-            'trap': 15      # 15%
+            'monster': 50,
+            'spell': 20,
+            'trap': 20
         }
 
+        # Initialize factories
         self.monster_factory = MonsterFactory()
         self.monster_factory.build()
         self.spell_factory = SpellFactory()
@@ -20,108 +24,135 @@ class DrawSystem:
         self.trap_factory = TrapFactory()
         self.trap_factory.build()
 
-        # Probabilities for specific cards within each type
+        # Weighted tables for specific cards (or monster levels)
         self.draw_table = {
             "monster": {
                 1: 99,  # Level 1 monsters are common
-                2: 1
+                2: 1,
+                3: 0.001  # tiny but not zero
             },
             "spell": {
-                "Mystical Space Typhoon": 15,
-                "Call of the Brave": 20,
-                "Maniac War": 20,
+                "Mystical Space Typhoon": 10,
+                "Call of the Brave": 15,
+                "Maniac War": 25,
                 "Aura Shield": 25,
-                "Reinforcement": 20
+                "Reinforcement": 25
             },
             "trap": {
-                "Shattered Guard": 20,
-                "Crippling Curse": 20,
-                "Phantom Dodge": 25,
-                "Mirror Strike": 20,
-                "Weaken Summon": 15
+                "Shattered Guard": 25,
+                "Crippling Curse": 25,
+                "Phantom Dodge": 20,
+                "Mirror Strike": 5,
+                "Weaken Summon": 10
             }
         }
 
+    # -------------------------------
+    # Utility: Weighted random choice
+    # -------------------------------
+    def rate(self, table: dict):
+        """
+        Weighted random choice from a dictionary {key: weight}.
+        Uses total weight normalization. Falls back to uniform random
+        if weights are invalid or zero.
+        """
+        if not table:
+            raise ValueError("Empty table passed to rate().")
 
-    def rate(self, table):
-        # Allow tables whose weights don't sum to 100. Use total weight and
-        # pick a random value in [0, total) so any positive weights work.
-        items = list(table.items())
-        total = 0
-        for _, w in items:
-            try:
-                total += float(w)
-            except Exception:
-                total += 0
+        keys, weights = zip(*table.items())
+        try:
+            weights = [float(w) if float(w) > 0 else 0 for w in weights]
+        except Exception as e:
+            logger.warning(f"Invalid weights in table: {e}")
+            weights = [1] * len(keys)
 
+        total = sum(weights)
         if total <= 0:
-            # fallback: uniform random choice of keys
-            return random.choice([k for k, _ in items])
+            logger.warning(
+                "All weights are zero or invalid, falling back to uniform choice.")
+            return random.choice(keys)
 
-        r = random.uniform(0, total)
-        cumulative = 0.0
-        for k, w in items:
-            try:
-                cumulative += float(w)
-            except Exception:
-                continue
-            if r <= cumulative:
-                return k
-        # Fallback to last key
-        return items[-1][0]
+        return random.choices(keys, weights=weights, k=1)[0]
 
+    # -------------------------------
+    # Core: Draw a single card
+    # -------------------------------
     def rate_card_draw(self, player):
         card_type = self.rate(self.generic_draw)
-        k = self.rate(self.draw_table[card_type])
+        card_key = self.rate(self.draw_table[card_type])
         card = None
-        if card_type == 'monster':
-            monster_type = random.choice(
-                ["Scholar", "Conqueror", "Forest Monster", "Demon", "Forest Guard"])
-            card = self.monster_factory.load_by_type_and_level(
-                player, monster_type, k)
-            if not card:
-                card_gay = random.choice(
-                    list(self.monster_factory.get_cards().keys()))
-                card = self.monster_factory.load(player, card_gay)
-        elif card_type == "spell":
-            card = self.spell_factory.load(player, k)
-        elif card_type == "trap":
-            card = self.trap_factory.load(player, k)
+
+        try:
+            if card_type == 'monster':
+                monster_type = random.choice(
+                    ["Scholar", "Conqueror", "Forest Monster",
+                        "Demon", "Forest Guard"]
+                )
+                card = self.monster_factory.load_by_type_and_level(
+                    player, monster_type, card_key)
+                if not card:
+                    logger.warning(f"Missing monster L{card_key} for {
+                                   monster_type}, using fallback.")
+                    fallback_key = random.choice(
+                        list(self.monster_factory.get_cards().keys()))
+                    card = self.monster_factory.load(player, fallback_key)
+
+            elif card_type == 'spell':
+                card = self.spell_factory.load(player, card_key)
+
+            elif card_type == 'trap':
+                card = self.trap_factory.load(player, card_key)
+
+        except Exception as e:
+            logger.exception(f"Error drawing {card_type} ({card_key}): {e}")
+
         if not card:
-            print(card_type, k)
+            logger.error(f"Failed to load {card_type} '{
+                         card_key}' even after fallback.")
         return card
 
-    #debug function find card missing
+    # -------------------------------
+    # Debug / diagnostic
+    # -------------------------------
     def check_draw_issues(self, player, attempts=1000):
         """
-        Try drawing cards repeatedly and report any failures.
+        Perform multiple draws to detect any cards that fail to load.
         """
         failures = []
         for _ in range(attempts):
             card_type = self.rate(self.generic_draw)
             card_key = self.rate(self.draw_table[card_type])
+
             card = None
-            if card_type == 'monster':
-                monster_type = random.choice(
-                    ["Scholar", "Conqueror", "Forest Monster", "Demon", "Forest Guard"])
-                card = self.monster_factory.load_by_type_and_level(player, monster_type, card_key)
-                if not card:
-                    # fallback
-                    for fallback_key in self.monster_factory.get_cards().keys():
-                        card = self.monster_factory.load(player, fallback_key)
-                        if card:
-                            break
-            elif card_type == "spell":
-                card = self.spell_factory.load(player, card_key)
-            elif card_type == "trap":
-                card = self.trap_factory.load(player, card_key)
+            try:
+                if card_type == 'monster':
+                    monster_type = random.choice(
+                        ["Scholar", "Conqueror", "Forest Monster",
+                            "Demon", "Forest Guard"]
+                    )
+                    card = self.monster_factory.load_by_type_and_level(
+                        player, monster_type, card_key)
+                    if not card:
+                        for fallback_key in self.monster_factory.get_cards().keys():
+                            card = self.monster_factory.load(
+                                player, fallback_key)
+                            if card:
+                                break
+                elif card_type == "spell":
+                    card = self.spell_factory.load(player, card_key)
+                elif card_type == "trap":
+                    card = self.trap_factory.load(player, card_key)
+
+            except Exception as e:
+                logger.exception(f"Exception while drawing {
+                                 card_type} ({card_key}): {e}")
 
             if not card:
                 failures.append((card_type, card_key))
 
         if failures:
-            print(f"Found {len(failures)} problematic draws:")
+            logger.warning(f"Found {len(failures)} problematic draws:")
             for f in failures:
-                print(f" - Failed to draw {f[0]} card with key '{f[1]}'")
+                logger.warning(f" - Failed to draw {f[0]} card '{f[1]}'")
         else:
-            print("No draw issues found after", attempts, "attempts.")
+            logger.info(f"No draw issues found after {attempts} attempts.")

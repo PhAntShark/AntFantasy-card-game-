@@ -1,1 +1,5 @@
 pygame
+numpy
+pytest
+python-dotenv 
+dotenv

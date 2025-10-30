@@ -9,6 +9,8 @@ class SpellCard(Card):
                  description: str,
                  owner: Player,
                  ability: str,
+                 value: int | None,
+                 duration: int | None,
                  image_path: str | None = None,
                  **kwargs: Any
                  ):
@@ -21,6 +23,8 @@ class SpellCard(Card):
             is_placed=False,  # Spells are not placed on field
             **kwargs
         )
+        self.value = value
+        self.duration = duration
         self.image_path = image_path
 
     def __str__(self):

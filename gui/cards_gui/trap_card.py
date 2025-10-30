@@ -21,7 +21,3 @@ class TrapCardGUI(CardGUI):
 
         self.is_selected = False
 
-    def on_trigger(self, game_engine):
-        self.is_face_down = False
-        game_engine.resolve_trap(self.logic_card)
-        self.kill()

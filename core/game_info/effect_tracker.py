@@ -33,7 +33,7 @@ class EffectTracker:
                    target: MonsterCard,
                    stat: str,
                    value: int,
-                   duration: int = 3):
+                   duration: int):
         """Add a new timed effect and apply it immediately"""
         effect = Effect(
             effect_type=effect_type,

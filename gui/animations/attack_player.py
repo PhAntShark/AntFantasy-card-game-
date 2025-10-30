@@ -1,5 +1,6 @@
 from .animation import Animation
 from gui.effects.manager import EffectManager
+from gui.audio_manager import AudioManager
 import pygame
 import math
 
@@ -62,8 +63,7 @@ class AttackPlayerAnimation(Animation):
             if not self.impact_done:
                 EffectManager.spawn("hit_player", self.game_area)
                 EffectManager.spawn("slam", self.end_pos)
-                pygame.mixer.music.load("assets/sounds/player-hurt.mp3")
-                pygame.mixer.music.play()
+                AudioManager.play_sound("assets/sounds/player-hurt.mp3")
 
                 # Squash/stretch impact
                 self.card.image = pygame.transform.scale(

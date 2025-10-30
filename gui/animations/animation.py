@@ -7,7 +7,10 @@ class Animation:
 
     def update(self, dt):
         self.elapsed += dt
-        t = min(self.elapsed / self.duration, 1.0)
+        if self.duration <= 0:
+            t = 1.0
+        else:
+            t = min(self.elapsed / self.duration, 1.0)
         self._apply(t)
         if t >= 1.0:
             self.is_finished = True
